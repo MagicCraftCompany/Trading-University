@@ -23,7 +23,7 @@ const PopularCourses = () => {
 
   const mainCourse = {
     name: "Cryptocurrency Master Course",
-    description: "A beginner's guide to achieving profitable success in crypto trading through technical analysis and smart strategies",
+    description: "A beginner&apos;s guide to achieving profitable success in crypto trading through technical analysis and smart strategies",
     fullDescription: `Our beginner-friendly course, "Crypto Trading Success," is designed to guide you through the fundamentals of cryptocurrency trading, helping you develop the skills needed to navigate the dynamic and lucrative world of digital assets. Whether you're looking to start trading Bitcoin, Ethereum, or explore other altcoins, this course provides the essential knowledge to build a strong foundation.
 
 The course is led by James Crypto Guru, a renowned crypto influencer with over 20 years of experience in both trading and investing. With his expert guidance, you'll learn the key strategies that successful traders use to make informed decisions and maximize their profitability. From technical and fundamental analysis to understanding risk management, James covers it all in an easy-to-follow, engaging way.
@@ -70,7 +70,7 @@ Throughout the course, you'll gain practical knowledge that you can apply right 
               className="bg-white rounded-2xl shadow-lg overflow-hidden"
             >
               <div className="p-8">
-                <h3 className="text-2xl font-semibold mb-4">What You'll Learn</h3>
+                <h3 className="text-2xl font-semibold mb-4">What You&apos;ll Learn</h3>
                 <ul className="space-y-3 text-gray-600">
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#D4A64E] rounded-full mr-3"></span>

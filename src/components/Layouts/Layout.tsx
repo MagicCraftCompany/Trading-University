@@ -5,7 +5,7 @@ import Footer from "../Footer/Footer";
 import { LayoutStyles } from "@/styles/LayoutStyles/Layout";
 import { useAppSelector } from "@/redux/hook";
 import { RootState } from "@/redux/store";
-import { Payment } from "@/components/Payments/Payments";
+
 
 export interface ILayout {
   children: ReactNode;
@@ -21,7 +21,7 @@ const Layout: FunctionComponent<ILayout> = ({ children }) => {
         {children}    
       </main>
       <Footer />
-      {showPaymentModal && <Payment isFreeTrial={false} />}
+     
     </LayoutStyles>
   );
 };

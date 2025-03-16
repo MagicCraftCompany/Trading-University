@@ -1,25 +1,30 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
 
-// Map of video IDs to their Vimeo IDs - moved from frontend
-const videoMap: Record<number, string> = {
-  1: "1049228759",
-  2: "1049420658",
-  3: "1049422137",
-  4: "1049425449",
-  5: "1049430208",
-  6: "1050534522",
-  7: "1050539920",
-  8: "1050673812",
-  9: "1050680144",
-  10: "1050681821",
-  11: "1050686017",
-  12: "1050693214",
-  13: "1050695189",
-  14: "1050698497",
-  15: "1050699005",
-  16: "1050698136",
-  17: "1066197190"
+interface VimeoVideoData {
+  id: string;
+  hash: string;
+}
+
+// Map of video IDs to their Vimeo data
+const videoMap: Record<number, VimeoVideoData> = {
+  1: { id: "1049228759", hash: "c837653e33" },
+  2: { id: "1049420658", hash: "b976a2c1a0" },
+  3: { id: "1049422137", hash: "1a82bb8e5d" },
+  4: { id: "1049425449", hash: "ced0db690d" },
+  5: { id: "1049430208", hash: "f84978cf84" },
+  6: { id: "1050534522", hash: "7b4a3293cb" },
+  7: { id: "1050539920", hash: "a5d4efab0e" },
+  8: { id: "1050673812", hash: "86771e40bb" },
+  9: { id: "1050680144", hash: "a4d30cb92c" },
+  10: { id: "1050681821", hash: "c02afb5287" },
+  11: { id: "1050686017", hash: "6d96e223d2" },
+  12: { id: "1050693214", hash: "4f8f525142" },
+  13: { id: "1050695189", hash: "b86614c24f" },
+  14: { id: "1050698497", hash: "3a77a56ea9" },
+  15: { id: "1050699005", hash: "d804a0ee54" },
+  16: { id: "1050698136", hash: "f51d4b3cd0" },
+  17: { id: "1066197190", hash: "e76d47b4eb" }
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -43,33 +48,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const numericVideoId = parseInt(videoId);
-    const vimeoId = videoMap[numericVideoId];
+    const videoData = videoMap[numericVideoId];
 
-    if (!vimeoId) {
+    if (!videoData) {
       return res.status(404).json({ error: 'Video not found' });
     }
 
-    // Generate a temporary token or signature if needed
-    const timestamp = Date.now();
-    const expiresIn = 3600; // URL expires in 1 hour
-
-    // Construct the secure video URL with expiration
-    const secureUrl = `https://player.vimeo.com/video/${vimeoId}?h=${generateSecureHash(vimeoId, timestamp, expiresIn)}`;
+    // Construct the video URL with Vimeo's hash
+    const videoUrl = `https://player.vimeo.com/video/${videoData.id}?h=${videoData.hash}`;
 
     return res.status(200).json({ 
-      url: secureUrl,
-      expires: timestamp + (expiresIn * 1000)
+      url: videoUrl,
+      expires: Date.now() + (3600 * 1000) // Still include expiry for client-side handling
     });
 
   } catch (error) {
     console.error('Error fetching video URL:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
-}
-
-// Helper function to generate a secure hash (implement based on your security requirements)
-function generateSecureHash(videoId: string, timestamp: number, expiresIn: number): string {
-  // Implement your secure hash generation logic here
-  // This should use environment variables and proper cryptographic methods
-  return 'secure_hash_here';
 } 

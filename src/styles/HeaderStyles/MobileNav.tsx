@@ -12,7 +12,7 @@ export const MobileNavStyles = styled(motion.div).attrs(() => ({
   top: 0;
   left: 0;
   width: 100%;
-  height: 90vh;
+ 
   display: grid;
   z-index : 10;
   grid-template-columns: 40% 60%;

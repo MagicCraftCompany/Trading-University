@@ -42,6 +42,7 @@ import {
   SetStateAction,
   useEffect,
   useState,
+  useMemo,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
@@ -67,7 +68,6 @@ import {
 import ReactPlayer from "react-player";
 import { ErrorMsg } from "@/components/Coursepage/Error";
 import { PageErrorStyles } from "@/styles/HomepageStyles/Error";
-import { Loader, Payment } from "@/components/Payments/Payments";
 import { TransparentFormBtnStyles } from "@/styles/ButtonStyles/ButtonGroup";
 import { IQuizQuestion, courseQuizzes } from "@/Constant/constant";
 
@@ -184,27 +184,10 @@ export const CourseDetailComp = () => {
                      
                         disabled={userCourse?.isPaid}
                       >
-                        {/* {userCourse?.isPaid ? (
-                          <>Subscribed</>
-                        ) : (
-                          <>Subscribe Now</>
-                        )} */}
+                       
                          Learn and Grow
                       </FormBtnStyles>
-                      {!userCourse?.isPaid && (
-                        <>
-                          <TransparentFormBtnStyles
-                            onClick={() => handleClickTryFree(true)}
-                            disabled={userCourse?.isFree}
-                          >
-                            {userCourse?.isFree ? (
-                              <>Enrolled in Free Trial!</>
-                            ) : (
-                              <> </>
-                            )}
-                          </TransparentFormBtnStyles>
-                        </>
-                      )}
+                      
                     </div>
                   </div>
                 </div>
@@ -300,7 +283,7 @@ export const CourseDetailComp = () => {
                       <DetailSmallStyles color="var(--grey-400, #747474)">
                         {course.desc}
                       </DetailSmallStyles>
-                      <DetailHeadStyles>Skills you'll learn</DetailHeadStyles>
+                      <DetailHeadStyles>Skills you&apos;ll learn</DetailHeadStyles>
                       <ListComp list={course.skills} />
                     </Drawer>
                     <Drawer sometext="Syllabus" defaultOpen={false}>
@@ -360,8 +343,7 @@ export const CourseDetailComp = () => {
         </PageErrorStyles>
       )}
       <AnimatePresence>
-        {showPaymentModal && <Payment isFreeTrial={false} />}
-        {showTryFreeModal && <Payment isFreeTrial={true} />}
+        
       </AnimatePresence>
     </>
   );
@@ -573,7 +555,7 @@ export const Overview: FunctionComponent<IOverview> = ({ about, skills }) => {
           </div>
         </div>
         <div className="one">
-          <DetailHeadStyles>Skills you'll learn</DetailHeadStyles>
+          <DetailHeadStyles>Skills you&apos;ll learn</DetailHeadStyles>
           <ul className="skills">
             {skills.map((ele, index) => (
               <div className="li" key={index}>
@@ -774,7 +756,9 @@ export const Quiz: React.FC = () => {
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
 
-  const quizQuestions: IQuizQuestion[] = course && course.id && courseQuizzes[course.id] ? courseQuizzes[course.id] : [];
+  const quizQuestions = useMemo(() => {
+    return course && course.id && courseQuizzes[course.id] ? courseQuizzes[course.id] : [];
+  }, [course]);
 
   useEffect(() => {
     if (quizQuestions) {

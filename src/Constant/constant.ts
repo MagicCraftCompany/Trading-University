@@ -5,8 +5,8 @@ import { ICourse } from "@/components/CourseCard/CourseCard";
 import { IReason } from "@/components/HomepageComp/Chooseus";
 import { IFaq } from "@/components/HomepageComp/Faq";
 import { ITestimony } from "@/components/HomepageComp/Testimonials";
-import { IPlan } from "@/components/Payments/Payments";
-import { getIntroVideo, iframeData } from "@/components/iFRame";
+
+import { getIntroVideo } from "@/components/iFRame";
 
 export interface IQuizQuestion {
   question: string;
@@ -3147,7 +3147,7 @@ export interface IEnrolledCourse {
   courseId: number;
   isFree: boolean;
   isPaid: boolean;
-  plan : IPlan;
+  
 }
 export interface IUser {
   name: string;

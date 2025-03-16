@@ -11,43 +11,64 @@ import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import EmojiPicker from 'emoji-picker-react'
 
+// Add Message interface definition
+interface Message {
+  id: string;
+  content: string;
+  user: {
+    name: string;
+    email: string;
+    image: string;
+  };
+  createdAt: string;
+}
+
+// Add utility functions for date handling
+const formatMessageDate = (date: Date): string => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) {
+    return 'Today';
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return 'Yesterday';
+  } else {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+};
+
+const groupMessagesByDate = (messages: Message[]) => {
+  const groups: { [key: string]: Message[] } = {};
+  
+  messages.forEach(message => {
+    const date = new Date(message.createdAt);
+    const dateKey = date.toDateString();
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(message);
+  });
+
+  return Object.entries(groups).map(([date, messages]) => ({
+    date: new Date(date),
+    messages
+  }));
+};
+
 // Dynamically import EmojiPicker with no SSR
 const EmojiPickerDynamic = dynamic(() => import('emoji-picker-react'), {
   ssr: false,
   loading: () => null
 })
 
-let socket: any;
-
-interface Message {
-  id: string
-  content: string
-  user: {
-    name: string
-    email: string
-    image: string
-  }
-  createdAt: string
-}
-
-const initSocket = () => {
-  const socketInstance = io(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000', {
-    path: '/socket.io/',
-    addTrailingSlash: false,
-    transports: ['websocket', 'polling'],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-  });
-
-  socketInstance.on('connect_error', (error: Error) => {
-    console.error('Socket connection error:', error);
-  });
-
-  return socketInstance;
-};
-
 const ChatRoom: React.FC = () => {
+  const socketRef = useRef<any>(null);  // Add this ref to store socket instance
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
@@ -63,17 +84,25 @@ const ChatRoom: React.FC = () => {
       return
     }
 
-    if (!socket && user) {
+    // Initialize socket only if it doesn't exist and user is present
+    if (!socketRef.current && user) {
       try {
-        socket = initSocket()
-        
-        socket.on('connect', () => {
+        socketRef.current = io(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000', {
+          path: '/socket.io/',
+          addTrailingSlash: false,
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+        });
+
+        socketRef.current.on('connect', () => {
           console.log('Connected to Socket.IO server')
           setIsConnected(true)
           setError(null)
           
           // Join the chat with user data
-          socket.emit('join', {
+          socketRef.current.emit('join', {
             id: user.id,
             fullName: user.fullName,
             email: user.emailAddresses[0].emailAddress,
@@ -81,26 +110,26 @@ const ChatRoom: React.FC = () => {
           })
         })
 
-        socket.on('connect_error', (error: Error) => {
+        socketRef.current.on('connect_error', (error: Error) => {
           console.error('Socket connection error:', error)
           setIsConnected(false)
           setError('Connection error. Please try again.')
         })
 
-        socket.on('disconnect', () => {
+        socketRef.current.on('disconnect', () => {
           console.log('Disconnected from Socket.IO server')
           setIsConnected(false)
           setError('Disconnected from chat. Attempting to reconnect...')
         })
         
-        socket.on('previous-messages', (previousMessages: Message[]) => {
+        socketRef.current.on('previous-messages', (previousMessages: Message[]) => {
           console.log('Received previous messages:', previousMessages)
           if (Array.isArray(previousMessages)) {
             setMessages(previousMessages)
           }
         })
 
-        socket.on('message', (message: Message) => {
+        socketRef.current.on('message', (message: Message) => {
           console.log('Received new message:', message)
           setMessages((prevMessages) => [...prevMessages, message])
         })
@@ -110,22 +139,27 @@ const ChatRoom: React.FC = () => {
       }
     }
 
+    // Cleanup function
     return () => {
-      if (socket) {
-        socket.disconnect()
+      if (socketRef.current) {
+        socketRef.current.removeAllListeners()
+        socketRef.current.disconnect()
+        socketRef.current = null
+        setIsConnected(false)
+        setMessages([])
       }
     }
-  }, [user, isLoaded])
+  }, [user, isLoaded, router])
 
   const sendMessage = () => {
-    if (input.trim() && user && isConnected) {
+    if (input.trim() && user && isConnected && socketRef.current) {
       try {
         const messageData = {
           text: input.trim(),
           userId: user.id,
         }
         console.log('Sending message:', messageData)
-        socket.emit('message', messageData)
+        socketRef.current.emit('message', messageData)
         setInput('')
       } catch (error) {
         console.error('Error sending message:', error)
@@ -195,32 +229,41 @@ const ChatRoom: React.FC = () => {
                 No messages yet. Start the conversation!
               </div>
             ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.user.email === user.emailAddresses[0].emailAddress ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] px-3 py-2 rounded-lg ${
-                      msg.user.email === user.emailAddresses[0].emailAddress
-                        ? 'bg-[#D4A64E] text-black'
-                        : 'bg-white text-black'
-                    }`}
-                  >
-                    {msg.user.email !== user.emailAddresses[0].emailAddress && (
-                      <div className="flex items-center space-x-2 mb-1">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={msg.user.image} alt={msg.user.name || ''} />
-                          <AvatarFallback>{msg.user.name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
-                        </Avatar>
-                        <p className="text-xs font-semibold">{msg.user.name}</p>
-                      </div>
-                    )}
-                    <p className="mb-1 break-words">{msg.content}</p>
-                    <p className="text-xs text-gray-500 text-right">
-                      {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+              groupMessagesByDate(messages).map(({ date, messages }) => (
+                <div key={date.toISOString()} className="space-y-4">
+                  <div className="flex justify-center">
+                    <div className="bg-gray-200 text-gray-600 text-xs px-4 py-1 rounded-full">
+                      {formatMessageDate(date)}
+                    </div>
                   </div>
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex ${msg.user.email === user.emailAddresses[0].emailAddress ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[70%] px-3 py-2 rounded-lg ${
+                          msg.user.email === user.emailAddresses[0].emailAddress
+                            ? 'bg-[#D4A64E] text-black'
+                            : 'bg-white text-black'
+                        }`}
+                      >
+                        {msg.user.email !== user.emailAddresses[0].emailAddress && (
+                          <div className="flex items-center space-x-2 mb-1">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={msg.user.image} alt={msg.user.name || ''} />
+                              <AvatarFallback>{msg.user.name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                            </Avatar>
+                            <p className="text-xs font-semibold">{msg.user.name}</p>
+                          </div>
+                        )}
+                        <p className="mb-1 break-words">{msg.content}</p>
+                        <p className="text-xs text-gray-500 text-right">
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))
             )}
