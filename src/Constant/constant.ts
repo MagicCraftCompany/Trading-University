@@ -140,6 +140,604 @@ export const courseQuizzes: { [key: number]: IQuizQuestion[] } = {
       ],
       correctAnswer: 1
     }
+  ],
+  4: [
+    {
+      question: "What is the most important personal responsibility for cryptocurrency security?",
+      options: [
+        "Storing funds on exchanges",
+        "Keeping private keys and seed phrases secure",
+        "Sharing wallet details with trusted friends",
+        "Using public Wi-Fi for transactions"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Why are centralized exchanges compared to banks?",
+      options: [
+        "They allow you to store and trade cryptocurrency",
+        "They guarantee 100% security",
+        "They are controlled by governments",
+        "They provide physical cash withdrawals"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is the main risk of storing funds on an exchange?",
+      options: [
+        "The exchange might charge fees",
+        "The exchange might get hacked or go bankrupt",
+        "You won't be able to access your funds",
+        "The exchange requires identity verification"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What is the best way to store large amounts of cryptocurrency securely?",
+      options: [
+        "On an exchange",
+        "In a mobile wallet",
+        "In a hardware wallet",
+        "In a social media account"
+      ],
+      correctAnswer: 2
+    }
+  ],
+  5: [
+    {
+      question: "What is the first step to safely using Binance?",
+      options: [
+        "Downloading the app from an official source",
+        "Clicking on links from random emails",
+        "Using someone else's account",
+        "Depositing money before registering"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Why is two-factor authentication (2FA) important?",
+      options: [
+        "It makes logging in faster",
+        "It adds an extra layer of security",
+        "It replaces passwords",
+        "It is required for all transactions"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What do blockchain transaction fees depend on?",
+      options: [
+        "The size of your account balance",
+        "The number of transactions in the network",
+        "The price of Bitcoin",
+        "How long you've used Binance"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What is an advantage of cryptocurrency transactions over bank transfers?",
+      options: [
+        "They are always free",
+        "They are faster and operate 24/7",
+        "They can be reversed easily",
+        "They require government approval"
+      ],
+      correctAnswer: 1
+    }
+  ],
+  6: [
+    {
+      question: "What is the main goal of fundamental analysis in cryptocurrency?",
+      options: [
+        "Predicting short-term price changes",
+        "Evaluating the long-term value of a project",
+        "Following influencer opinions",
+        "Copying top traders' moves"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What is a key factor in evaluating a blockchain project?",
+      options: [
+        "Its price movement in the last 24 hours",
+        "Its market capitalization and development activity",
+        "The number of memes created about it",
+        "The number of times it has been listed on Twitter"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What does market capitalization indicate?",
+      options: [
+        "The maximum price a cryptocurrency can reach",
+        "The total value of all coins in circulation",
+        "The number of transactions per second",
+        "The number of exchanges listing the cryptocurrency"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Why is independent research important in crypto investing?",
+      options: [
+        "To find secret investment strategies",
+        "To avoid scams and misleading information",
+        "To get rich quickly",
+        "To predict daily price movements"
+      ],
+      correctAnswer: 1
+    }
+  ],
+  7: [
+    {
+      question: "What is the purpose of technical analysis?",
+      options: [
+        "Understanding market trends based on historical price data",
+        "Predicting future prices with 100% accuracy",
+        "Making trading decisions based on opinions",
+        "Avoiding losses completely"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is TradingView used for?",
+      options: [
+        "Buying and selling cryptocurrencies",
+        "Analyzing market trends using charts",
+        "Holding cryptocurrency funds",
+        "Transferring money"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What does the RSI (Relative Strength Index) indicate?",
+      options: [
+        "The profitability of a coin",
+        "Overbought and oversold conditions",
+        "The number of traders using a platform",
+        "The security level of a blockchain"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What is a common pattern used in technical analysis?",
+      options: [
+        "The \"cup and handle\" pattern",
+        "The \"diamond reversal\" pattern",
+        "The \"hidden treasure\" pattern",
+        "The \"lucky number\" pattern"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  8: [
+    {
+      question: "What is a pump and dump?",
+      options: [
+        "A trading strategy used by professionals",
+        "A coordinated effort to inflate a coin's price artificially before selling off",
+        "A legitimate way to increase crypto prices",
+        "A government-backed trading scheme"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "How can influencers contribute to a pump and dump?",
+      options: [
+        "By providing accurate financial analysis",
+        "By misleading followers into buying certain coins",
+        "By stopping price fluctuations",
+        "By warning people against trading"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What is a key warning sign of a pump?",
+      options: [
+        "A coin has a long history of stable growth",
+        "A sudden spike in price and trading volume with no news",
+        "The coin is listed on a major exchange",
+        "Many traders are short-selling the coin"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "How can traders protect themselves from pumps and dumps?",
+      options: [
+        "Only invest in projects with strong fundamentals",
+        "Buy every coin that influencers recommend",
+        "Follow every new trend without research",
+        "Trade only when there is hype"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  9: [
+    {
+      question: "What is the primary purpose of trendlines in technical analysis?",
+      options: [
+        "To identify key support and resistance levels",
+        "To measure trading volume",
+        "To predict news events",
+        "To find the intrinsic value of a cryptocurrency"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "How can traders use support and resistance levels?",
+      options: [
+        "To determine potential entry and exit points",
+        "To analyze blockchain transactions",
+        "To set up a mining rig",
+        "To calculate inflation rates"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "The \"Head and Shoulders\" pattern typically indicates:",
+      options: [
+        "A continuation of the trend",
+        "A potential reversal in price direction",
+        "A short-term price pump",
+        "An overbought market"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Which of the following is not a type of triangle pattern used in technical analysis?",
+      options: [
+        "Ascending triangle",
+        "Descending triangle",
+        "Circular triangle",
+        "Symmetrical triangle"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Fibonacci retracement levels help traders by:",
+      options: [
+        "Identifying potential reversal points in a trend",
+        "Measuring market sentiment",
+        "Calculating mining profitability",
+        "Determining transaction fees"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Which tool is commonly used for technical analysis on TradingView?",
+      options: [
+        "Google Analytics",
+        "RSI (Relative Strength Index)",
+        "WordPress",
+        "PayPal"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "In technical analysis, a take-profit target is:",
+      options: [
+        "The price level where a trader locks in profits",
+        "The maximum amount of leverage a trader can use",
+        "The fee charged for executing a trade",
+        "The average cost of a trade over time"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  10: [
+    {
+      question: "What is leverage in trading?",
+      options: [
+        "A tool to borrow money for larger trades",
+        "A guaranteed way to make profits",
+        "A way to trade without risk",
+        "A method to store cryptocurrency"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is the main risk of using leverage?",
+      options: [
+        "Earning too much profit too quickly",
+        "Losing your entire investment if the market moves against you",
+        "No risk if you invest wisely",
+        "It slows down transactions"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Why do many beginners fail with leverage trading?",
+      options: [
+        "They invest too little money",
+        "They don't understand liquidation and risk management",
+        "They don't use stop-loss orders",
+        "Leverage trading is only for professional traders"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What is a safer alternative to using high leverage?",
+      options: [
+        "Holding assets long-term (HODLing)",
+        "Betting on meme coins",
+        "Trading only in private groups",
+        "Borrowing money from others to trade"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  11: [
+    {
+      question: "What is the difference between trading and long-term investing?",
+      options: [
+        "Trading focuses on short-term price movements, investing is long-term",
+        "Investing requires daily analysis",
+        "Trading is always safer",
+        "Investing has no risks"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is a stop-loss order?",
+      options: [
+        "A way to limit potential losses in a trade",
+        "A guarantee that prices will go up",
+        "A signal for buying a coin",
+        "A trading fee charged by exchanges"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What does a moving average help traders identify?",
+      options: [
+        "The future price of a cryptocurrency",
+        "Trends in price movement",
+        "When to avoid all trades",
+        "A coin's overall security level"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Which is an example of a trading indicator?",
+      options: [
+        "Fibonacci retracement",
+        "Luck-based signals",
+        "Reddit trends",
+        "Twitter polls"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  12: [
+    {
+      question: "What is the biggest risk of trading with leverage?",
+      options: [
+        "Making profits too quickly",
+        "Losing more money than your initial investment",
+        "Holding a trade for too long",
+        "Buying low and selling high"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Which of the following is a key benefit of using trading indicators?",
+      options: [
+        "They guarantee profitable trades",
+        "They help define entry price, stop-loss, and take-profit levels",
+        "They predict news events",
+        "They make transactions faster"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Why is having a trading plan important?",
+      options: [
+        "To avoid emotional decision-making",
+        "To ensure you never lose money",
+        "To automatically execute trades without monitoring them",
+        "To eliminate risk completely"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is the main difference between limit and market orders?",
+      options: [
+        "Limit orders execute immediately, while market orders wait for the best price",
+        "Limit orders allow traders to set a specific price, while market orders execute at the current market price",
+        "Market orders are only used for leverage trading",
+        "Limit orders require margin, while market orders do not"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "A trader executing a short position expects the price to:",
+      options: [
+        "Increase",
+        "Decrease",
+        "Stay the same",
+        "Double in value"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "What is an important tip for beginners using leverage?",
+      options: [
+        "Use the highest leverage available for bigger gains",
+        "Start with low leverage to minimize risk",
+        "Never use stop-loss orders",
+        "Trade without any technical analysis"
+      ],
+      correctAnswer: 1
+    }
+  ],
+  13: [
+    {
+      question: "What is the first step to start trading on Kraken?",
+      options: [
+        "Create an account and fund it",
+        "Buy Bitcoin from a local ATM",
+        "Mine Ethereum",
+        "Send cryptocurrency to a paper wallet"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Which order type should a beginner use for quick execution at the current price?",
+      options: [
+        "Limit order",
+        "Market order",
+        "Stop-limit order",
+        "Grid trading"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Why is it important to understand order details before executing a trade?",
+      options: [
+        "To avoid buying at the wrong price",
+        "To increase leverage without knowing the risks",
+        "To ensure unlimited profits",
+        "To guarantee a winning trade"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  14: [
+    {
+      question: "What is a key principle of creating a cryptocurrency portfolio?",
+      options: [
+        "Investing all funds into one cryptocurrency",
+        "Diversification to reduce risk",
+        "Only buying meme coins",
+        "Holding all investments in stablecoins"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Why are Bitcoin and Ethereum often considered the foundation of a crypto portfolio?",
+      options: [
+        "They are less volatile than other cryptocurrencies",
+        "They are the only cryptocurrencies that exist",
+        "They are not affected by market trends",
+        "They guarantee high returns"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is the Dollar-Cost Averaging (DCA) strategy?",
+      options: [
+        "Buying a fixed amount of cryptocurrency at regular intervals",
+        "Investing all funds in one trade",
+        "Short-selling cryptocurrencies",
+        "Using only leverage to trade"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is the role of BNB (Binance Coin) in a portfolio?",
+      options: [
+        "It is widely used for trading fee discounts and DeFi projects",
+        "It is a stablecoin",
+        "It guarantees profits",
+        "It can only be used on Ethereum"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  15: [
+    {
+      question: "What is one major risk of using leverage?",
+      options: [
+        "Higher profits without any risk",
+        "Potential for massive losses",
+        "No impact on trading",
+        "Reducing risk to zero"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Why is security important in crypto?",
+      options: [
+        "Hackers often target crypto wallets and exchanges",
+        "Crypto assets are insured like bank deposits",
+        "Private keys can be recovered by customer support",
+        "All exchanges are completely safe"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is a non-diversified portfolio?",
+      options: [
+        "A portfolio with only one asset, increasing risk",
+        "A well-balanced mix of cryptocurrencies",
+        "A portfolio with no Bitcoin or Ethereum",
+        "A portfolio focused only on NFTs"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  16: [
+    {
+      question: "How can you identify a potential pump and dump?",
+      options: [
+        "A sudden price spike without fundamental reasons",
+        "A slow and steady price increase over time",
+        "Government regulation announcements",
+        "Lower trading volume"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Why do social media influencers play a role in pump-and-dump schemes?",
+      options: [
+        "They hype up coins for personal gain",
+        "They provide unbiased financial advice",
+        "They only promote coins with strong fundamentals",
+        "They predict market crashes"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is the \"buy the rumor, sell the news\" strategy?",
+      options: [
+        "Buying based on speculation and selling after the actual event",
+        "Buying after news is announced",
+        "Only investing in new coins",
+        "Ignoring market trends"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  17: [
+    {
+      question: "What is Bybit used for?",
+      options: [
+        "Trading cryptocurrencies with advanced features",
+        "Storing NFTs",
+        "Sending emails",
+        "Mining Bitcoin"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What is a Descending Wedge in technical analysis?",
+      options: [
+        "A bullish pattern indicating potential upward movement",
+        "A bearish pattern signaling price decline",
+        "A neutral market structure",
+        "A type of order execution"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "What should traders always set before entering a trade?",
+      options: [
+        "Stop-loss and take-profit levels",
+        "A random trade without analysis",
+        "The highest leverage available",
+        "No trade parameters"
+      ],
+      correctAnswer: 0
+    }
   ]
 };
 
