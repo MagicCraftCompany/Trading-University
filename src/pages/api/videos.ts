@@ -1,9 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAuth } from '@clerk/nextjs/server';
+import jwt from 'jsonwebtoken';
 
 interface VimeoVideoData {
   id: string;
   hash: string;
+}
+
+// Define JWT payload interface
+interface JwtPayload {
+  userId: string;
+  email: string;
+  subscriptionStatus?: string;
+  iat?: number;
+  exp?: number;
 }
 
 // Map of video IDs to their Vimeo data
@@ -27,21 +36,45 @@ const videoMap: Record<number, VimeoVideoData> = {
   17: { id: "1066197190", hash: "e76d47b4eb" }
 };
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Get the auth session
-    const { userId } = getAuth(req);
+    // Get the auth token from the Authorization header
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN format
     
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized - No token provided' });
+    }
+    
+    // Verify the token
+    let decodedToken: JwtPayload;
+    try {
+      decodedToken = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    } catch (error) {
+      return res.status(401).json({ error: 'Unauthorized - Invalid token' });
+    }
+    
+    // Check if user ID exists in the token
+    if (!decodedToken || !decodedToken.userId) {
+      return res.status(401).json({ error: 'Unauthorized - Invalid token payload' });
     }
 
-    // Get the video ID from query params
-    const { videoId } = req.query;
+    // Check subscription status - only allow ACTIVE subscribers to access videos
+    // Comment this out for testing or if you want to allow all users to access videos
+    /*
+    if (decodedToken.subscriptionStatus !== 'ACTIVE') {
+      return res.status(403).json({ error: 'Subscription required to access videos' });
+    }
+    */
+
+    // Get the video ID and autoplay flag from query params
+    const { videoId, autoplay } = req.query;
     
     if (!videoId || typeof videoId !== 'string') {
       return res.status(400).json({ error: 'Invalid video ID' });
@@ -55,7 +88,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Construct the video URL with Vimeo's hash
-    const videoUrl = `https://player.vimeo.com/video/${videoData.id}?h=${videoData.hash}`;
+    const videoUrl = `https://player.vimeo.com/video/${videoData.id}?h=${videoData.hash}${autoplay === 'true' ? '&autoplay=1' : ''}`;
+
+    // Add CORS headers to allow embedding
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     return res.status(200).json({ 
       url: videoUrl,

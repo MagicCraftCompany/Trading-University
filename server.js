@@ -41,6 +41,11 @@ app.prepare().then(() => {
 
     socket.on('join', async (userData) => {
       console.log('User joined:', JSON.stringify(userData, null, 2));
+      
+      // Store user data in socket for later use
+      socket.userData = userData;
+      
+      // Join the chatroom
       socket.join('chatroom');
       
       try {
@@ -50,14 +55,17 @@ app.prepare().then(() => {
           update: {
             name: userData.fullName,
             email: userData.email,
-            image: userData.imageUrl
+            image: userData.imageUrl,
+            lastLoginAt: new Date()
           },
           create: {
             id: userData.id,
             name: userData.fullName,
             email: userData.email,
             image: userData.imageUrl,
-            plan: 'free' // Set default plan
+            password: '', // Required field in schema
+            authProvider: 'GOOGLE', // Using GOOGLE as default for socket users
+            lastLoginAt: new Date()
           }
         });
         console.log('User upserted:', JSON.stringify(user, null, 2));
@@ -66,7 +74,7 @@ app.prepare().then(() => {
         const messages = await prisma.chatMessage.findMany({
           take: 50,
           orderBy: {
-            createdAt: 'desc'
+            createdAt: 'asc' // Changed to ascending order to show oldest first
           },
           include: {
             user: {
@@ -79,17 +87,31 @@ app.prepare().then(() => {
           }
         });
         
-        const reversedMessages = messages.reverse();
-        console.log('Sending previous messages:', JSON.stringify(reversedMessages, null, 2));
-        socket.emit('previous-messages', reversedMessages);
+        console.log('Sending previous messages:', JSON.stringify(messages, null, 2));
+        socket.emit('previous-messages', messages);
+        
+        // Broadcast to others that a new user has joined
+        socket.to('chatroom').emit('user-joined', {
+          id: userData.id,
+          name: userData.fullName,
+          email: userData.email,
+          image: userData.imageUrl
+        });
       } catch (error) {
         console.error('Error in join handler:', error);
+        socket.emit('error', { message: 'Failed to join chat' });
       }
     });
 
     socket.on('message', async (data) => {
       console.log('Received message data:', JSON.stringify(data, null, 2));
       try {
+        // Validate the message data
+        if (!data.text || !data.userId) {
+          socket.emit('error', { message: 'Invalid message data' });
+          return;
+        }
+        
         const savedMessage = await prisma.chatMessage.create({
           data: {
             content: data.text,
@@ -107,14 +129,24 @@ app.prepare().then(() => {
         });
         
         console.log('Saved and broadcasting message:', JSON.stringify(savedMessage, null, 2));
+        // Broadcast to all clients including sender
         io.to('chatroom').emit('message', savedMessage);
       } catch (error) {
         console.error('Error saving message:', error);
+        socket.emit('error', { message: 'Failed to save message' });
       }
     });
 
     socket.on('disconnect', () => {
       console.log('Client disconnected, socket ID:', socket.id);
+      
+      // If we have user data, notify others that user has left
+      if (socket.userData) {
+        socket.to('chatroom').emit('user-left', {
+          id: socket.userData.id,
+          name: socket.userData.fullName
+        });
+      }
     });
   });
 

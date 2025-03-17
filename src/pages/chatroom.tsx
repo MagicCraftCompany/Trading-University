@@ -1,15 +1,16 @@
 'use client'
 
-import React, { useState, useEffect, useRef, lazy, Suspense } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import io from 'socket.io-client'
 import { Send, Users, Smile } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
-import EmojiPicker from 'emoji-picker-react'
+
+// Create a singleton socket instance
+let socket: any;
 
 // Add Message interface definition
 interface Message {
@@ -62,21 +63,59 @@ const groupMessagesByDate = (messages: Message[]) => {
 };
 
 // Dynamically import EmojiPicker with no SSR
-const EmojiPickerDynamic = dynamic(() => import('emoji-picker-react'), {
+const EmojiPickerDynamic = dynamic(() => Promise.resolve({ default: ({ onEmojiClick }: any) => <div>Emoji Picker</div> }), {
   ssr: false,
   loading: () => null
 })
 
+interface UserData {
+  id: string;
+  name?: string;
+  email: string;
+  image?: string;
+}
+
 const ChatRoom: React.FC = () => {
-  const socketRef = useRef<any>(null);  // Add this ref to store socket instance
+  const socketRef = useRef<any>(null);  // Keep this ref for component-specific reference
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [user, setUser] = useState<UserData | null>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [onlineUsers, setOnlineUsers] = useState<UserData[]>([])
   const chatEndRef = useRef<HTMLDivElement>(null)
-  const { user, isLoaded } = useUser()
   const router = useRouter()
+
+  // Check authentication
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userInfo = localStorage.getItem('user');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    
+    if (userInfo) {
+      try {
+        const userData = JSON.parse(userInfo);
+        setUser({
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          image: userData.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || userData.email)}`
+        });
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+        router.push('/login');
+        return;
+      }
+    }
+    
+    setIsLoaded(true);
+  }, [router]);
 
   useEffect(() => {
     if (isLoaded && !user) {
@@ -84,82 +123,123 @@ const ChatRoom: React.FC = () => {
       return
     }
 
-    // Initialize socket only if it doesn't exist and user is present
-    if (!socketRef.current && user) {
+    // Initialize socket only if user is present
+    if (user) {
       try {
-        socketRef.current = io(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000', {
-          path: '/socket.io/',
-          addTrailingSlash: false,
-          transports: ['websocket', 'polling'],
-          reconnection: true,
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-        });
-
-        socketRef.current.on('connect', () => {
-          console.log('Connected to Socket.IO server')
-          setIsConnected(true)
-          setError(null)
-          
-          // Join the chat with user data
-          socketRef.current.emit('join', {
-            id: user.id,
-            fullName: user.fullName,
-            email: user.emailAddresses[0].emailAddress,
-            imageUrl: user.imageUrl
-          })
-        })
-
-        socketRef.current.on('connect_error', (error: Error) => {
-          console.error('Socket connection error:', error)
-          setIsConnected(false)
-          setError('Connection error. Please try again.')
-        })
-
-        socketRef.current.on('disconnect', () => {
-          console.log('Disconnected from Socket.IO server')
-          setIsConnected(false)
-          setError('Disconnected from chat. Attempting to reconnect...')
-        })
+        // Use existing socket or create a new one
+        if (!socket) {
+          socket = io(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000', {
+            path: '/socket.io/',
+            transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+          });
+        }
         
-        socketRef.current.on('previous-messages', (previousMessages: Message[]) => {
-          console.log('Received previous messages:', previousMessages)
-          if (Array.isArray(previousMessages)) {
-            setMessages(previousMessages)
-          }
-        })
+        socketRef.current = socket;
 
-        socketRef.current.on('message', (message: Message) => {
-          console.log('Received new message:', message)
-          setMessages((prevMessages) => [...prevMessages, message])
-        })
+        // Only set up listeners if they haven't been set up
+        if (!socket._listeners) {
+          socket._listeners = true;
+
+          socket.on('connect', () => {
+            console.log('Connected to Socket.IO server')
+            setIsConnected(true)
+            setError(null)
+            
+            // Join the chat with user data
+            socket.emit('join', {
+              id: user.id,
+              fullName: user.name,
+              email: user.email,
+              imageUrl: user.image
+            })
+          })
+
+          socket.on('connect_error', (error: Error) => {
+            console.error('Socket connection error:', error)
+            setIsConnected(false)
+            setError('Connection error. Please try again.')
+          })
+
+          socket.on('disconnect', () => {
+            console.log('Disconnected from Socket.IO server')
+            setIsConnected(false)
+            setError('Disconnected from chat. Attempting to reconnect...')
+          })
+          
+          socket.on('previous-messages', (previousMessages: Message[]) => {
+            console.log('Received previous messages:', previousMessages)
+            if (Array.isArray(previousMessages)) {
+              setMessages(previousMessages)
+            }
+          })
+
+          socket.on('message', (message: Message) => {
+            console.log('Received new message:', message)
+            setMessages((prevMessages) => [...prevMessages, message])
+          })
+          
+          socket.on('error', (errorData: { message: string }) => {
+            console.error('Socket error:', errorData)
+            setError(errorData.message || 'An error occurred')
+          })
+          
+          socket.on('user-joined', (userData: UserData) => {
+            console.log('User joined:', userData)
+            setOnlineUsers(prev => {
+              // Add user if not already in the list
+              if (!prev.find(u => u.id === userData.id)) {
+                return [...prev, userData]
+              }
+              return prev
+            })
+          })
+          
+          socket.on('user-left', (userData: { id: string, name?: string }) => {
+            console.log('User left:', userData)
+            setOnlineUsers(prev => prev.filter(u => u.id !== userData.id))
+          })
+        } else {
+          // If socket exists and is connected, manually join the room
+          if (socket.connected) {
+            socket.emit('join', {
+              id: user.id,
+              fullName: user.name,
+              email: user.email,
+              imageUrl: user.image
+            })
+          }
+        }
+
+        // Update connection status based on current socket state
+        setIsConnected(socket.connected)
       } catch (error) {
         console.error('Error initializing socket:', error)
         setError('Failed to connect to chat. Please refresh the page.')
       }
     }
 
-    // Cleanup function
+    // Cleanup function - don't disconnect on component unmount
     return () => {
+      // Only remove component-specific listeners
       if (socketRef.current) {
-        socketRef.current.removeAllListeners()
-        socketRef.current.disconnect()
+        // We don't disconnect the socket when navigating away
         socketRef.current = null
-        setIsConnected(false)
-        setMessages([])
       }
     }
   }, [user, isLoaded, router])
 
   const sendMessage = () => {
-    if (input.trim() && user && isConnected && socketRef.current) {
+    if (input.trim() && user && isConnected && socket) {
       try {
         const messageData = {
           text: input.trim(),
           userId: user.id,
         }
         console.log('Sending message:', messageData)
-        socketRef.current.emit('message', messageData)
+        socket.emit('message', messageData)
         setInput('')
       } catch (error) {
         console.error('Error sending message:', error)
@@ -192,21 +272,35 @@ const ChatRoom: React.FC = () => {
       <h2 className="text-xl font-bold mb-4">Community Chat</h2>
       <div className="flex items-center space-x-2 mb-4">
         <Avatar>
-          <AvatarImage src={user.imageUrl} alt={user.fullName || ''} />
-          <AvatarFallback>{user.fullName?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+          <AvatarImage src={user?.image} alt={user?.name || ''} />
+          <AvatarFallback>{user?.name?.[0]?.toUpperCase() || user?.email[0].toUpperCase()}</AvatarFallback>
         </Avatar>
         <div>
-          <p className="font-semibold">{user.fullName}</p>
+          <p className="font-semibold">{user?.name || user?.email}</p>
           <p className="text-sm text-gray-500">
             {isConnected ? 'Online' : 'Connecting...'}
           </p>
         </div>
       </div>
       <div className="flex flex-col space-y-2">
-        <Button variant="outline" className="justify-start">
-          <Users className="mr-2 h-4 w-4" />
-          Online Users
-        </Button>
+        <div className="mb-2">
+          <h3 className="font-medium text-sm text-gray-500 mb-2">ONLINE USERS ({onlineUsers.length + 1})</h3>
+          <div className="space-y-2">
+            {/* Current user */}
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <p className="text-sm">{user?.name || user?.email} (You)</p>
+            </div>
+            
+            {/* Other online users */}
+            {onlineUsers.map(onlineUser => (
+              <div key={onlineUser.id} className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <p className="text-sm">{onlineUser.name || onlineUser.email}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -239,16 +333,16 @@ const ChatRoom: React.FC = () => {
                   {messages.map((msg) => (
                     <div
                       key={msg.id}
-                      className={`flex ${msg.user.email === user.emailAddresses[0].emailAddress ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${msg.user.email === user.email ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
                         className={`max-w-[70%] px-3 py-2 rounded-lg ${
-                          msg.user.email === user.emailAddresses[0].emailAddress
+                          msg.user.email === user.email
                             ? 'bg-[#D4A64E] text-black'
                             : 'bg-white text-black'
                         }`}
                       >
-                        {msg.user.email !== user.emailAddresses[0].emailAddress && (
+                        {msg.user.email !== user.email && (
                           <div className="flex items-center space-x-2 mb-1">
                             <Avatar className="h-6 w-6">
                               <AvatarImage src={msg.user.image} alt={msg.user.name || ''} />
@@ -301,7 +395,7 @@ const ChatRoom: React.FC = () => {
             </div>
             {showEmojiPicker && (
               <div className="absolute bottom-16 right-4 z-50 bg-white rounded-lg shadow-lg">
-                <EmojiPicker onEmojiClick={handleEmojiSelect} />
+                <EmojiPickerDynamic onEmojiClick={handleEmojiSelect} />
               </div>
             )}
           </div>

@@ -1,69 +1,84 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
 
-// Only public routes - everything else requires authentication
-const publicPaths = [
-  "/",
-  "/about",
-  "/contact",
-  "/api/checkout",
-  "/api/webhook",
-  "/login",
-  "/sign-up",
+// Routes that don't require authentication
+const publicRoutes = [
+  '/',
+  '/login',
+  '/register',
+  '/pricing',
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/google',
+  '/api/webhook',
+  '/api/checkout',
 ];
 
-// Protected routes that require authentication
-const protectedPaths = [
-  "/courses",
-  "/profile",
-  "/dashboard",
-  "/chatroom",
-  "/api/chat"
+// Routes that require subscription
+const subscriptionRoutes = [
+  '/courses',
+  '/chatroom',
 ];
 
-function isPublic(path: string) {
-  return publicPaths.some(x => path.startsWith(x)) ||
-    path.includes("/_next/") ||
-    path.includes("/static/");
-}
+const isPublic = (path: string) =>
+  publicRoutes.some(route => path.startsWith(route)) ||
+  path.includes('/_next/') ||
+  path.includes('/static/');
 
-function isProtected(path: string) {
-  return protectedPaths.some(x => path.startsWith(x));
-}
+const requiresSubscription = (path: string) =>
+  subscriptionRoutes.some(route => path.startsWith(route));
 
-export default clerkMiddleware(async (auth, request: NextRequest) => {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-
-  // Check if this is a protected route
-  if (isProtected(path)) {
-    try {
-      await auth.protect();
-      return NextResponse.next();
-    } catch {
-      const loginUrl = new URL('/login', request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
 
   // Allow public routes
   if (isPublic(path)) {
     return NextResponse.next();
   }
 
-  // For any other routes, require authentication
   try {
-    await auth.protect();
-    return NextResponse.next();
-  } catch {
+    // Get token from cookie or header
+    const token = request.cookies.get('token')?.value ||
+      request.headers.get('authorization')?.split(' ')[1];
+
+    if (!token) {
+      throw new Error('No token found');
+    }
+
+    // Verify token
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
+    const { payload } = await jwtVerify(token, secret);
+
+    // Check if route requires subscription
+    if (requiresSubscription(path)) {
+      const subscriptionStatus = payload.subscriptionStatus as string;
+      
+      if (subscriptionStatus !== 'ACTIVE') {
+        // Redirect to pricing page if not subscribed
+        return NextResponse.redirect(new URL('/pricing', request.url));
+      }
+    }
+
+    // Add user info to request headers
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-user-id', payload.userId as string);
+    requestHeaders.set('x-user-email', payload.email as string);
+    requestHeaders.set('x-subscription-status', payload.subscriptionStatus as string);
+
+    return NextResponse.next({
+      headers: requestHeaders,
+    });
+  } catch (error) {
+    // Redirect to login for authentication errors
     const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('from', request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
-});
+}
 
 export const config = {
   matcher: [
-    "/((?!.*\\..*|_next).*)",
-    "/"
-  ]
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
 }; 

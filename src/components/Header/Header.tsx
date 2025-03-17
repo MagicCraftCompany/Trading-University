@@ -4,13 +4,12 @@ import { MobileNavStyles } from "@/styles/HeaderStyles/MobileNav";
 import Link from "next/link";
 import { Logo, Menu } from "../Icons/Icons";
 import Search from "./Search";
-import React, { FunctionComponent, useEffect } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { PageLinkStyle } from "@/styles/LinkStyles/Link";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { closeNav, toggleNav } from "@/redux/dataSlice";
 import { useRouter } from "next/router";
 import { RootState } from "@/redux/store";
-import { UserButton, useUser } from "@clerk/nextjs";
 
 // What is left to do here is
 // 1. Complete the hover/clicked states of the wishlist and notifications
@@ -18,7 +17,21 @@ const Header: FunctionComponent = () => {
   const dispatch = useAppDispatch();
   const { isNavOpen } = useAppSelector((state: RootState) => state.data);
   const router = useRouter();
-  const { isSignedIn, isLoaded, user } = useUser();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
+
+  useEffect(() => {
+    // Check for JWT token in localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+      // Get user info from localStorage if available
+      const userInfo = localStorage.getItem('user');
+      if (userInfo) {
+        setUser(JSON.parse(userInfo));
+      }
+    }
+  }, []);
 
   const toggleMenu = () => {
     dispatch(toggleNav());
@@ -39,6 +52,14 @@ const Header: FunctionComponent = () => {
     } catch (error) {
       console.error("Failed to create checkout session:", error);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setUser(null);
+    router.push('/login');
   };
 
   useEffect(() => {
@@ -67,7 +88,7 @@ const Header: FunctionComponent = () => {
             Courses
           </PageLinkStyle>
         </Link>
-        {isSignedIn && (
+        {isAuthenticated && (
           <Link href={"/chatroom"}>
             <PageLinkStyle
               color="var(--grey-500, #525252)"
@@ -98,33 +119,44 @@ const Header: FunctionComponent = () => {
         <Search />
       </div>
       <div className="desktop icons-group">
-        {isLoaded &&
-          (isSignedIn ? (
-            <div className="flex items-center gap-3">
-              <UserButton afterSignOutUrl="/" />
-              <span className="text-gray-700 font-medium">
-                {user?.fullName || user?.username}
-              </span>
-            </div>
-          ) : (
+        {isAuthenticated ? (
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleLogout}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              Logout
+            </button>
+            <span className="text-gray-700 font-medium">
+              {user?.name || user?.email}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Link href="/login">
+              <button className="text-gray-600 hover:text-gray-800 px-4 py-2">
+                Login
+              </button>
+            </Link>
             <button
               onClick={handleSubscribe}
               className="bg-[#e39c44] text-white px-6 py-3 rounded-md hover:bg-[#d38933] transition-colors font-semibold"
             >
               Subscribe Now
             </button>
-          ))}
+          </div>
+        )}
       </div>
 
       <div className="mobile mobile-nav-links">
-      {!isSignedIn && isLoaded && (
-                <button
-                  onClick={handleSubscribe}
-                  className="bg-[#e39c44] text-white px-4 py-2 rounded-md hover:bg-[#d38933] transition-colors font-semibold w-full mt-1"
-                >
-                  Subscribe Now
-                </button>
-              )}
+        {!isAuthenticated && (
+          <button
+            onClick={handleSubscribe}
+            className="bg-[#e39c44] text-white px-4 py-2 rounded-md hover:bg-[#d38933] transition-colors font-semibold w-full mt-1"
+          >
+            Subscribe Now
+          </button>
+        )}
         <Menu toggleMenu={toggleMenu} isNavOpen={isNavOpen} />
       </div>
 
@@ -134,18 +166,23 @@ const Header: FunctionComponent = () => {
           <div className="sidemenu">
             <div className="sidemenu-links">
               <Link href={"/courses"}>Courses</Link>
-              {isSignedIn && <Link href={"/chatroom"}>Chat</Link>}
+              {isAuthenticated && <Link href={"/chatroom"}>Chat</Link>}
               <Link href={"/about"}>About Us</Link>
               <Link href={"/contact"}>Contact Us</Link>
-             
+              {!isAuthenticated && <Link href={"/login"}>Login</Link>}
             </div>
-            {isSignedIn && isLoaded && (
+            {isAuthenticated && (
               <div className="user-profile">
-                <div className="flex items-center gap-3">
-                  <UserButton afterSignOutUrl="/" />
+                <div className="flex items-center gap-3 justify-between w-full px-4">
                   <span className="text-gray-700 font-medium">
-                    {user?.fullName || user?.username}
+                    {user?.name || user?.email}
                   </span>
+                  <button 
+                    onClick={handleLogout}
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    Logout
+                  </button>
                 </div>
               </div>
             )}
