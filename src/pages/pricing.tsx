@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -6,6 +6,34 @@ const PricingPage = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Check for JWT token in localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+      const userInfo = localStorage.getItem('user');
+      if (userInfo) {
+        setUser(JSON.parse(userInfo));
+      }
+    }
+    
+    // If token is in query parameter from Google OAuth, save it
+    if (router.query.token) {
+      localStorage.setItem('token', router.query.token as string);
+      document.cookie = `token=${router.query.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+      setIsAuthenticated(true);
+      
+      // Remove token from URL to avoid sharing it
+      const { token, ...queryWithoutToken } = router.query;
+      router.replace({
+        pathname: router.pathname,
+        query: queryWithoutToken
+      }, undefined, { shallow: true });
+    }
+  }, [router.query.token]);
 
   const handleSubscribe = async () => {
     setIsLoading(true);
@@ -16,6 +44,7 @@ const PricingPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(isAuthenticated && { 'Authorization': `Bearer ${localStorage.getItem('token')}` })
         },
       });
       
@@ -57,7 +86,15 @@ const PricingPage = () => {
             
             {router.query.message === 'subscription_required' && (
               <div className="mt-4 p-3 bg-yellow-100 text-yellow-800 rounded-md mb-6">
-                You need an active subscription to access the platform.
+                {isAuthenticated 
+                  ? 'Your account requires an active subscription to access premium content.' 
+                  : 'You need to subscribe to access the platform.'}
+              </div>
+            )}
+            
+            {user?.subscription?.status === 'EXPIRED' && (
+              <div className="mt-4 p-3 bg-orange-100 text-orange-800 rounded-md mb-6">
+                Your subscription has expired. Please renew to continue accessing premium content.
               </div>
             )}
           </div>

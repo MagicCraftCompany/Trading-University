@@ -55,8 +55,13 @@ const Header: FunctionComponent = () => {
   };
 
   const handleLogout = () => {
+    // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    
+    // Clear cookies
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    
     setIsAuthenticated(false);
     setUser(null);
     router.push('/login');
@@ -88,7 +93,7 @@ const Header: FunctionComponent = () => {
             Courses
           </PageLinkStyle>
         </Link>
-        {isAuthenticated && (
+   
           <Link href={"/chatroom"}>
             <PageLinkStyle
               color="var(--grey-500, #525252)"
@@ -97,7 +102,7 @@ const Header: FunctionComponent = () => {
               Chat
             </PageLinkStyle>
           </Link>
-        )}
+     
         <Link href={"/about"}>
           <PageLinkStyle
             color="var(--grey-500, #525252)"

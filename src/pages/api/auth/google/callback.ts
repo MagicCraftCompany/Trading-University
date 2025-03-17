@@ -104,20 +104,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       user.subscription.currentPeriodEnd &&
       new Date(user.subscription.currentPeriodEnd) > new Date();
     
-    // Redirect non-subscribed users to pricing page
-    if (!hasActiveSubscription) {
-      console.log('User does not have an active subscription, redirecting to pricing page');
-      return res.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/pricing?message=subscription_required`
-      );
-    }
-
-    // Generate JWT token
+    // Generate JWT token - we'll include subscription status but not block login
     const token = jwt.sign(
       {
         userId: user.id,
         email: user.email,
-        subscriptionStatus: user.subscription?.status || 'FREE',
+        subscriptionStatus: hasActiveSubscription ? 'ACTIVE' : (user.subscription?.status || 'FREE'),
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -125,7 +117,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('JWT token generated, redirecting to callback page');
     
-    // Redirect to frontend with token
+    // Redirect based on subscription status
+    if (!hasActiveSubscription) {
+      // Set token in cookie first
+      res.setHeader('Set-Cookie', `token=${token}; Path=/; HttpOnly; Max-Age=${7 * 24 * 60 * 60}; SameSite=Lax`);
+      
+      // Then redirect to pricing page
+      return res.redirect(
+        `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/pricing?message=subscription_required&token=${token}`
+      );
+    }
+    
+    // Redirect to frontend with token for subscribers
     res.redirect(
       `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/callback?token=${token}`
     );

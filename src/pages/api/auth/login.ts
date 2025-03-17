@@ -46,14 +46,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       user.subscription.currentPeriodEnd &&
       new Date(user.subscription.currentPeriodEnd) > new Date();
     
-    // Prevent login for non-subscribed users
-    if (!hasActiveSubscription) {
-      return res.status(403).json({ 
-        message: 'Subscription required',
-        requiresSubscription: true,
-        userId: user.id
-      });
-    }
+    // Note: We're not blocking login anymore for non-subscribed users
+    // Instead, we'll just include the subscription status in the token
 
     // Update last login
     await prisma.user.update({
@@ -68,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         userId: user.id,
         email: user.email,
-        subscriptionStatus: user.subscription?.status || 'FREE',
+        subscriptionStatus: hasActiveSubscription ? 'ACTIVE' : (user.subscription?.status || 'FREE'),
       },
       JWT_SECRET,
       { expiresIn: '7d' }

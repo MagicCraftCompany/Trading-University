@@ -30,24 +30,26 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        if (response.status === 403 && data.requiresSubscription) {
-          // Redirect to pricing page with a message
-          router.push({
-            pathname: '/pricing',
-            query: { message: 'subscription_required' }
-          })
-          return
-        }
         throw new Error(data.message || 'Login failed')
       }
 
       // Store token
       localStorage.setItem('token', data.token)
+      // Also store in cookies for middleware access
+      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
       // Store user info
       localStorage.setItem('user', JSON.stringify(data.user))
 
-      // Redirect to courses page
-      router.push('/courses')
+      // Check if the user has an active subscription
+      const hasActiveSubscription = data.user.subscription?.status === 'ACTIVE';
+      
+      if (!hasActiveSubscription) {
+        // Redirect to pricing page if no active subscription
+        router.push('/pricing?message=subscription_required')
+      } else {
+        // Redirect to courses page if subscribed
+        router.push('/courses')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
@@ -71,24 +73,26 @@ export default function LoginPage() {
       const data = await response.json();
       
       if (!response.ok) {
-        if (response.status === 403 && data.requiresSubscription) {
-          // Redirect to pricing page with a message
-          router.push({
-            pathname: '/pricing',
-            query: { message: 'subscription_required' }
-          })
-          return
-        }
         throw new Error(data.message || 'Google authentication failed');
       }
       
       // Store token and user data
       if (data.token && data.user) {
         localStorage.setItem('token', data.token);
+        // Also store in cookies for middleware access
+        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Redirect to courses page
-        router.push('/courses');
+        // Check if the user has an active subscription
+        const hasActiveSubscription = data.user.subscription?.status === 'ACTIVE';
+        
+        if (!hasActiveSubscription) {
+          // Redirect to pricing page if no active subscription
+          router.push('/pricing?message=subscription_required')
+        } else {
+          // Redirect to courses page if subscribed
+          router.push('/courses')
+        }
       } else {
         throw new Error('Invalid response from server');
       }
