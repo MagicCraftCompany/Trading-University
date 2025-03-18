@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import io from 'socket.io-client'
-import { Send, Users, Smile } from 'lucide-react'
+import { Send, Smile } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -63,7 +63,7 @@ const groupMessagesByDate = (messages: Message[]) => {
 };
 
 // Dynamically import EmojiPicker with no SSR
-const EmojiPickerDynamic = dynamic(() => Promise.resolve({ default: ({ onEmojiClick }: any) => <div>Emoji Picker</div> }), {
+const EmojiPickerDynamic = dynamic(() => import('emoji-picker-react'), {
   ssr: false,
   loading: () => null
 })
@@ -88,137 +88,155 @@ const ChatRoom: React.FC = () => {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
-  // Check authentication
+  // Load user data from localStorage
   useEffect(() => {
-    const token = localStorage.getItem('token');
     const userInfo = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
     
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+    console.log('User info from localStorage:', userInfo ? 'Found' : 'Not found');
+    console.log('Token from localStorage:', token ? 'Found' : 'Not found');
     
-    if (userInfo) {
-      try {
+    try {
+      if (userInfo) {
         const userData = JSON.parse(userInfo);
+        console.log('Parsed user data:', userData);
+        
         setUser({
           id: userData.id,
           name: userData.name,
           email: userData.email,
           image: userData.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || userData.email)}`
         });
-      } catch (e) {
-        console.error('Error parsing user data:', e);
-        router.push('/login');
-        return;
-      }
-    }
-    
-    setIsLoaded(true);
-  }, [router]);
-
-  useEffect(() => {
-    if (isLoaded && !user) {
-      router.push('/login')
-      return
-    }
-
-    // Initialize socket only if user is present
-    if (user) {
-      try {
-        // Use existing socket or create a new one
-        if (!socket) {
-          socket = io(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000', {
-            path: '/socket.io/',
-            transports: ['websocket', 'polling'],
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000,
-          });
-        }
-        
-        socketRef.current = socket;
-
-        // Only set up listeners if they haven't been set up
-        if (!socket._listeners) {
-          socket._listeners = true;
-
-          socket.on('connect', () => {
-            console.log('Connected to Socket.IO server')
-            setIsConnected(true)
-            setError(null)
-            
-            // Join the chat with user data
-            socket.emit('join', {
-              id: user.id,
-              fullName: user.name,
-              email: user.email,
-              imageUrl: user.image
-            })
-          })
-
-          socket.on('connect_error', (error: Error) => {
-            console.error('Socket connection error:', error)
-            setIsConnected(false)
-            setError('Connection error. Please try again.')
-          })
-
-          socket.on('disconnect', () => {
-            console.log('Disconnected from Socket.IO server')
-            setIsConnected(false)
-            setError('Disconnected from chat. Attempting to reconnect...')
-          })
-          
-          socket.on('previous-messages', (previousMessages: Message[]) => {
-            console.log('Received previous messages:', previousMessages)
-            if (Array.isArray(previousMessages)) {
-              setMessages(previousMessages)
+      } else {
+        // Try to get user from token payload
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log('Token payload:', payload);
+            if (payload.userId && payload.email) {
+              setUser({
+                id: payload.userId,
+                email: payload.email,
+                image: `https://ui-avatars.com/api/?name=${encodeURIComponent(payload.email)}`
+              });
             }
-          })
-
-          socket.on('message', (message: Message) => {
-            console.log('Received new message:', message)
-            setMessages((prevMessages) => [...prevMessages, message])
-          })
-          
-          socket.on('error', (errorData: { message: string }) => {
-            console.error('Socket error:', errorData)
-            setError(errorData.message || 'An error occurred')
-          })
-          
-          socket.on('user-joined', (userData: UserData) => {
-            console.log('User joined:', userData)
-            setOnlineUsers(prev => {
-              // Add user if not already in the list
-              if (!prev.find(u => u.id === userData.id)) {
-                return [...prev, userData]
-              }
-              return prev
-            })
-          })
-          
-          socket.on('user-left', (userData: { id: string, name?: string }) => {
-            console.log('User left:', userData)
-            setOnlineUsers(prev => prev.filter(u => u.id !== userData.id))
-          })
-        } else {
-          // If socket exists and is connected, manually join the room
-          if (socket.connected) {
-            socket.emit('join', {
-              id: user.id,
-              fullName: user.name,
-              email: user.email,
-              imageUrl: user.image
-            })
+          } catch (e) {
+            console.error('Error parsing token:', e);
           }
         }
-
-        // Update connection status based on current socket state
-        setIsConnected(socket.connected)
-      } catch (error) {
-        console.error('Error initializing socket:', error)
-        setError('Failed to connect to chat. Please refresh the page.')
       }
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      setError('Error loading user data');
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  // Initialize socket connection when user data is loaded
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+
+    console.log('Attempting socket connection with user:', user);
+    
+    try {
+      // Use existing socket or create a new one
+      if (!socket) {
+        const socketUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+        console.log('Connecting to socket server at:', socketUrl);
+        
+        socket = io(socketUrl, {
+          path: '/socket.io/',
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+        });
+      }
+      
+      socketRef.current = socket;
+
+      // Only set up listeners if they haven't been set up
+      if (!socket._listeners) {
+        socket._listeners = true;
+
+        socket.on('connect', () => {
+          console.log('Connected to Socket.IO server, socket ID:', socket.id);
+          setIsConnected(true);
+          setError(null);
+          
+          // Join the chat with user data
+          const joinData = {
+            id: user.id,
+            fullName: user.name,
+            email: user.email,
+            imageUrl: user.image
+          };
+          console.log('Emitting join event with data:', joinData);
+          socket.emit('join', joinData);
+        });
+
+        socket.on('connect_error', (error: Error) => {
+          console.error('Socket connection error:', error);
+          setIsConnected(false);
+          setError('Connection error. Please try again.');
+        });
+
+        socket.on('disconnect', () => {
+          console.log('Disconnected from Socket.IO server')
+          setIsConnected(false)
+          setError('Disconnected from chat. Attempting to reconnect...')
+        })
+        
+        socket.on('previous-messages', (previousMessages: Message[]) => {
+          console.log('Received previous messages:', previousMessages)
+          if (Array.isArray(previousMessages)) {
+            setMessages(previousMessages)
+          }
+        })
+
+        socket.on('message', (message: Message) => {
+          console.log('Received new message:', message)
+          setMessages((prevMessages) => [...prevMessages, message])
+        })
+        
+        socket.on('error', (errorData: { message: string }) => {
+          console.error('Socket error:', errorData)
+          setError(errorData.message || 'An error occurred')
+        })
+        
+        socket.on('user-joined', (userData: UserData) => {
+          console.log('User joined:', userData)
+          setOnlineUsers(prev => {
+            // Add user if not already in the list
+            if (!prev.find(u => u.id === userData.id)) {
+              return [...prev, userData]
+            }
+            return prev
+          })
+        })
+        
+        socket.on('user-left', (userData: { id: string, name?: string }) => {
+          console.log('User left:', userData)
+          setOnlineUsers(prev => prev.filter(u => u.id !== userData.id))
+        })
+      } else {
+        // If socket exists and is connected, manually join the room
+        if (socket.connected) {
+          socket.emit('join', {
+            id: user.id,
+            fullName: user.name,
+            email: user.email,
+            imageUrl: user.image
+          })
+        }
+      }
+
+      // Update connection status based on current socket state
+      setIsConnected(socket.connected)
+    } catch (error) {
+      console.error('Error initializing socket:', error)
+      setError('Failed to connect to chat. Please refresh the page.')
     }
 
     // Cleanup function - don't disconnect on component unmount
@@ -229,7 +247,7 @@ const ChatRoom: React.FC = () => {
         socketRef.current = null
       }
     }
-  }, [user, isLoaded, router])
+  }, [user, isLoaded])
 
   const sendMessage = () => {
     if (input.trim() && user && isConnected && socket) {
@@ -254,12 +272,13 @@ const ChatRoom: React.FC = () => {
     }
   }, [messages])
 
-  const handleEmojiSelect = (emojiObject: any) => {
-    setInput((prev) => prev + emojiObject.emoji)
+  const handleEmojiSelect = (emojiData: any) => {
+    setInput((prev) => prev + emojiData.emoji)
     setShowEmojiPicker(false)
   }
 
-  if (!isLoaded || !user) {
+  // Show loading state when waiting for user data
+  if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -267,137 +286,154 @@ const ChatRoom: React.FC = () => {
     )
   }
 
-  const Sidebar = () => (
-    <div className="p-4 h-full flex flex-col">
-      <h2 className="text-xl font-bold mb-4">Community Chat</h2>
-      <div className="flex items-center space-x-2 mb-4">
-        <Avatar>
-          <AvatarImage src={user?.image} alt={user?.name || ''} />
-          <AvatarFallback>{user?.name?.[0]?.toUpperCase() || user?.email[0].toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <div>
-          <p className="font-semibold">{user?.name || user?.email}</p>
-          <p className="text-sm text-gray-500">
-            {isConnected ? 'Online' : 'Connecting...'}
-          </p>
+  // Show error if no user data was loaded
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-4">
+          <h2 className="text-xl font-bold mb-2">Unable to load user data</h2>
+          <p>Please try refreshing the page</p>
         </div>
       </div>
-      <div className="flex flex-col space-y-2">
-        <div className="mb-2">
-          <h3 className="font-medium text-sm text-gray-500 mb-2">ONLINE USERS ({onlineUsers.length + 1})</h3>
-          <div className="space-y-2">
-            {/* Current user */}
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <p className="text-sm">{user?.name || user?.email} (You)</p>
+    )
+  }
+
+  return (
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div className="p-4 border-b border-gray-200">
+          <h1 className="text-xl font-bold">Community Chat</h1>
+          <div className="flex items-center mt-4 mb-2">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={user?.image} alt={user?.name || ''} />
+              <AvatarFallback>{user?.name?.[0]?.toUpperCase() || user?.email[0].toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="ml-3">
+              <div className="font-semibold">{user?.name || user?.email}</div>
+              <div className="text-sm text-gray-500">Online</div>
             </div>
-            
-            {/* Other online users */}
+          </div>
+        </div>
+        
+        <div className="p-4 flex-1 overflow-y-auto">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase mb-2">ONLINE USERS ({onlineUsers.length + 1})</h2>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+              <span className="text-sm">{user?.name || user?.email} (You)</span>
+            </div>
             {onlineUsers.map(onlineUser => (
-              <div key={onlineUser.id} className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                <p className="text-sm">{onlineUser.name || onlineUser.email}</p>
+              <div key={onlineUser.id} className="flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <span className="text-sm">{onlineUser.name || onlineUser.email}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
-    </div>
-  )
-
-  return (
-    <div className="flex flex-col h-[90vh] bg-gray-100">
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <span className="block sm:inline">{error}</span>
-        </div>
-      )}
-      <div className="flex flex-1 overflow-hidden">
-        <div className="hidden md:block w-1/4 bg-white border-r border-gray-200">
-          <Sidebar />
-        </div>
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 ? (
-              <div className="text-center text-gray-500 mt-4">
-                No messages yet. Start the conversation!
-              </div>
-            ) : (
-              groupMessagesByDate(messages).map(({ date, messages }) => (
-                <div key={date.toISOString()} className="space-y-4">
-                  <div className="flex justify-center">
-                    <div className="bg-gray-200 text-gray-600 text-xs px-4 py-1 rounded-full">
-                      {formatMessageDate(date)}
-                    </div>
+      
+      {/* Main chat area */}
+      <div className="flex-1 flex flex-col">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 text-sm">
+            {error}
+          </div>
+        )}
+        
+        {/* Messages */}
+        <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+          {messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              No messages yet. Start the conversation!
+            </div>
+          ) : (
+            groupMessagesByDate(messages).map(({ date, messages }) => (
+              <div key={date.toISOString()} className="mb-6">
+                <div className="flex justify-center mb-4">
+                  <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+                    {formatMessageDate(date)}
                   </div>
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${msg.user.email === user.email ? 'justify-end' : 'justify-start'}`}
+                </div>
+                
+                {messages.map((msg) => {
+                  const isCurrentUser = msg.user.email === user.email;
+                  return (
+                    <div 
+                      key={msg.id} 
+                      className={`mb-4 flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div
-                        className={`max-w-[70%] px-3 py-2 rounded-lg ${
-                          msg.user.email === user.email
-                            ? 'bg-[#D4A64E] text-black'
-                            : 'bg-white text-black'
+                      {!isCurrentUser && (
+                        <div className="mr-2 flex-shrink-0">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={msg.user.image} />
+                            <AvatarFallback>{msg.user.name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                          </Avatar>
+                        </div>
+                      )}
+                      
+                      <div 
+                        className={`max-w-md px-4 py-2 rounded-lg ${
+                          isCurrentUser 
+                            ? 'bg-[#D4A64E] text-black' 
+                            : 'bg-white border border-gray-200 text-gray-900'
                         }`}
                       >
-                        {msg.user.email !== user.email && (
-                          <div className="flex items-center space-x-2 mb-1">
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage src={msg.user.image} alt={msg.user.name || ''} />
-                              <AvatarFallback>{msg.user.name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
-                            </Avatar>
-                            <p className="text-xs font-semibold">{msg.user.name}</p>
-                          </div>
+                        {!isCurrentUser && (
+                          <div className="font-medium text-xs mb-1">{msg.user.name}</div>
                         )}
-                        <p className="mb-1 break-words">{msg.content}</p>
-                        <p className="text-xs text-gray-500 text-right">
-                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
+                        <div>{msg.content}</div>
+                        <div className="text-xs mt-1 text-right text-gray-500">
+                          {new Date(msg.createdAt).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ))
-            )}
-            <div ref={chatEndRef} />
-          </div>
-          <div className="bg-gray-100 p-4">
-            <div className="flex space-x-2">
-              <div className="relative flex-1">
-                <Input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={isConnected ? "Type a message" : "Connecting..."}
-                  className="pr-10"
-                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                  disabled={!isConnected}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                >
-                  <Smile className="h-4 w-4" />
-                </Button>
+                  );
+                })}
               </div>
-              <Button 
-                onClick={sendMessage} 
-                size="icon" 
-                className="rounded-full bg-primary text-primary-foreground"
-                disabled={!isConnected || !input.trim()}
+            ))
+          )}
+          <div ref={chatEndRef} />
+        </div>
+        
+        {/* Message input */}
+        <div className="p-4 border-t border-gray-200 bg-white">
+          <div className="flex items-center">
+            <div className="relative flex-1">
+              <Input 
+                placeholder={isConnected ? "Type a message" : "Connecting..."}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                disabled={!isConnected}
+                className="pr-10"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                disabled={!isConnected}
               >
-                <Send className="h-4 w-4" />
+                <Smile className="h-5 w-5 text-gray-500" />
               </Button>
+              {showEmojiPicker && (
+                <div className="absolute bottom-12 right-0 z-10">
+                  <EmojiPickerDynamic onEmojiClick={handleEmojiSelect} />
+                </div>
+              )}
             </div>
-            {showEmojiPicker && (
-              <div className="absolute bottom-16 right-4 z-50 bg-white rounded-lg shadow-lg">
-                <EmojiPickerDynamic onEmojiClick={handleEmojiSelect} />
-              </div>
-            )}
+            <Button
+              className="ml-2 bg-[#D4A64E] hover:bg-[#c99a47] text-white rounded-full"
+              size="icon"
+              onClick={sendMessage}
+              disabled={!isConnected || !input.trim()}
+            >
+              <Send className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>

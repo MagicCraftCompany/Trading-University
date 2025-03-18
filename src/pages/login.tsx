@@ -2,18 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
-import { LoginCredentials } from '@/types/auth'
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [credentials, setCredentials] = useState<LoginCredentials>({
-    email: '',
-    password: '',
-  })
 
   // Handle checkout session verification
   useEffect(() => {
@@ -59,87 +53,10 @@ export default function LoginPage() {
     }
   }, [router.isReady, router.query]);
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed')
-      }
-
-      // Store token
-      localStorage.setItem('token', data.token)
-      // Also store in cookies for middleware access
-      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
-      // Store user info
-      localStorage.setItem('user', JSON.stringify(data.user))
-
-      // Refresh token to ensure subscription status is current
-      try {
-        const refreshResponse = await fetch('/api/auth/refresh-token', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${data.token}`
-          }
-        });
-        
-        if (refreshResponse.ok) {
-          const refreshData = await refreshResponse.json();
-          
-          // Update token if it was refreshed
-          if (refreshData.token !== data.token) {
-            localStorage.setItem('token', refreshData.token);
-            document.cookie = `token=${refreshData.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-            
-            // Update user object with new subscription status
-            const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
-            if (userInfo.subscription) {
-              userInfo.subscription.status = refreshData.subscriptionStatus;
-              localStorage.setItem('user', JSON.stringify(userInfo));
-            }
-          }
-          
-          // Use the refreshed subscription status for redirection
-          if (refreshData.subscriptionStatus === 'ACTIVE') {
-            router.push('/courses');
-            return;
-          }
-        }
-      } catch (refreshError) {
-        console.error('Error refreshing token:', refreshError);
-        // Continue with normal login flow if refresh fails
-      }
-
-      // Check if the user has an active subscription
-      const hasActiveSubscription = data.user.subscription?.status === 'ACTIVE';
-      
-      if (!hasActiveSubscription) {
-        // Redirect to pricing page if no active subscription
-        router.push('/pricing?message=subscription_required')
-      } else {
-        // Redirect to courses page if subscribed
-        router.push('/courses')
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
       setIsLoading(true);
+      setError(null);
       
       // Send the credential to our backend
       const response = await fetch('/api/auth/google', {
@@ -158,20 +75,38 @@ export default function LoginPage() {
       
       // Store token and user data
       if (data.token && data.user) {
+        console.log('Successfully authenticated with Google');
+        console.log('User data structure:', data.user);
+        
+        // Make sure we have minimum required user fields
+        const userData = {
+          ...data.user,
+          // Ensure these fields exist
+          id: data.user.id || '',
+          email: data.user.email || '',
+          name: data.user.name || '',
+          image: data.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user.name || data.user.email)}`
+        };
+        
+        // Store token in localStorage and cookies
         localStorage.setItem('token', data.token);
-        // Also store in cookies for middleware access
-        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
-        localStorage.setItem('user', JSON.stringify(data.user));
+        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+        
+        // Store user info with guaranteed fields
+        localStorage.setItem('user', JSON.stringify(userData));
+        console.log('Saved user data to localStorage');
         
         // Check if the user has an active subscription
         const hasActiveSubscription = data.user.subscription?.status === 'ACTIVE';
         
         if (!hasActiveSubscription) {
           // Redirect to pricing page if no active subscription
-          router.push('/pricing?message=subscription_required')
+          console.log('No active subscription, redirecting to pricing');
+          router.push('/pricing?message=subscription_required');
         } else {
           // Redirect to courses page if subscribed
-          router.push('/courses')
+          console.log('Active subscription found, redirecting to courses');
+          router.push('/courses');
         }
       } else {
         throw new Error('Invalid response from server');
@@ -179,6 +114,7 @@ export default function LoginPage() {
     } catch (error) {
       console.error('Google login error:', error);
       setError('Failed to authenticate with Google');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -191,10 +127,7 @@ export default function LoginPage() {
             Sign in to your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/register" className="font-medium text-[#D4A64E] hover:text-[#c99a47]">
-              create a new account
-            </Link>
+            Access requires an active subscription
           </p>
         </div>
 
@@ -204,57 +137,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleEmailLogin}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={credentials.email}
-                onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={credentials.password}
-                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-        </form>
-
         <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
           <div className="mt-6">
             {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
               <a 
@@ -275,10 +158,10 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="text-center mt-4">
-          <Link href="/register" className="text-sm text-indigo-600 hover:text-indigo-500">
-            Don't have an account? Sign up
-          </Link>
+        <div className="text-center mt-8">
+          <p className="text-sm text-gray-600">
+            No account yet? <a href="/pricing" className="font-medium text-indigo-600 hover:text-indigo-500">Subscribe to get access</a>
+          </p>
         </div>
       </div>
     </div>

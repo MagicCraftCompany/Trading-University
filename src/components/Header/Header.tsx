@@ -30,7 +30,41 @@ const Header: FunctionComponent = () => {
       // Get user info from localStorage if available
       const userInfo = localStorage.getItem('user');
       if (userInfo) {
-        setUser(JSON.parse(userInfo));
+        try {
+          const parsedUser = JSON.parse(userInfo);
+          console.log('Parsed user data:', parsedUser);
+          setUser(parsedUser);
+        } catch (e) {
+          console.error('Error parsing user info from localStorage:', e);
+          
+          // Try to get basic info from token
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log('Token payload:', payload);
+            if (payload.email) {
+              setUser({
+                email: payload.email,
+                name: payload.name || undefined
+              });
+            }
+          } catch (tokenErr) {
+            console.error('Failed to parse token payload:', tokenErr);
+          }
+        }
+      } else {
+        // No user data in localStorage, try to extract from token
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          console.log('Token payload (no user in localStorage):', payload);
+          if (payload.email) {
+            setUser({
+              email: payload.email,
+              name: payload.name || undefined
+            });
+          }
+        } catch (tokenErr) {
+          console.error('Failed to parse token payload:', tokenErr);
+        }
       }
     }
   }, []);
@@ -96,10 +130,24 @@ const Header: FunctionComponent = () => {
 
   // Function to get user's initials for avatar
   const getUserInitials = () => {
-    if (user?.name) {
-      return user.name.split(' ').map(name => name[0]).join('').toUpperCase();
+    if (!user) return '?';
+
+    console.log('Getting initials for user:', user);
+    
+    if (user.name && user.name.trim()) {
+      return user.name
+        .trim()
+        .split(' ')
+        .map(name => name[0])
+        .join('')
+        .toUpperCase();
     }
-    return user?.email?.[0]?.toUpperCase() || '?';
+    
+    if (user.email && user.email.trim()) {
+      return user.email[0].toUpperCase();
+    }
+    
+    return '?';
   };
 
   return (
