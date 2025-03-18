@@ -4,7 +4,7 @@ import { MobileNavStyles } from "@/styles/HeaderStyles/MobileNav";
 import Link from "next/link";
 import { Logo, Menu } from "../Icons/Icons";
 import Search from "./Search";
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useEffect, useState, useRef } from "react";
 import { PageLinkStyle } from "@/styles/LinkStyles/Link";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { closeNav, toggleNav } from "@/redux/dataSlice";
@@ -19,6 +19,8 @@ const Header: FunctionComponent = () => {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check for JWT token in localStorage
@@ -31,6 +33,20 @@ const Header: FunctionComponent = () => {
         setUser(JSON.parse(userInfo));
       }
     }
+  }, []);
+
+  useEffect(() => {
+    // Close user menu when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const toggleMenu = () => {
@@ -64,6 +80,7 @@ const Header: FunctionComponent = () => {
     
     setIsAuthenticated(false);
     setUser(null);
+    setShowUserMenu(false);
     router.push('/login');
   };
 
@@ -76,6 +93,14 @@ const Header: FunctionComponent = () => {
       router.events.off("routeChangeStart", handleRouteChange);
     };
   }, []);
+
+  // Function to get user's initials for avatar
+  const getUserInitials = () => {
+    if (user?.name) {
+      return user.name.split(' ').map(name => name[0]).join('').toUpperCase();
+    }
+    return user?.email?.[0]?.toUpperCase() || '?';
+  };
 
   return (
     <HeaderStyle>
@@ -125,27 +150,48 @@ const Header: FunctionComponent = () => {
       </div>
       <div className="desktop icons-group">
         {isAuthenticated ? (
-          <div className="flex items-center gap-3">
+          <div className="relative" ref={userMenuRef}>
             <button 
-              onClick={handleLogout}
-              className="text-gray-600 hover:text-gray-800"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none"
             >
-              Logout
+              <div className="w-8 h-8 rounded-full bg-[#e39c44] flex items-center justify-center text-white font-medium">
+                {getUserInitials()}
+              </div>
+              <span className="text-gray-700 font-medium max-w-[120px] truncate">
+                {user?.name || user?.email}
+              </span>
+              <svg className={`w-4 h-4 text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
-            <span className="text-gray-700 font-medium">
-              {user?.name || user?.email}
-            </span>
+            
+            {showUserMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                <div className="px-4 py-2 border-b border-gray-200">
+                  <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                </div>
+               
+                <button 
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-3">
             <Link href="/login">
-              <button className="text-gray-600 hover:text-gray-800 px-4 py-2">
+              <button className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors">
                 Login
               </button>
             </Link>
             <button
               onClick={handleSubscribe}
-              className="bg-[#e39c44] text-white px-6 py-3 rounded-md hover:bg-[#d38933] transition-colors font-semibold"
+              className="bg-[#e39c44] text-white px-6 py-2 rounded-md hover:bg-[#d38933] transition-colors font-semibold"
             >
               Subscribe Now
             </button>
@@ -177,14 +223,23 @@ const Header: FunctionComponent = () => {
               {!isAuthenticated && <Link href={"/login"}>Login</Link>}
             </div>
             {isAuthenticated && (
-              <div className="user-profile">
-                <div className="flex items-center gap-3 justify-between w-full px-4">
-                  <span className="text-gray-700 font-medium">
-                    {user?.name || user?.email}
-                  </span>
+              <div className="user-profile border-t border-gray-200 mt-4 pt-4">
+                <div className="flex items-center gap-3 px-4 py-2">
+                  <div className="w-10 h-10 rounded-full bg-[#e39c44] flex items-center justify-center text-white font-medium">
+                    {getUserInitials()}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium">{user?.name || user?.email}</p>
+                    {user?.name && <p className="text-xs text-gray-500">{user.email}</p>}
+                  </div>
+                </div>
+                <div className="mt-2 border-t border-gray-200">
+                  <Link href="/profile">
+                    <span className="block px-4 py-2 hover:bg-gray-100">Profile Settings</span>
+                  </Link>
                   <button 
                     onClick={handleLogout}
-                    className="text-gray-600 hover:text-gray-800"
+                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
                   >
                     Logout
                   </button>
