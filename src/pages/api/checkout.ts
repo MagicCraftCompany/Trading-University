@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/login?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/login?session_id={CHECKOUT_SESSION_ID}&redirect_to=courses`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing`,
       allow_promotion_codes: true, // Enable promo codes
       billing_address_collection: 'required',

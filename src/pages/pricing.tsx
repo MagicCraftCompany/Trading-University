@@ -10,13 +10,54 @@ const PricingPage = () => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    // Function to check and refresh subscription status in token
+    const refreshSubscriptionStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      try {
+        // Make API call to refresh token with current subscription status
+        const response = await fetch('/api/auth/refresh-token', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.token) {
+            // Update token in localStorage and cookies
+            localStorage.setItem('token', data.token);
+            document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+            
+            // If subscription is active, redirect to courses
+            if (data.subscriptionStatus === 'ACTIVE') {
+              router.push('/courses');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error refreshing token:', error);
+      }
+    };
+    
     // Check for JWT token in localStorage
     const token = localStorage.getItem('token');
     if (token) {
       setIsAuthenticated(true);
       const userInfo = localStorage.getItem('user');
       if (userInfo) {
-        setUser(JSON.parse(userInfo));
+        const userData = JSON.parse(userInfo);
+        setUser(userData);
+        
+        // If user already has an active subscription, redirect to courses
+        if (userData.subscription?.status === 'ACTIVE') {
+          router.push('/courses');
+        } else if (router.query.message === 'subscription_required') {
+          // If redirected here due to subscription required message, refresh token
+          refreshSubscriptionStatus();
+        }
       }
     }
     

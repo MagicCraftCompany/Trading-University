@@ -12,6 +12,8 @@ const publicRoutes = [
   '/api/auth/register',
   '/api/auth/google',
   '/api/auth/google/callback',
+  '/api/auth/verify-session',
+  '/api/auth/refresh-token',
   '/auth/callback', // Frontend callback route
   '/api/webhook',
   '/api/checkout',

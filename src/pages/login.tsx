@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
@@ -14,6 +14,50 @@ export default function LoginPage() {
     email: '',
     password: '',
   })
+
+  // Handle checkout session verification
+  useEffect(() => {
+    const verifyCheckoutSession = async () => {
+      const { session_id, redirect_to } = router.query;
+      
+      if (session_id && typeof session_id === 'string') {
+        setIsLoading(true);
+        
+        try {
+          // Call the verify-session endpoint
+          const response = await fetch(`/api/auth/verify-session?session_id=${session_id}`);
+          const data = await response.json();
+          
+          if (response.ok && data.success) {
+            // Store token
+            localStorage.setItem('token', data.token);
+            document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+            
+            // Store user info
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Redirect to appropriate page
+            if (redirect_to && typeof redirect_to === 'string') {
+              router.push(`/${redirect_to}`);
+            } else {
+              router.push('/courses');
+            }
+          } else {
+            setError(data.message || 'Failed to verify checkout session');
+          }
+        } catch (error) {
+          console.error('Failed to verify checkout session:', error);
+          setError('Error processing your subscription. Please try logging in.');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    if (router.isReady) {
+      verifyCheckoutSession();
+    }
+  }, [router.isReady, router.query]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,6 +83,42 @@ export default function LoginPage() {
       document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
       // Store user info
       localStorage.setItem('user', JSON.stringify(data.user))
+
+      // Refresh token to ensure subscription status is current
+      try {
+        const refreshResponse = await fetch('/api/auth/refresh-token', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${data.token}`
+          }
+        });
+        
+        if (refreshResponse.ok) {
+          const refreshData = await refreshResponse.json();
+          
+          // Update token if it was refreshed
+          if (refreshData.token !== data.token) {
+            localStorage.setItem('token', refreshData.token);
+            document.cookie = `token=${refreshData.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+            
+            // Update user object with new subscription status
+            const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
+            if (userInfo.subscription) {
+              userInfo.subscription.status = refreshData.subscriptionStatus;
+              localStorage.setItem('user', JSON.stringify(userInfo));
+            }
+          }
+          
+          // Use the refreshed subscription status for redirection
+          if (refreshData.subscriptionStatus === 'ACTIVE') {
+            router.push('/courses');
+            return;
+          }
+        }
+      } catch (refreshError) {
+        console.error('Error refreshing token:', refreshError);
+        // Continue with normal login flow if refresh fails
+      }
 
       // Check if the user has an active subscription
       const hasActiveSubscription = data.user.subscription?.status === 'ACTIVE';
