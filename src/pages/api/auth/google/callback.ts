@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient, SubscriptionStatus } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { parse } from 'cookie';
+import prisma from '../../../../db/prisma';
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
