@@ -1,13 +1,13 @@
 import { GotoCourse, WishlistItemStyle } from "@/styles/HeroStyles/Info";
 import React, { FunctionComponent } from "react";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { Trash } from "../Icons/Icons";
 import { useRouter } from "next/router";
 
 export interface IWishlistItem{
       name: string;
       id: number | null;
-      img: string;
+      img: string | StaticImageData;
       dollarPrice: number;
       nairaPrice: number;
       level: string;

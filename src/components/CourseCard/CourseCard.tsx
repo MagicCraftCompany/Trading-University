@@ -12,7 +12,7 @@
     useRef,
     useState,
   } from "react";
-  import Image from "next/image";
+  import Image, { StaticImageData } from "next/image";
   import {
     BriefCase,
     EnrolledIcon,
@@ -40,7 +40,7 @@
     id : number|null;
     name: string;
     level: string;
-    img: string;
+    img: string | StaticImageData;
     dollarPrice: number;
     duration: number;
     nairaPrice: number | null;

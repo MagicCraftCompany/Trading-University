@@ -7,6 +7,22 @@ import { IFaq } from "@/components/HomepageComp/Faq";
 import { ITestimony } from "@/components/HomepageComp/Testimonials";
 
 import { getIntroVideo } from "@/components/iFRame";
+import thumb1 from '../../public/assets/thumbnails/thumb1.webp';
+import thumb2 from '../../public/assets/thumbnails/thumb2.webp';
+import thumb3 from '../../public/assets/thumbnails/thumb3.webp';
+import thumb4 from '../../public/assets/thumbnails/thumb4.webp';
+import thumb5 from '../../public/assets/thumbnails/thumb5.webp';
+import thumb6 from '../../public/assets/thumbnails/thumb6.webp';
+import thumb7 from '../../public/assets/thumbnails/thumb7.webp';
+import thumb8 from '../../public/assets/thumbnails/thumb8.webp';
+import thumb9 from '../../public/assets/thumbnails/thumb9.webp';
+import thumb10 from '../../public/assets/thumbnails/thumb10.webp';
+import thumb11 from '../../public/assets/thumbnails/thumb11.webp';
+import thumb12 from '../../public/assets/thumbnails/thumb12.webp';
+import thumb13 from '../../public/assets/thumbnails/thumb13.webp';
+import thumb14 from '../../public/assets/thumbnails/thumb14.webp';
+import thumb15 from '../../public/assets/thumbnails/thumb15.webp';
+import thumb16 from '../../public/assets/thumbnails/thumb16.webp';
 
 export interface IQuizQuestion {
   question: string;
@@ -744,7 +760,7 @@ export const courseQuizzes: { [key: number]: IQuizQuestion[] } = {
 export const AllCourses: ICourse[] = [
   {
     name: "What is cryptocurrency?",
-    img: "/assets/thumbnails/thumb1.webp",
+    img: thumb1,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -880,7 +896,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Why is cryptocurrency not a scam?",
-    img: "/assets/thumbnails/thumb2.webp",
+    img: thumb2,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -1008,7 +1024,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Bitcoin, Ethereum, Altcoins, Stablecoins, Blockchain explained",
-    img: "/assets/thumbnails/thumb3.webp",
+    img: thumb3,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -1142,7 +1158,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Cryptocurrency Security",
-    img: "/assets/thumbnails/thumb4.webp",
+    img: thumb4,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -1267,7 +1283,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "How to use Binance",
-    img: "/assets/thumbnails/thumb5.webp",
+    img: thumb5,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -1411,7 +1427,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Fundamental Analysis",
-    img: "/assets/thumbnails/thumb6.webp",
+    img: thumb6,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -1521,7 +1537,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Technical Analysis",
-    img: "/assets/thumbnails/thumb7.webp",
+    img: thumb7,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -1677,7 +1693,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "How to identify pumps and dumps",
-    img: "/assets/thumbnails/thumb8.webp",
+    img: thumb8,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -1805,7 +1821,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Technical Analysis: Advanced",
-    img: "/assets/thumbnails/thumb9.webp",
+    img: thumb9,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Advanced",
@@ -1942,7 +1958,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Warning of leverages",
-    img: "/assets/thumbnails/thumb10.webp",
+    img: thumb10,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -2070,7 +2086,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "How to trade. Basics",
-    img: "/assets/thumbnails/thumb11.webp",
+    img: thumb11,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -2225,7 +2241,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Trading: Advanced",
-    img: "/assets/thumbnails/thumb12.webp",
+    img: thumb12,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Advanced",
@@ -2371,7 +2387,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "How to use Kraken",
-    img: "/assets/thumbnails/thumb13.webp",
+    img: thumb13,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -2463,7 +2479,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "How to build your portfolio",
-    img: "/assets/thumbnails/thumb14.webp",
+    img: thumb14,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -2609,7 +2625,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Crypto mistakes to avoid",
-    img: "/assets/thumbnails/thumb15.webp",
+    img: thumb15,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -2737,7 +2753,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Pumps and Dumps",
-    img: "/assets/thumbnails/thumb16.webp",
+    img: thumb16,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",
@@ -2856,7 +2872,7 @@ export const AllCourses: ICourse[] = [
   },
   {
     name: "Bybit tutorial",
-    img: "/assets/thumbnails/thumb1.webp",
+    img: thumb1,
     dollarPrice: 245.99,
     nairaPrice: null,
     level: "Beginner",

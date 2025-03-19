@@ -5,7 +5,7 @@ import {
 import SectionHead from "../SectionHead/SectionHead";
 import { ActualPaddedSectionStyle } from "@/styles/HomepageStyles/Section";
 import { FunctionComponent, useEffect } from "react";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { BlackQuote, Union, WhiteQuote } from "../Icons/Icons";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { RootState } from "@/redux/store";
@@ -46,7 +46,7 @@ export interface ITestimony {
   id: number | null;
   name: string;
   position: string;
-  img: string;
+  img: string | StaticImageData;
   comment: string;
   isActive: boolean;
 }

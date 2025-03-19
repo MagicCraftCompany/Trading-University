@@ -5,6 +5,7 @@ import HeroSearch from "./HeroSearch";
 import Link from "next/link";
 import { LinkStyle } from "@/styles/LinkStyles/Link";
 import { useTypewriter, Cursor } from "react-simple-typewriter";
+import james from "../../../public/assets/James.png";
 
 const Hero: FunctionComponent = () => {
   const [text] = useTypewriter({
@@ -18,7 +19,7 @@ const Hero: FunctionComponent = () => {
       <HeroStyles>
         <div className="hero-text">
           <h1>
-            Let’s get you Start  <br />
+            Let&apos;s get you Start  <br />
             your career in <strong>{text} <span><Cursor cursorColor="#D4A64E" /></span></strong>
           </h1>
           <p className="hero-p">
@@ -38,27 +39,30 @@ const Hero: FunctionComponent = () => {
           <TabOnly>
             <Image
               alt="hero img"
-              src="/assets/James.png"
+              src={james}
               width={400}
               height={300}
               className="desktop w-[200px] h-[200px]"
+              unoptimized={true}
             />
             <Image
               alt="hero img"
-              src="/assets/James.png"
+              src={james}
               width={400}
               height={300}
               className="tab"
               sizes="100%"
+              unoptimized={true}
             />
             <Image
               alt="hero img"
-              src="/assets/James.png"
-              width={0}
-              height={0}
+              src={james}
+              width={400}
+              height={400}
               sizes="100vw"
               priority={true}               
               className="mobile mobile-img"
+              unoptimized={true}
             />
           </TabOnly>
         </div>

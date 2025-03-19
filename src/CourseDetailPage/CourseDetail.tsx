@@ -33,7 +33,7 @@ import {
   VideoStyles,
 } from "@/styles/CoursepageStyles/CourseDetail";
 import { ImprovedDesktopMobile, TabOnly } from "@/styles/HeroStyles/Hero";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import {
   Dispatch,
@@ -440,7 +440,7 @@ export const VideoComp: React.FC<{ url: string | JSX.Element }> = ({ url }) => {
 
 
 export interface ISideCard {
-  img: string;
+  img: string | StaticImageData;
   name: string;
   nairaPrice: number;
   dollarPrice: number;

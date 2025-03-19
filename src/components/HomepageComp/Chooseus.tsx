@@ -3,7 +3,7 @@ import React, { FunctionComponent, useState } from "react";
 import SectionHead from "../SectionHead/SectionHead";
 import { ActualPaddedSectionStyle } from "@/styles/HomepageStyles/Section";
 import { Reasons } from "@/Constant/constant";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 
 
 export const Chooseus:FunctionComponent = () => {
@@ -23,10 +23,11 @@ export const Chooseus:FunctionComponent = () => {
 }
  
 export interface IReason {
-    img: string;
+    img: string | StaticImageData;
     head: string;
     text: string;
-  }
+}
+
 export const Reason:FunctionComponent<IReason>= ({img, head, text}) => {
     return ( 
         <ReasonStyles>
