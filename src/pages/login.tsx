@@ -2,18 +2,31 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null)
 
   // Handle checkout session verification
   useEffect(() => {
     const verifyCheckoutSession = async () => {
-      const { session_id, redirect_to } = router.query;
+      const { session_id, redirect_to, checkout_complete } = router.query;
+      
+      // If this is a post-checkout redirect, set the cookie and show a special message
+      if (session_id) {
+        // Set cookie to remember that user has previously visited/subscribed
+        document.cookie = '_hasPreviouslyVisited=true; path=/; max-age=31536000; SameSite=Lax'; // 1 year expiry
+        
+        if (checkout_complete === 'true') {
+          setPendingMessage('Thank you for subscribing! Please sign in with Google to complete your account setup.');
+          // Dispatch an event to notify the header to update
+          window.dispatchEvent(new Event('authChange'));
+          return;
+        }
+      }
       
       if (session_id && typeof session_id === 'string') {
         setIsLoading(true);
@@ -24,12 +37,22 @@ export default function LoginPage() {
           const data = await response.json();
           
           if (response.ok && data.success) {
+            // Check if we need to authenticate with Google first
+            if (data.redirectToGoogleAuth) {
+              setPendingMessage(data.message || 'Please sign in with Google to access your subscription');
+              setIsLoading(false);
+              return;
+            }
+            
             // Store token
             localStorage.setItem('token', data.token);
             document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
             
             // Store user info
             localStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Notify components about authentication change
+            window.dispatchEvent(new Event('authChange'));
             
             // Redirect to appropriate page
             if (redirect_to && typeof redirect_to === 'string') {
@@ -54,70 +77,22 @@ export default function LoginPage() {
     }
   }, [router.isReady, router.query, router]);
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      // Send the credential to our backend
-      const response = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ credential: credentialResponse.credential }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Google authentication failed');
-      }
-      
-      // Store token and user data
-      if (data.token && data.user) {
-        console.log('Successfully authenticated with Google');
-        console.log('User data structure:', data.user);
-        
-        // Make sure we have minimum required user fields
-        const userData = {
-          ...data.user,
-          // Ensure these fields exist
-          id: data.user.id || '',
-          email: data.user.email || '',
-          name: data.user.name || '',
-          image: data.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user.name || data.user.email)}`
-        };
-        
-        // Store token in localStorage and cookies
-        localStorage.setItem('token', data.token);
-        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-        
-        // Store user info with guaranteed fields
-        localStorage.setItem('user', JSON.stringify(userData));
-        console.log('Saved user data to localStorage');
-        
-        // Check if the user has an active subscription
-        const hasActiveSubscription = data.user.subscription?.status === 'ACTIVE';
-        
-        if (!hasActiveSubscription) {
-          // Redirect to pricing page if no active subscription
-          console.log('No active subscription, redirecting to pricing');
-          router.push('/pricing?message=subscription_required');
-        } else {
-          // Redirect to courses page if subscribed
-          console.log('Active subscription found, redirecting to courses');
-          router.push('/courses');
-        }
-      } else {
-        throw new Error('Invalid response from server');
-      }
-    } catch (error) {
-      console.error('Google login error:', error);
-      setError('Failed to authenticate with Google');
-    } finally {
-      setIsLoading(false);
-    }
+  // Build state parameter for Google auth
+  const getGoogleAuthUrl = () => {
+    // Create a state object with relevant parameters
+    const stateObj = {
+      session_id: router.query.session_id || '',
+      checkout_complete: router.query.checkout_complete === 'true'
+    };
+    
+    // Encode state as URL-safe string
+    const state = encodeURIComponent(JSON.stringify(stateObj));
+    
+    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    }&redirect_uri=${
+      encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/google/callback`)
+    }&response_type=code&scope=email%20profile&access_type=offline&state=${state}`;
   };
 
   return (
@@ -127,9 +102,15 @@ export default function LoginPage() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Access requires an active subscription
-          </p>
+          {pendingMessage ? (
+            <p className="mt-2 text-center text-sm text-green-600">
+              {pendingMessage}
+            </p>
+          ) : (
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Access requires an active subscription
+            </p>
+          )}
         </div>
 
         {error && (
@@ -142,8 +123,12 @@ export default function LoginPage() {
           <div className="mt-6">
             {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
               <a 
-                href={`https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/google/callback`)}&response_type=code&scope=email%20profile&access_type=offline`}
-                className="flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                href={getGoogleAuthUrl()}
+                className={`flex justify-center items-center gap-2 px-4 py-3 rounded-md transition-colors ${
+                  router.query.checkout_complete === 'true' 
+                    ? 'bg-[#e39c44] text-white hover:bg-[#d38933] text-lg font-semibold shadow-md' 
+                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
                   <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
@@ -151,7 +136,9 @@ export default function LoginPage() {
                   <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
                   <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
                 </svg>
-                Sign in with Google
+                {router.query.checkout_complete === 'true' 
+                  ? 'Complete Account Setup with Google' 
+                  : 'Sign in with Google'}
               </a>
             ) : (
               <p className="text-sm text-gray-500 text-center">Google login is currently unavailable</p>

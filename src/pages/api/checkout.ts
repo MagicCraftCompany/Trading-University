@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-02-24.acacia',
 });
 
 // Define pricing plans
@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/login?session_id={CHECKOUT_SESSION_ID}&redirect_to=courses`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/login?session_id={CHECKOUT_SESSION_ID}&checkout_complete=true&redirect_to=courses`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing`,
       allow_promotion_codes: true, // Enable promo codes
       billing_address_collection: 'required',

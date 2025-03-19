@@ -6,10 +6,7 @@ import { jwtVerify, JWTPayload } from 'jose';
 const publicRoutes = [
   '/',
   '/login',
-  '/register',
   '/pricing',
-  '/api/auth/login',
-  '/api/auth/register',
   '/api/auth/google',
   '/api/auth/google/callback',
   '/api/auth/verify-session',
@@ -22,8 +19,6 @@ const publicRoutes = [
   '/static',
   '/about',
   '/contact',
- 
-  
 ];
 
 // Routes that require subscription
@@ -69,9 +64,23 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value ||
       request.headers.get('authorization')?.split(' ')[1];
 
+    // Check if user has previously visited/subscribed
+    const hasPreviouslyVisited = request.cookies.get('_hasPreviouslyVisited')?.value === 'true';
+
     if (!token) {
-      console.log('[Middleware] No token found, redirecting to login');
-      throw new Error('No token found');
+      console.log('[Middleware] No token found, determining redirect target');
+      
+      // If user has previously visited/subscribed, redirect to login
+      // Otherwise, redirect to pricing page for first-time users
+      if (hasPreviouslyVisited) {
+        console.log('[Middleware] Previously subscribed user, redirecting to login');
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('from', request.nextUrl.pathname);
+        return NextResponse.redirect(loginUrl);
+      } else {
+        console.log('[Middleware] New user, redirecting to pricing');
+        return NextResponse.redirect(new URL('/pricing', request.url));
+      }
     }
 
     console.log('[Middleware] Token found, verifying...');
@@ -107,10 +116,20 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error('[Middleware] Authentication error:', error);
     
-    // Redirect to login for authentication errors
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('from', request.nextUrl.pathname);
-    return NextResponse.redirect(loginUrl);
+    // Check if user has previously visited/subscribed
+    const hasPreviouslyVisited = request.cookies.get('_hasPreviouslyVisited')?.value === 'true';
+    
+    // If user has previously visited/subscribed, redirect to login
+    // Otherwise, redirect to pricing page for first-time users
+    if (hasPreviouslyVisited) {
+      console.log('[Middleware] Previously subscribed user with auth error, redirecting to login');
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('from', request.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
+    } else {
+      console.log('[Middleware] New user with auth error, redirecting to pricing');
+      return NextResponse.redirect(new URL('/pricing', request.url));
+    }
   }
 }
 

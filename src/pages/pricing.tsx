@@ -133,6 +133,19 @@ const PricingPage = () => {
               </div>
             )}
             
+            {router.query.message === 'email_mismatch' && (
+              <div className="mt-4 p-3 bg-orange-100 text-orange-800 rounded-md mb-6">
+                <p className="font-semibold">Email Mismatch Detected</p>
+                <p className="text-sm mt-2">
+                  You subscribed with <span className="font-medium">{router.query.subscriptionEmail}</span> but 
+                  signed in with <span className="font-medium">{router.query.googleEmail}</span>
+                </p>
+                <p className="text-sm mt-2">
+                  Please sign in with the same email you used during checkout, or contact support for assistance.
+                </p>
+              </div>
+            )}
+            
             {user?.subscription?.status === 'EXPIRED' && (
               <div className="mt-4 p-3 bg-orange-100 text-orange-800 rounded-md mb-6">
                 Your subscription has expired. Please renew to continue accessing premium content.

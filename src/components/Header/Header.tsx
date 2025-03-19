@@ -20,27 +20,51 @@ const Header: FunctionComponent = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [hasPreviouslyVisited, setHasPreviouslyVisited] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check for JWT token in localStorage
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-      // Get user info from localStorage if available
-      const userInfo = localStorage.getItem('user');
-      if (userInfo) {
-        try {
-          const parsedUser = JSON.parse(userInfo);
-          console.log('Parsed user data:', parsedUser);
-          setUser(parsedUser);
-        } catch (e) {
-          console.error('Error parsing user info from localStorage:', e);
-          
-          // Try to get basic info from token
+    // Check for _hasPreviouslyVisited cookie
+    const checkPreviouslyVisited = () => {
+      const hasPreviouslyVisitedCookie = document.cookie.includes('_hasPreviouslyVisited=true');
+      console.log('_hasPreviouslyVisited cookie:', hasPreviouslyVisitedCookie);
+      setHasPreviouslyVisited(hasPreviouslyVisitedCookie);
+    };
+    
+    // Function to check auth status from localStorage
+    const checkAuthStatus = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        setIsAuthenticated(true);
+        // Get user info from localStorage if available
+        const userInfo = localStorage.getItem('user');
+        if (userInfo) {
+          try {
+            const parsedUser = JSON.parse(userInfo);
+            console.log('Parsed user data:', parsedUser);
+            setUser(parsedUser);
+          } catch (e) {
+            console.error('Error parsing user info from localStorage:', e);
+            
+            // Try to get basic info from token
+            try {
+              const payload = JSON.parse(atob(token.split('.')[1]));
+              console.log('Token payload:', payload);
+              if (payload.email) {
+                setUser({
+                  email: payload.email,
+                  name: payload.name || undefined
+                });
+              }
+            } catch (tokenErr) {
+              console.error('Failed to parse token payload:', tokenErr);
+            }
+          }
+        } else {
+          // No user data in localStorage, try to extract from token
           try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            console.log('Token payload:', payload);
+            console.log('Token payload (no user in localStorage):', payload);
             if (payload.email) {
               setUser({
                 email: payload.email,
@@ -52,22 +76,68 @@ const Header: FunctionComponent = () => {
           }
         }
       } else {
-        // No user data in localStorage, try to extract from token
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          console.log('Token payload (no user in localStorage):', payload);
-          if (payload.email) {
-            setUser({
-              email: payload.email,
-              name: payload.name || undefined
-            });
-          }
-        } catch (tokenErr) {
-          console.error('Failed to parse token payload:', tokenErr);
-        }
+        setIsAuthenticated(false);
+        setUser(null);
       }
-    }
+    };
+
+    // Check auth status and cookie initially
+    checkPreviouslyVisited();
+    checkAuthStatus();
+
+    // Add event listener for storage changes (for cross-tab synchronization)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'token' || e.key === 'user') {
+        checkAuthStatus();
+        checkPreviouslyVisited();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // Add a custom event listener for auth changes within the same tab
+    const handleAuthChange = () => {
+      checkAuthStatus();
+      checkPreviouslyVisited();
+    };
+    window.addEventListener('authChange', handleAuthChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleAuthChange);
+    };
   }, []);
+
+  // Listen for router events to check auth status on navigation
+  useEffect(() => {
+    const handleRouteChange = () => {
+      dispatch(closeNav());
+      
+      // Check auth status on route change
+      const token = localStorage.getItem('token');
+      if (token !== null) {
+        setIsAuthenticated(true);
+        const userInfo = localStorage.getItem('user');
+        if (userInfo) {
+          try {
+            setUser(JSON.parse(userInfo));
+          } catch (e) {
+            console.error('Error parsing user info on route change:', e);
+          }
+        }
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+      
+      // Check for _hasPreviouslyVisited cookie
+      setHasPreviouslyVisited(document.cookie.includes('_hasPreviouslyVisited=true'));
+    };
+    
+    router.events.on("routeChangeComplete", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChange);
+    };
+  }, [dispatch, router.events]);
 
   useEffect(() => {
     // Close user menu when clicking outside
@@ -109,12 +179,18 @@ const Header: FunctionComponent = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     
-    // Clear cookies
+    // Clear token cookie but preserve _hasPreviouslyVisited cookie
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     
+    // Update state
     setIsAuthenticated(false);
     setUser(null);
     setShowUserMenu(false);
+    
+    // Dispatch custom event to notify other components about auth change
+    window.dispatchEvent(new Event('authChange'));
+    
+    // Redirect to login page
     router.push('/login');
   };
 
@@ -232,23 +308,42 @@ const Header: FunctionComponent = () => {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <Link href="/login">
-              <button className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors">
-                Login
-              </button>
-            </Link>
-            <button
-              onClick={handleSubscribe}
-              className="bg-[#e39c44] text-white px-6 py-2 rounded-md hover:bg-[#d38933] transition-colors font-semibold"
-            >
-              Subscribe Now
-            </button>
+            {/* Show Login button only if on login page after checkout or if checkout_complete cookie exists */}
+            {router.pathname === '/login' && router.query.checkout_complete === 'true' ? (
+              <div>
+                {/* No buttons shown when on login page after checkout */}
+              </div>
+            ) : router.pathname === '/login' && router.query.session_id ? (
+              <div>
+                {/* No buttons shown when on login page with session_id */}
+              </div>
+            ) : (
+              <>
+                {/* Always show Login button for users who have previously visited */}
+                {hasPreviouslyVisited && (
+                  <Link href="/login">
+                    <button className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors">
+                      Login
+                    </button>
+                  </Link>
+                )}
+                {/* Only show Subscribe button for users who haven't previously subscribed */}
+                {!hasPreviouslyVisited && (
+                  <button
+                    onClick={handleSubscribe}
+                    className="bg-[#e39c44] text-white px-6 py-2 rounded-md hover:bg-[#d38933] transition-colors font-semibold"
+                  >
+                    Subscribe Now
+                  </button>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>
 
       <div className="mobile mobile-nav-links">
-        {!isAuthenticated && (
+        {!isAuthenticated && router.pathname !== '/login' && !hasPreviouslyVisited && (
           <button
             onClick={handleSubscribe}
             className="bg-[#e39c44] text-white px-4 py-2 rounded-md hover:bg-[#d38933] transition-colors font-semibold w-full mt-1"
@@ -268,7 +363,9 @@ const Header: FunctionComponent = () => {
               {isAuthenticated && <Link href={"/chatroom"}>Chat</Link>}
               <Link href={"/about"}>About Us</Link>
               <Link href={"/contact"}>Contact Us</Link>
-              {!isAuthenticated && <Link href={"/login"}>Login</Link>}
+              {!isAuthenticated && hasPreviouslyVisited && (
+                <Link href={"/login"}>Login</Link>
+              )}
             </div>
             {isAuthenticated && (
               <div className="user-profile border-t border-gray-200 mt-4 pt-4">

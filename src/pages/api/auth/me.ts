@@ -17,7 +17,6 @@ interface UserWithSubscription {
   email: string;
   name?: string | null;
   image?: string | null;
-  password?: string;
   subscription?: {
     id: string;
     userId: string;
@@ -70,12 +69,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       user.subscription.currentPeriodEnd &&
       new Date(user.subscription.currentPeriodEnd) > new Date();
 
-    // Remove sensitive data
-    const { password, ...userWithoutPassword } = user;
-
     return res.status(200).json({
       user: {
-        ...userWithoutPassword,
+        ...user,
         hasActiveSubscription,
       },
     });

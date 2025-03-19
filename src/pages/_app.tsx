@@ -13,14 +13,26 @@ export default function App({ Component, pageProps }: AppProps) {
     // Only run in browser environment
     if (typeof window === 'undefined') return;
     
+    // Handle checkout completion - set cookie to indicate user has previously visited
+    if (router.pathname === '/login' && 
+        (router.query.checkout_complete === 'true' || router.query.session_id)) {
+      console.log('[App] Setting _hasPreviouslyVisited cookie after checkout');
+      document.cookie = '_hasPreviouslyVisited=true; path=/; max-age=31536000; SameSite=Lax'; // 1 year expiry
+    }
+    
     try {
       // Decode JWT token from localStorage if exists
       const token = localStorage.getItem('token');
+      let wasAuthenticated = !!token;
+      
       if (token) {
         try {
           // Parse JWT payload
           const payload = JSON.parse(atob(token.split('.')[1]));
           console.log('[App] Current token payload:', payload);
+          
+          // If user has been authenticated before, set the cookie
+          document.cookie = '_hasPreviouslyVisited=true; path=/; max-age=31536000; SameSite=Lax'; // 1 year expiry
           
           // Check if token is expired
           const now = Math.floor(Date.now() / 1000);
@@ -29,6 +41,9 @@ export default function App({ Component, pageProps }: AppProps) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+            wasAuthenticated = false;
+            // Notify components about auth change
+            window.dispatchEvent(new Event('authChange'));
             return;
           }
           
@@ -62,6 +77,10 @@ export default function App({ Component, pageProps }: AppProps) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+          wasAuthenticated = false;
+          
+          // Notify components about auth change
+          window.dispatchEvent(new Event('authChange'));
           
           // Redirect to login if not on a public page
           const publicPaths = ['/', '/login', '/register', '/pricing'];
@@ -89,6 +108,12 @@ export default function App({ Component, pageProps }: AppProps) {
                 };
                 console.log('[App] Reconstructing user data from token:', userData);
                 localStorage.setItem('user', JSON.stringify(userData));
+                
+                // User is now authenticated - notify components
+                if (!wasAuthenticated) {
+                  wasAuthenticated = true;
+                  window.dispatchEvent(new Event('authChange'));
+                }
               }
             } catch (e) {
               console.error('[App] Error parsing cookie token', e);
