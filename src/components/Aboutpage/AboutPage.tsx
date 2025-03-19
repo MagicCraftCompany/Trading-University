@@ -1,7 +1,7 @@
 import { DesktopMobile, TabOnly } from "@/styles/HeroStyles/Hero";
 import { ActualPaddedSectionStyle } from "@/styles/HomepageStyles/Section";
 import { FunctionComponent } from "react";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { LinkStyle } from "@/styles/LinkStyles/Link";
 import {
@@ -99,8 +99,8 @@ export const AboutHero: FunctionComponent = () => {
 };
 
 export interface ITeamMember {
-  image: string;
   name: string;
+  image: string | StaticImageData;
   post: string;
   desc: string;
 }

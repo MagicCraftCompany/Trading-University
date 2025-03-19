@@ -23,6 +23,12 @@ import thumb13 from '../../public/assets/thumbnails/thumb13.webp';
 import thumb14 from '../../public/assets/thumbnails/thumb14.webp';
 import thumb15 from '../../public/assets/thumbnails/thumb15.webp';
 import thumb16 from '../../public/assets/thumbnails/thumb16.webp';
+import tayo from '../../public/assets/tayo.png';
+import one from '../../public/assets/one.png';
+import two from '../../public/assets/two.png';
+import three from '../../public/assets/three.png';
+import mide from '../../public/assets/mide.png';
+import mike from '../../public/assets/mike.png';
 
 export interface IQuizQuestion {
   question: string;
@@ -877,7 +883,7 @@ export const AllCourses: ICourse[] = [
           "This comprehensive introduction to cryptocurrency opened my eyes to the future of finance. The course structure made complex concepts easy to understand.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1,
       },
       {
@@ -887,7 +893,7 @@ export const AllCourses: ICourse[] = [
           "An excellent foundation course that covers everything from basic concepts to practical applications. The historical context really helped me understand why cryptocurrencies matter.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3,
       },
     ],
@@ -1005,7 +1011,7 @@ export const AllCourses: ICourse[] = [
           "This course completely changed my perspective on cryptocurrency. The evidence-based approach and clear explanations of institutional adoption really helped me understand the legitimacy of this technology.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -1015,7 +1021,7 @@ export const AllCourses: ICourse[] = [
           "Finally, a course that addresses cryptocurrency skepticism with facts and data! The sections on market capitalization and institutional adoption were particularly enlightening.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -1140,7 +1146,7 @@ export const AllCourses: ICourse[] = [
         review: "This course provided an excellent overview of the entire cryptocurrency ecosystem. The explanations of different cryptocurrencies and their purposes were particularly helpful.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -1149,7 +1155,7 @@ export const AllCourses: ICourse[] = [
         review: "The comprehensive coverage of Bitcoin, Ethereum, and other cryptocurrencies helped me understand how they all fit together in the broader ecosystem.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -1265,7 +1271,7 @@ export const AllCourses: ICourse[] = [
         review: "This course taught me crucial security practices that every crypto investor should know. The section on hardware wallets was particularly enlightening.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -1274,7 +1280,7 @@ export const AllCourses: ICourse[] = [
         review: "The comprehensive coverage of security measures and practical examples made it easy to implement proper security for my crypto assets.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -1409,7 +1415,7 @@ export const AllCourses: ICourse[] = [
         review: "The step-by-step guide to using Binance was exactly what I needed. Now I can confidently trade and manage my crypto assets on the platform.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -1418,7 +1424,7 @@ export const AllCourses: ICourse[] = [
         review: "Great course for beginners! The security setup and transaction management sections were particularly helpful in getting started safely.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -1518,7 +1524,7 @@ export const AllCourses: ICourse[] = [
           "The comprehensive approach to fundamental analysis and real-world case studies helped me develop a structured approach to evaluating crypto projects.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -1528,7 +1534,7 @@ export const AllCourses: ICourse[] = [
           "The XRP case study was particularly enlightening. It showed how to apply fundamental analysis principles to real cryptocurrency projects.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -1673,7 +1679,7 @@ export const AllCourses: ICourse[] = [
           "This course is a great starting point for anyone looking to get into crypto trading...",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1,
       },
       {
@@ -1683,7 +1689,7 @@ export const AllCourses: ICourse[] = [
           "I was skeptical about taking an online course on crypto trading, but this course exceeded my expectations...",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3,
       },
     ],
@@ -1802,7 +1808,7 @@ export const AllCourses: ICourse[] = [
           "This course opened my eyes to the various manipulation tactics in crypto markets. The section on social media influence analysis was particularly enlightening.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -1812,7 +1818,7 @@ export const AllCourses: ICourse[] = [
           "The practical examples of pump and dump patterns helped me avoid several potential losses. Essential knowledge for any crypto investor.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -1939,7 +1945,7 @@ export const AllCourses: ICourse[] = [
           "The advanced technical analysis techniques and real-world cryptocurrency examples helped take my trading to the next level. The Fibonacci section was particularly valuable.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -1949,7 +1955,7 @@ export const AllCourses: ICourse[] = [
           "Excellent advanced course! The combination of multiple technical analysis elements and practical examples using major cryptocurrencies was extremely helpful.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -2067,7 +2073,7 @@ export const AllCourses: ICourse[] = [
           "This course saved me from potential disasters with leverage trading. The real-world examples and clear warnings were eye-opening.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -2077,7 +2083,7 @@ export const AllCourses: ICourse[] = [
           "Essential knowledge for any crypto trader. The section on liquidation risks and practical examples helped me understand why leverage is so dangerous.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -2222,7 +2228,7 @@ export const AllCourses: ICourse[] = [
           "The practical examples and step-by-step guidance through real trades on Binance and Kraken were invaluable. Perfect for beginners!",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -2232,7 +2238,7 @@ export const AllCourses: ICourse[] = [
           "The focus on risk management and practical trading examples helped me start trading confidently. The multiple timeframe analysis section was particularly helpful.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -2368,7 +2374,7 @@ export const AllCourses: ICourse[] = [
           "The advanced trading concepts and real-world examples using major cryptocurrencies were extremely valuable. The position sizing and risk management sections were game-changers.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -2378,7 +2384,7 @@ export const AllCourses: ICourse[] = [
           "Excellent advanced course! The practical examples with Bitcoin, Ethereum, and BNB helped me understand complex trading strategies and risk management techniques.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -2460,7 +2466,7 @@ export const AllCourses: ICourse[] = [
           "The step-by-step guide to using Kraken was exactly what I needed. The Dogecoin trading example made it easy to understand the platform.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -2470,7 +2476,7 @@ export const AllCourses: ICourse[] = [
           "Clear and concise instructions on using Kraken. The funding and order execution sections were particularly helpful for getting started.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -2606,7 +2612,7 @@ export const AllCourses: ICourse[] = [
           "The comprehensive approach to portfolio building and the emphasis on risk management helped me create a well-balanced cryptocurrency investment strategy.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -2616,7 +2622,7 @@ export const AllCourses: ICourse[] = [
           "The sections on Bitcoin and Ethereum as foundation assets and the dollar-cost averaging strategy were particularly valuable for long-term planning.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -2734,7 +2740,7 @@ export const AllCourses: ICourse[] = [
           "This course saved me from making costly mistakes. The section on security practices was particularly eye-opening and helped me protect my investments.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -2744,7 +2750,7 @@ export const AllCourses: ICourse[] = [
           "Learning about common mistakes before making them was invaluable. The practical examples and case studies really drove the points home.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -2853,7 +2859,7 @@ export const AllCourses: ICourse[] = [
           "This course opened my eyes to the manipulation tactics in crypto markets. The technical analysis section helped me spot several pump and dumps before they crashed.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -2863,7 +2869,7 @@ export const AllCourses: ICourse[] = [
           "The social media analysis section was particularly valuable. I now know exactly what red flags to look for when evaluating crypto projects and promotions.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -2981,7 +2987,7 @@ export const AllCourses: ICourse[] = [
           "The step-by-step guide to Bybit trading was exactly what I needed. The TradingView integration section was particularly helpful for my analysis.",
         likes: 50,
         comments: 51,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 1
       },
       {
@@ -2991,7 +2997,7 @@ export const AllCourses: ICourse[] = [
           "Great practical tutorial! The pattern recognition and risk management sections helped me set up my first successful trades on Bybit.",
         likes: 70,
         comments: 151,
-        img: "/assets/tayo.png",
+        img: tayo,
         daysAgo: 3
       }
     ],
@@ -3015,17 +3021,17 @@ export const FiltersByType: IFilterButton[] = [
 
 export const Reasons: IReason[] = [
   {
-    img: "/assets/one.png",
+    img: one,
     head: "Regular Accessments",
     text: "We give our students real life accessments to help them improve their knowledge on core areas",
   },
   {
-    img: "/assets/two.png",
+    img: two,
     head: "On-site & Remote Learning",
     text: "We are fully an online learning platform but for special cases, we can go the extra mile to provide mentorship service",
   },
   {
-    img: "/assets/three.png",
+    img: three,
     head: "Certificate",
     text: "On graduation, every student will be awarded our prestigious certificate of completion",
   },
@@ -3035,7 +3041,7 @@ export const Reasons: IReason[] = [
 export const Testimonies: ITestimony[] = [
   {
     id: null,
-    img: "/assets/mide.png",
+    img: mide,
     name: "Omotosho Mide",
     position: "Alumni",
     isActive: false,
@@ -3044,7 +3050,7 @@ export const Testimonies: ITestimony[] = [
   },
   {
     id: null,
-    img: "/assets/mike.png",
+    img: mike,
     name: "Micheal Ajala",
     position: "Alumni",
     isActive: true,
@@ -3053,7 +3059,7 @@ export const Testimonies: ITestimony[] = [
   },
   {
     id: null,
-    img: "/assets/tayo.png",
+    img: tayo,
     name: "Omotayo",
     position: "Student",
     isActive: false,
@@ -3102,19 +3108,19 @@ export const Faqs: IFaq[] = [
 export const TeamMembers: ITeamMember[] = [
   {
     name: "James",
-    image: "/assets/mike-team.png",
+    image: mike,
     post: "CEO",
     desc: "James has built a reputation in the trading ecosystem",
   },
   {
     name: "Matthew",
-    image: "/assets/mike-team.png",
+    image: mike,
     post: "Head of Trading",
     desc: "Matthew has built a reputation in the trading community",
   },
   {
     name: "Dev. Micheal Ajala",
-    image: "/assets/mike-team.png",
+    image: mike,
     post: "Head of Trading",
     desc: "Michael has built a reputation in the trading community",
   },

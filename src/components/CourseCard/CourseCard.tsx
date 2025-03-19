@@ -64,13 +64,13 @@
     topics : string[];
   }
   export interface ITutor{
-    img: string;
+    img: string | StaticImageData;
     name : string;
     job : string;
     email : string;
   }
   export interface IReview{
-    img : string;
+    img : string | StaticImageData;
     post : string;
     name : string;
     review : string;

@@ -7,6 +7,8 @@ import { ActualPaddedSectionStyle } from "@/styles/HomepageStyles/Section";
 import { WelcomeStyles } from "@/styles/HomepageStyles/Homepage";
 import { motion } from "framer-motion";
 import { welcomeTextVariants } from "@/Animations/LandingPageVariants";
+import welcomemobile from "../../../public/assets/welcome-mobile.png";
+import welcome from "../../../public/assets/welcome.png";
 
 const Welcome: FunctionComponent = () => {
   return (
@@ -18,7 +20,7 @@ const Welcome: FunctionComponent = () => {
               <div className="one img-cont">
                 <TabOnly>
                   <Image
-                    src="/assets/welcome.png"
+                    src={welcome}
                     alt="welcome"
                     width={475.544}
                     height={369.739}
@@ -26,7 +28,7 @@ const Welcome: FunctionComponent = () => {
                     sizes="100%"
                   />
                   <Image
-                    src="/assets/welcome.png"
+                    src={welcome}
                     alt="welcome"
                     width={380}
                     height={300}
@@ -68,7 +70,7 @@ const Welcome: FunctionComponent = () => {
               viewport={{once : true}}
               >Welcome to James Cryptoguru trading University</motion.h3>
               <Image
-                src="/assets/welcome-mobile.png"
+                src={welcomemobile}
                 alt="welcome"
                 width={0}
                 height={0}
