@@ -43,7 +43,7 @@ export default function AuthCallback() {
       console.error('Error handling auth callback:', err);
       setError('Authentication failed');
     }
-  }, [router.isReady, router.query]);
+  }, [router.isReady, router.query, router]);
 
   if (error) {
     return (

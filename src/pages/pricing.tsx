@@ -74,7 +74,7 @@ const PricingPage = () => {
         query: queryWithoutToken
       }, undefined, { shallow: true });
     }
-  }, [router.query.token]);
+  }, [router, router.query]);
 
   const handleSubscribe = async () => {
     setIsLoading(true);
@@ -150,7 +150,7 @@ const PricingPage = () => {
           
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
-              By subscribing, you'll get full access to all our premium courses, live trading signals, and expert market analysis.
+              By subscribing, you&apos;ll get full access to all our premium courses, live trading signals, and expert market analysis.
             </p>
           </div>
         </div>

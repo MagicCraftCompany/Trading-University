@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -51,7 +52,7 @@ export default function LoginPage() {
     if (router.isReady) {
       verifyCheckoutSession();
     }
-  }, [router.isReady, router.query]);
+  }, [router.isReady, router.query, router]);
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
@@ -160,7 +161,7 @@ export default function LoginPage() {
 
         <div className="text-center mt-8">
           <p className="text-sm text-gray-600">
-            No account yet? <a href="/pricing" className="font-medium text-indigo-600 hover:text-indigo-500">Subscribe to get access</a>
+            No account yet? <Link href="/pricing" className="font-medium text-indigo-600 hover:text-indigo-500">Subscribe to get access</Link>
           </p>
         </div>
       </div>

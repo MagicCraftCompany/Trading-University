@@ -126,7 +126,7 @@ const Header: FunctionComponent = () => {
     return () => {
       router.events.off("routeChangeStart", handleRouteChange);
     };
-  }, []);
+  }, [dispatch, router.events]);
 
   // Function to get user's initials for avatar
   const getUserInitials = () => {
