@@ -12,6 +12,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    // Add these diagnostic logs
+    console.log('==== GOOGLE AUTH CALLBACK DIAGNOSTICS ====');
+    console.log('Environment check:');
+    console.log('- DATABASE_URL exists:', !!process.env.DATABASE_URL);
+    console.log('- JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    console.log('- GOOGLE_CLIENT_SECRET exists:', !!process.env.GOOGLE_CLIENT_SECRET);
+    console.log('- NEXT_PUBLIC_GOOGLE_CLIENT_ID exists:', !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+    console.log('- NEXT_PUBLIC_BASE_URL:', process.env.NEXT_PUBLIC_BASE_URL);
+    
     console.log('Google callback received:', req.query);
     const { code, state } = req.query;
     
