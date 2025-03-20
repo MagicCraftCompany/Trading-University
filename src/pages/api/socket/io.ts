@@ -8,7 +8,18 @@ export const config = {
   },
 };
 
-const ioHandler = (req: NextApiRequest, res: NextApiResponse) => {
+const ioHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+  // Set CORS headers for preflight requests
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight request
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   // Check if socket and server exist and if io is not already initialized
   if (res.socket && 'server' in res.socket && !(res.socket.server as any).io) {
     const httpServer: NetServer = (res.socket.server as any);
@@ -18,17 +29,19 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponse) => {
       transports: ['polling', 'websocket'],
       cors: {
         origin: '*',
-        methods: ['GET', 'POST'],
-        credentials: true
+        methods: ['GET', 'POST', 'OPTIONS'],
+        credentials: false
       },
+      connectTimeout: 45000,
       // For Vercel serverless functions, set up appropriate timeouts
       pingTimeout: 60000,
       pingInterval: 25000,
+      cookie: false
     });
     
     // Add your socket event handlers here
     io.on('connection', (socket) => {
-      console.log('Socket connected:', socket.id, 'transport:', socket.conn.transport.name);
+      console.log('Socket connected:', socket.id);
       
       socket.on('join', (userData) => {
         console.log('User joined:', userData);
@@ -70,9 +83,18 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     // Handle POST requests (used in long-polling)
     res.status(200).json({ success: true });
-  } else {
+  } else if (req.method === 'GET') {
     // Handle GET requests
-    res.end();
+    if (res.socket && 'server' in res.socket && (res.socket.server as any).io) {
+      // Socket.IO is already initialized
+      res.end();
+    } else {
+      // Socket.IO isn't initialized or there's an issue
+      res.status(200).end();
+    }
+  } else {
+    // Method not allowed
+    res.status(405).end();
   }
 };
 

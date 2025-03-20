@@ -173,10 +173,12 @@ const ChatRoom: React.FC = () => {
           path: '/socket.io/',
           // Match server configuration - use polling first, then try WebSocket
           transports: ['polling', 'websocket'],
+          autoConnect: false,
           reconnection: true,
           reconnectionAttempts: 10,
           reconnectionDelay: 1000,
           timeout: 20000,
+          forceNew: true
         });
       }
       
@@ -254,6 +256,9 @@ const ChatRoom: React.FC = () => {
           console.log('User left:', userData)
           setOnlineUsers(prev => prev.filter(u => u.id !== userData.id))
         })
+
+        // Connect the socket after all event handlers are set up
+        socket.connect();
       } else {
         // If socket exists and is connected, manually join the room
         if (socket.connected) {
@@ -261,13 +266,20 @@ const ChatRoom: React.FC = () => {
             id: user.id,
             fullName: user.name,
             email: user.email,
-            imageUrl: user.image
-          })
+            imageUrl: user.image,
+            userName: user.name,
+            userEmail: user.email,
+            userImage: user.image
+          });
+        } else {
+          // Try to connect if not connected
+          socket.connect();
         }
       }
 
       // Update connection status based on current socket state
-      setIsConnected(socket.connected)
+      setIsConnected(socket.connected);
+      
     } catch (error) {
       console.error('Error initializing socket:', error)
       setError('Failed to connect to chat. Please refresh the page.')
