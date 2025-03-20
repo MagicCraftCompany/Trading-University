@@ -14,7 +14,7 @@ const About: FunctionComponent = () => {
       </Head>
       <AboutHero />
       <Chooseus />
-      <Team />
+     
       <Cta />
       <SocialsComp />
     </>
