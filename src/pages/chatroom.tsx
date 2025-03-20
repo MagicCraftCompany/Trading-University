@@ -170,8 +170,8 @@ const ChatRoom: React.FC = () => {
         console.log('Connecting to socket server at:', socketUrl);
         
         socket = io(socketUrl, {
-          path: '/socket.io/',
-          transports: ['websocket', 'polling'],
+          path: '/api/socket/io',
+          transports: ['websocket'],
           reconnection: true,
           reconnectionAttempts: 5,
           reconnectionDelay: 1000,
@@ -194,7 +194,10 @@ const ChatRoom: React.FC = () => {
             id: user.id,
             fullName: user.name,
             email: user.email,
-            imageUrl: user.image
+            imageUrl: user.image,
+            userName: user.name,
+            userEmail: user.email,
+            userImage: user.image
           };
           console.log('Emitting join event with data:', joinData);
           socket.emit('join', joinData);
@@ -284,6 +287,9 @@ const ChatRoom: React.FC = () => {
         const messageData = {
           text: input.trim(),
           userId: user.id,
+          userName: user.name,
+          userEmail: user.email,
+          userImage: user.image
         }
         console.log('Sending message:', messageData)
         socket.emit('message', messageData)
