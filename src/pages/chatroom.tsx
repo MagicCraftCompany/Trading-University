@@ -170,7 +170,7 @@ const ChatRoom: React.FC = () => {
         console.log('Connecting to socket server at:', socketUrl);
         
         socket = io(socketUrl, {
-          path: '/api/socket/io',
+          path: '/socket.io/',
           transports: ['websocket'],
           reconnection: true,
           reconnectionAttempts: 5,

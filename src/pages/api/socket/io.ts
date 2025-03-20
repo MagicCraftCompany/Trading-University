@@ -13,8 +13,7 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponse) => {
   if (res.socket && 'server' in res.socket && !(res.socket.server as any).io) {
     const httpServer: NetServer = (res.socket.server as any);
     const io = new ServerIO(httpServer, {
-      path: '/api/socket/io',
-      addTrailingSlash: false,
+      path: '/socket.io/',
       cors: {
         origin: '*',
         methods: ['GET', 'POST'],
