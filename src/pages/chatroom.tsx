@@ -171,10 +171,12 @@ const ChatRoom: React.FC = () => {
         
         socket = io(socketUrl, {
           path: '/socket.io/',
-          transports: ['websocket'],
+          // Match server configuration - use polling first, then try WebSocket
+          transports: ['polling', 'websocket'],
           reconnection: true,
-          reconnectionAttempts: 5,
+          reconnectionAttempts: 10,
           reconnectionDelay: 1000,
+          timeout: 20000,
         });
       }
       

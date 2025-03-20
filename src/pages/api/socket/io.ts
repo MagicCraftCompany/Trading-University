@@ -14,15 +14,21 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponse) => {
     const httpServer: NetServer = (res.socket.server as any);
     const io = new ServerIO(httpServer, {
       path: '/socket.io/',
+      // Use polling transport first, then try WebSocket
+      transports: ['polling', 'websocket'],
       cors: {
         origin: '*',
         methods: ['GET', 'POST'],
+        credentials: true
       },
+      // For Vercel serverless functions, set up appropriate timeouts
+      pingTimeout: 60000,
+      pingInterval: 25000,
     });
     
     // Add your socket event handlers here
     io.on('connection', (socket) => {
-      console.log('Socket connected:', socket.id);
+      console.log('Socket connected:', socket.id, 'transport:', socket.conn.transport.name);
       
       socket.on('join', (userData) => {
         console.log('User joined:', userData);
@@ -35,6 +41,7 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponse) => {
       });
 
       socket.on('message', (messageData) => {
+        console.log('Received message:', messageData);
         const formattedMessage = {
           id: Date.now().toString(),
           content: messageData.text,
@@ -58,7 +65,15 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponse) => {
     // Attach IO instance to the server object
     (res.socket.server as any).io = io;
   }
-  res.end();
+  
+  // Handle the request appropriately based on method
+  if (req.method === 'POST') {
+    // Handle POST requests (used in long-polling)
+    res.status(200).json({ success: true });
+  } else {
+    // Handle GET requests
+    res.end();
+  }
 };
 
 export default ioHandler; 
