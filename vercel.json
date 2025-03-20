@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/socket/io": {
-      "maxDuration": 60
-    }
-  }
-}
