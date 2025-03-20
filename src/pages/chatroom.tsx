@@ -88,6 +88,30 @@ const ChatRoom: React.FC = () => {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
+  // Add a function to save messages to localStorage
+  const saveMessagesToStorage = (messages: Message[]) => {
+    try {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+    } catch (error) {
+      console.error('Error saving messages to localStorage:', error);
+    }
+  };
+
+  // Load messages from localStorage on initial render
+  useEffect(() => {
+    try {
+      const savedMessages = localStorage.getItem('chatMessages');
+      if (savedMessages) {
+        const parsedMessages = JSON.parse(savedMessages);
+        if (Array.isArray(parsedMessages) && parsedMessages.length > 0) {
+          setMessages(parsedMessages);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading messages from localStorage:', error);
+    }
+  }, []);
+
   // Load user data from localStorage
   useEffect(() => {
     const userInfo = localStorage.getItem('user');
@@ -192,12 +216,17 @@ const ChatRoom: React.FC = () => {
           console.log('Received previous messages:', previousMessages)
           if (Array.isArray(previousMessages)) {
             setMessages(previousMessages)
+            saveMessagesToStorage(previousMessages) // Save to localStorage
           }
         })
 
         socket.on('message', (message: Message) => {
           console.log('Received new message:', message)
-          setMessages((prevMessages) => [...prevMessages, message])
+          setMessages((prevMessages) => {
+            const updatedMessages = [...prevMessages, message];
+            saveMessagesToStorage(updatedMessages); // Save to localStorage
+            return updatedMessages;
+          })
         })
         
         socket.on('error', (errorData: { message: string }) => {
