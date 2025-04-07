@@ -1,46 +1,96 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Trading University
+
+A comprehensive trading education platform built with Next.js, TypeScript, and modern web technologies.
+
+## Features
+
+- 📚 Educational Content Management
+- 🔐 User Authentication with Google OAuth
+- 💳 Stripe Integration for Payments
+- 🎯 Interactive Learning Experience
+- 🗄️ Database Integration with Supabase
+- 📱 Responsive Design
+- ⚡ Real-time Updates
+
+## Tech Stack
+
+- **Frontend:**
+  - Next.js
+  - TypeScript
+  - Styled Components
+  - Framer Motion
+
+- **Backend:**
+  - Next.js API Routes
+  - Supabase
+  - PostgreSQL
+
+- **Authentication:**
+  - Google OAuth
+  - JWT
+
+- **Payment Processing:**
+  - Stripe
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+- PostgreSQL database
+- Supabase account
+- Stripe account
+- Google OAuth credentials
+
+### Environment Setup
+
+1. Clone the repository
+2. Copy `.env.example` to `.env` and fill in your environment variables:
+   ```
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+   STRIPE_SECRET_KEY=your_stripe_secret_key
+   NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   DATABASE_URL=your_database_url
+   JWT_SECRET=your_jwt_secret
+   ```
+
+### Installation
 
 ```bash
+# Install dependencies
+npm install
+# or
+yarn install
+
+# Run the development server
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+```
+trading-university/
+├── components/     # Reusable UI components
+├── pages/          # Next.js pages and API routes
+├── public/         # Static assets
+├── styles/         # Global styles and themes
+├── lib/           # Utility functions and configurations
+├── types/         # TypeScript type definitions
+└── prisma/        # Database schema and migrations
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+## License
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-## Technologies Used
-This is my first personal Next Js project!!!😎😂 I made use of Next, Typescript, styled components and framer motion for animations of course.
-
-## Contributors
-
-I collaborated with a wonderful product designer to make this. Thanks so much @MichealAjala.
-Check him out on Behance: https://www.behance.net/michaelakintola
