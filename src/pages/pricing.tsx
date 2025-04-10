@@ -81,23 +81,10 @@ const PricingPage = () => {
     setError(null);
     
     try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(isAuthenticated && { 'Authorization': `Bearer ${localStorage.getItem('token')}` })
-        },
-      });
-      
-      const data = await response.json();
-      
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setError("Failed to create checkout session");
-      }
+      // Use direct window location change instead of router
+      window.location.href = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/custom-checkout`;
     } catch (error) {
-      console.error("Failed to create checkout session:", error);
+      console.error("Navigation error:", error);
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -107,7 +94,7 @@ const PricingPage = () => {
   return (
     <>
       <Head>
-        <title>Subscription Required | James Crypto Guru</title>
+        <title>Subscription Required | Trading University</title>
         <meta name="description" content="Subscribe to access premium crypto trading courses and resources" />
       </Head>
       

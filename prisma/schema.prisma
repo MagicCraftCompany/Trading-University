@@ -7,50 +7,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id               String        @id @default(cuid())
+  email            String        @unique
+  password         String?
+  name             String?
+  image            String?
+  authProvider     AuthProvider  @default(GOOGLE)
+  googleId         String?       @unique
+  stripeCustomerId String?       @unique
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  lastLoginAt      DateTime?
+  subscription     Subscription?
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeSubscriptionId String?            @unique
+  currentPeriodStart   DateTime           @default(now())
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id])
+}
+
 enum AuthProvider {
   GOOGLE
 }
 
 enum SubscriptionStatus {
-  FREE
   ACTIVE
   EXPIRED
   CANCELLED
-}
-
-model User {
-  id                String           @id @default(cuid())
-  email             String           @unique
-  password          String?          // Optional since we only use Google login
-  name              String?
-  image             String?
-  authProvider      AuthProvider     @default(GOOGLE)
-  googleId          String?          @unique
-  stripeCustomerId  String?          @unique
-  subscription      Subscription?
-  messages          ChatMessage[]
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  lastLoginAt       DateTime?
-}
-
-model Subscription {
-  id                    String            @id @default(cuid())
-  userId               String            @unique
-  user                 User              @relation(fields: [userId], references: [id])
-  status               SubscriptionStatus @default(FREE)
-  stripeSubscriptionId String?           @unique
-  currentPeriodStart   DateTime          @default(now())
-  currentPeriodEnd     DateTime?
-  cancelAtPeriodEnd    Boolean           @default(false)
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-}
-
-model ChatMessage {
-  id        String   @id @default(cuid())
-  content   String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
 }

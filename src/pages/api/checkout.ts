@@ -1,9 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
+import prisma from '@/db/prisma';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+// Initialize Stripe with proper error handling
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-02-24.acacia',
 });
+
+// Validate Stripe is properly configured
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.error('STRIPE_SECRET_KEY is not set. Please check your environment variables.');
+}
 
 // Define pricing plans
 const PLANS = {
@@ -19,6 +26,12 @@ const PLANS = {
     unit_amount: 49900, // $499.00 (save ~15%)
     interval: 'year',
   },
+  onetime: {
+    name: 'One Year of Enrollment',
+    description: 'Full access to premium crypto trading courses and expert analysis',
+    unit_amount: 59999, // $599.99
+    interval: null,
+  }
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -28,50 +41,167 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Get plan from query or body
-    const planType = (req.method === 'GET' ? req.query.plan : req.body.plan) as string || 'monthly';
-    
-    // Validate plan
-    if (!['monthly', 'yearly'].includes(planType)) {
-      return res.status(400).json({ message: 'Invalid plan type' });
-    }
-    
-    const plan = PLANS[planType as keyof typeof PLANS];
-    
-    // Create checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: plan.name,
-              description: plan.description,
-              images: ['https://your-domain.com/course-preview.jpg'], // Add your course preview image
-            },
-            unit_amount: plan.unit_amount,
-            recurring: {
-              interval: plan.interval as 'month' | 'year' | 'week' | 'day',
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/login?session_id={CHECKOUT_SESSION_ID}&checkout_complete=true&redirect_to=courses`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing`,
-      allow_promotion_codes: true, // Enable promo codes
-      billing_address_collection: 'required',
-    });
+    // Handle direct payment from custom form
+    if (req.method === 'POST' && req.body.paymentMethodId) {
+      const {
+        paymentMethodId,
+        email,
+        fullName,
+        address,
+        country,
+        isGift,
+        applyDiscount,
+        paymentType
+      } = req.body;
 
-    // For GET requests, redirect to the checkout URL
-    if (req.method === 'GET') {
-      return res.redirect(session.url || '/pricing');
+      // Check if we have a valid email
+      if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+      }
+
+      // Get the plan details
+      const planType = 'onetime';
+      const plan = PLANS[planType as keyof typeof PLANS];
+      
+      // Apply discount if applicable (20% off)
+      const finalAmount = applyDiscount ? Math.round(plan.unit_amount * 0.8) : plan.unit_amount;
+
+      try {
+        // Extract zip code from address string
+        let addressLine1 = address;
+        let postalCode = '';
+        
+        if (address && address.includes(',')) {
+          const parts = address.split(',');
+          // Last part is likely the postal code
+          postalCode = parts.pop()?.trim() || '';
+          // Rejoin the remaining parts for the address line
+          addressLine1 = parts.join(',').trim();
+        }
+        
+        // Create a customer for this transaction
+        const customer = await stripe.customers.create({
+          email,
+          name: fullName,
+          address: {
+            line1: addressLine1 || address, // Use the full address if splitting failed
+            country: country,
+            postal_code: postalCode,
+          },
+          payment_method: paymentMethodId,
+          metadata: {
+            isGift: isGift ? 'true' : 'false',
+            discountApplied: applyDiscount ? 'true' : 'false',
+          },
+        });
+
+        // For one-time payments (we're just supporting one-time payments for now)
+        // Create a payment intent for direct charge
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: finalAmount,
+          currency: 'usd',
+          customer: customer.id,
+          payment_method: paymentMethodId,
+          description: plan.description,
+          confirm: true,
+          receipt_email: email,
+          metadata: {
+            name: fullName,
+            isGift: isGift ? 'true' : 'false',
+            discountApplied: applyDiscount ? 'true' : 'false',
+          },
+        });
+
+        // If payment requires authentication, return client secret
+        if (paymentIntent.status === 'requires_action') {
+          return res.status(200).json({
+            requiresAction: true,
+            clientSecret: paymentIntent.client_secret,
+            successUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?payment_intent=${paymentIntent.id}&checkout_complete=true&redirect_to=courses`,
+          });
+        }
+        
+        // If payment succeeds immediately
+        else if (paymentIntent.status === 'succeeded') {
+          try {
+            console.log('Payment succeeded with ID:', paymentIntent.id);
+            console.log('Skipping database operations for now...');
+            
+         
+          } catch (dbError) {
+            console.error('Database error:', dbError);
+            // We'll still return success to the client, but log the DB error
+          }
+
+          // Return success URL for redirect
+          return res.status(200).json({
+            success: true,
+            url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?payment_intent=${paymentIntent.id}&checkout_complete=true&redirect_to=courses`,
+          });
+        } 
+        // If payment failed
+        else {
+          return res.status(400).json({
+            message: `Payment failed with status: ${paymentIntent.status}. Please try again.`,
+          });
+        }
+      } catch (stripeError: any) {
+        console.error('Stripe error:', stripeError);
+        return res.status(400).json({
+          message: stripeError.message || 'Payment processing failed. Please check your payment details and try again.'
+        });
+      }
     }
     
-    // For POST requests, return the URL
-    res.status(200).json({ url: session.url });
+    // Original checkout session code for standard Stripe Checkout
+    else {
+      // Get plan from query or body
+      const planType = (req.method === 'GET' ? req.query.plan : req.body.plan) as string || 'monthly';
+      
+      // Validate plan
+      if (!['monthly', 'yearly', 'onetime'].includes(planType)) {
+        return res.status(400).json({ message: 'Invalid plan type' });
+      }
+      
+      const plan = PLANS[planType as keyof typeof PLANS];
+      
+      // Create checkout session
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: plan.name,
+                description: plan.description,
+                images: ['https://your-domain.com/course-preview.jpg'], // Add your course preview image
+              },
+              unit_amount: plan.unit_amount,
+              ...(plan.interval && {
+                recurring: {
+                  interval: plan.interval as 'month' | 'year' | 'week' | 'day',
+                },
+              }),
+            },
+            quantity: 1,
+          },
+        ],
+        mode: plan.interval ? 'subscription' : 'payment',
+        success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?session_id={CHECKOUT_SESSION_ID}&checkout_complete=true&redirect_to=courses`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/pricing`,
+        allow_promotion_codes: true, // Enable promo codes
+        billing_address_collection: 'required',
+      });
+
+      // For GET requests, redirect to the checkout URL
+      if (req.method === 'GET') {
+        return res.redirect(session.url || '/pricing');
+      }
+      
+      // For POST requests, return the URL
+      res.status(200).json({ url: session.url });
+    }
   } catch (error) {
     console.error('Stripe checkout error:', error);
     

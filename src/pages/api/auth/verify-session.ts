@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!session_id || typeof session_id !== 'string') {
       console.log('[verify-session] Missing or invalid session_id');
       if (shouldRedirect) {
-        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?error=InvalidSessionId`);
+        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/login?error=InvalidSessionId`);
       }
       return res.status(400).json({ success: false, message: 'Missing or invalid session_id' });
     }
@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     if (session.status !== 'complete') {
       if (shouldRedirect) {
-        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?error=CheckoutNotComplete`);
+        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/login?error=CheckoutNotComplete`);
       }
       return res.status(400).json({ success: false, message: 'Checkout session is not complete' });
     }
@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!customerEmail) {
       console.log('[verify-session] No customer email found in session');
       if (shouldRedirect) {
-        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?error=NoEmailInCheckout`);
+        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/login?error=NoEmailInCheckout`);
       }
       return res.status(400).json({ success: false, message: 'No customer email found in session' });
     }
@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!session.subscription) {
       console.log('[verify-session] No subscription found in session');
       if (shouldRedirect) {
-        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?error=NoSubscriptionFound`);
+        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/login?error=NoSubscriptionFound`);
       }
       return res.status(400).json({ success: false, message: 'No subscription found in this session' });
     }
@@ -96,7 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Set _hasPreviouslyVisited cookie
         res.setHeader('Set-Cookie', `_hasPreviouslyVisited=true; Path=/; Max-Age=31536000; SameSite=Lax`);
         // Redirect to login page for Google auth
-        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?checkout_complete=true`);
+        return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/login?checkout_complete=true`);
       }
       
       // For API calls, return JSON
@@ -171,7 +171,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Handle redirect if requested
     if (shouldRedirect) {
       console.log(`[verify-session] Redirecting to: /${redirect_to}`);
-      return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${redirect_to}`);
+      return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/${redirect_to}`);
     }
     
     // Default to returning JSON for API calls
@@ -190,7 +190,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // Handle redirect if requested
     if (req.query.redirect_to && typeof req.query.redirect_to === 'string') {
-      return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?error=VerificationFailed`);
+      return res.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/login?error=VerificationFailed`);
     }
     
     res.status(500).json({ success: false, message: 'Error verifying checkout session' });

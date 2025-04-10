@@ -7,6 +7,7 @@ const publicRoutes = [
   '/',
   '/login',
   '/pricing',
+  '/custom-checkout',
   '/api/auth/google',
   '/api/auth/google/callback',
   '/api/auth/verify-session',
@@ -17,14 +18,11 @@ const publicRoutes = [
   '/favicon.ico',
   '/_next',
   '/static',
-  '/about',
-  '/contact',
 ];
 
 // Routes that require subscription
 const subscriptionRoutes = [
   '/courses',
-  '/chatroom',
 ];
 
 // Check if a path matches any of the public routes
@@ -48,6 +46,10 @@ const requiresSubscription = (path: string): boolean => {
 };
 
 export async function middleware(request: NextRequest) {
+  // MIDDLEWARE DISABLED FOR DEVELOPMENT
+  return NextResponse.next();
+  
+  /*
   const path = request.nextUrl.pathname;
   console.log(`[Middleware] Processing request for path: ${path}`);
   
@@ -131,6 +133,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/pricing', request.url));
     }
   }
+  */
 }
 
 export const config = {

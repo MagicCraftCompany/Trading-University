@@ -1,149 +1,87 @@
-import { HeaderStyle } from "@/styles/HeaderStyles/Header";
-import { MobileNavStyles } from "@/styles/HeaderStyles/MobileNav";
+import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
+import { BsCart, BsChevronDown } from 'react-icons/bs';
+import ThemeToggle from '../ThemeToggle'; 
+import { getCookie } from '@/utils/cookies';
+import Notifications from './Notifications';
 
-import Link from "next/link";
-import { Logo, Menu } from "../Icons/Icons";
-import Search from "./Search";
-import React, { FunctionComponent, useEffect, useState, useRef } from "react";
-import { PageLinkStyle } from "@/styles/LinkStyles/Link";
-import { useAppDispatch, useAppSelector } from "@/redux/hook";
-import { closeNav, toggleNav } from "@/redux/dataSlice";
-import { useRouter } from "next/router";
-import { RootState } from "@/redux/store";
-
-// What is left to do here is
-// 1. Complete the hover/clicked states of the wishlist and notifications
-const Header: FunctionComponent = () => {
-  const dispatch = useAppDispatch();
-  const { isNavOpen } = useAppSelector((state: RootState) => state.data);
-  const router = useRouter();
+const Header: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [hasPreviouslyVisited, setHasPreviouslyVisited] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
+  // Handle authentication changes
   useEffect(() => {
-    // Check for _hasPreviouslyVisited cookie
-    const checkPreviouslyVisited = () => {
-      const hasPreviouslyVisitedCookie = document.cookie.includes('_hasPreviouslyVisited=true');
-      console.log('_hasPreviouslyVisited cookie:', hasPreviouslyVisitedCookie);
-      setHasPreviouslyVisited(hasPreviouslyVisitedCookie);
-    };
-    
-    // Function to check auth status from localStorage
-    const checkAuthStatus = () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        setIsAuthenticated(true);
-        // Get user info from localStorage if available
-        const userInfo = localStorage.getItem('user');
-        if (userInfo) {
-          try {
-            const parsedUser = JSON.parse(userInfo);
-            console.log('Parsed user data:', parsedUser);
-            setUser(parsedUser);
-          } catch (e) {
-            console.error('Error parsing user info from localStorage:', e);
-            
-            // Try to get basic info from token
-            try {
-              const payload = JSON.parse(atob(token.split('.')[1]));
-              console.log('Token payload:', payload);
-              if (payload.email) {
-                setUser({
-                  email: payload.email,
-                  name: payload.name || undefined
-                });
-              }
-            } catch (tokenErr) {
-              console.error('Failed to parse token payload:', tokenErr);
-            }
-          }
-        } else {
-          // No user data in localStorage, try to extract from token
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            console.log('Token payload (no user in localStorage):', payload);
-            if (payload.email) {
-              setUser({
-                email: payload.email,
-                name: payload.name || undefined
-              });
-            }
-          } catch (tokenErr) {
-            console.error('Failed to parse token payload:', tokenErr);
-          }
+    const checkAuth = () => {
+      const token = localStorage.getItem('token') || getCookie('token');
+      const userStr = localStorage.getItem('user');
+      
+      if (token && userStr) {
+        try {
+          const userData = JSON.parse(userStr);
+          setUser(userData);
+          setIsAuthenticated(true);
+        } catch (e) {
+          console.error('Error parsing user data', e);
+          setIsAuthenticated(false);
         }
       } else {
         setIsAuthenticated(false);
-        setUser(null);
       }
     };
 
-    // Check auth status and cookie initially
-    checkPreviouslyVisited();
-    checkAuthStatus();
+    // Check initially
+    checkAuth();
 
-    // Add event listener for storage changes (for cross-tab synchronization)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'token' || e.key === 'user') {
-        checkAuthStatus();
-        checkPreviouslyVisited();
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-
-    // Add a custom event listener for auth changes within the same tab
-    const handleAuthChange = () => {
-      checkAuthStatus();
-      checkPreviouslyVisited();
-    };
-    window.addEventListener('authChange', handleAuthChange);
-
+    // Add listener for auth changes
+    window.addEventListener('authChange', checkAuth);
+    
+    // Clean up
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('authChange', handleAuthChange);
+      window.removeEventListener('authChange', checkAuth);
     };
   }, []);
 
-  // Listen for router events to check auth status on navigation
+  // Load cart and wishlist counts
   useEffect(() => {
-    const handleRouteChange = () => {
-      dispatch(closeNav());
+    if (isAuthenticated) {
+      // Get cart count - this could be from localStorage, context, or an API call
+      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      setCartCount(cartItems.length);
       
-      // Check auth status on route change
-      const token = localStorage.getItem('token');
-      if (token !== null) {
-        setIsAuthenticated(true);
-        const userInfo = localStorage.getItem('user');
-        if (userInfo) {
-          try {
-            setUser(JSON.parse(userInfo));
-          } catch (e) {
-            console.error('Error parsing user info on route change:', e);
-          }
-        }
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-      
-      // Check for _hasPreviouslyVisited cookie
-      setHasPreviouslyVisited(document.cookie.includes('_hasPreviouslyVisited=true'));
+      // Get wishlist count
+      const wishlistItems = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      setWishlistCount(wishlistItems.length);
+    }
+  }, [isAuthenticated]);
+
+  // Handle scroll events
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
     };
     
-    router.events.on("routeChangeComplete", handleRouteChange);
+    window.addEventListener('scroll', handleScroll);
+    
     return () => {
-      router.events.off("routeChangeComplete", handleRouteChange);
+      window.removeEventListener('scroll', handleScroll);
     };
-  }, [dispatch, router.events]);
+  }, []);
 
+  // Close menu when clicking outside
   useEffect(() => {
-    // Close user menu when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
+        setIsUserMenuOpen(false);
       }
     };
 
@@ -153,248 +91,159 @@ const Header: FunctionComponent = () => {
     };
   }, []);
 
-  const toggleMenu = () => {
-    dispatch(toggleNav());
-  };
-
-  const handleSubscribe = async () => {
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error("Failed to create checkout session:", error);
-    }
-  };
-
   const handleLogout = () => {
-    // Clear localStorage
+    // Clear token and user data
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     
-    // Clear token cookie but preserve _hasPreviouslyVisited cookie
-    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    // Remove cookies
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     
-    // Update state
+    // Update auth state
     setIsAuthenticated(false);
     setUser(null);
-    setShowUserMenu(false);
     
-    // Dispatch custom event to notify other components about auth change
+    // Close menus
+    setIsUserMenuOpen(false);
+    setIsMenuOpen(false);
+    
+    // Notify components about authentication change
     window.dispatchEvent(new Event('authChange'));
     
-    // Redirect to login page
-    router.push('/login');
+    // Redirect to home
+    router.push('/');
   };
 
+  // Close mobile menu when route changes
   useEffect(() => {
-    const handleRouteChange = () => {
-      dispatch(closeNav());
-    };
-    router.events.on("routeChangeStart", handleRouteChange);
-    return () => {
-      router.events.off("routeChangeStart", handleRouteChange);
-    };
-  }, [dispatch, router.events]);
-
-  // Function to get user's initials for avatar
-  const getUserInitials = () => {
-    if (!user) return '?';
-
-    console.log('Getting initials for user:', user);
-    
-    if (user.name && user.name.trim()) {
-      return user.name
-        .trim()
-        .split(' ')
-        .map(name => name[0])
-        .join('')
-        .toUpperCase();
-    }
-    
-    if (user.email && user.email.trim()) {
-      return user.email[0].toUpperCase();
-    }
-    
-    return '?';
-  };
+    setIsMenuOpen(false);
+  }, [router.pathname]);
 
   return (
-    <HeaderStyle>
-      <div className="logo">
-        <Link href={"/"}>
-          <Logo />
-        </Link>
-      </div>
-      <div className="desktop desktop-nav-links">
-        <Link href={"/courses"}>
-          <PageLinkStyle
-            color="var(--grey-500, #525252)"
-            $ispageactive={router.pathname === "/courses"}
-          >
-            Courses
-          </PageLinkStyle>
-        </Link>
-   
-          <Link href={"/chatroom"}>
-            <PageLinkStyle
-              color="var(--grey-500, #525252)"
-              $ispageactive={router.pathname === "/chatroom"}
-            >
-              Chat
-            </PageLinkStyle>
+    <header className={`w-full fixed top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white dark:bg-gray-900 shadow-md' : 'bg-transparent'}`}>
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        {/* Logo */}
+        {/* <Link href="/" className="flex items-center">
+          <div className="relative h-10 w-40">
+            <Image
+              src="/logo.png"
+              alt="Trading University"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        </Link> */}
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
+          <Link href="/" className={`text-base font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${router.pathname === '/' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
+            Home
           </Link>
+          {/* <Link href="/courses" className={`text-base font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${router.pathname === '/courses' || router.pathname.startsWith('/courses/') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
+            Courses
+          </Link> */}
+        </nav>
+
+        {/* Right Section - Auth, Cart, Theme Toggle */}
+        <div className="flex items-center space-x-4">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
      
-        <Link href={"/about"}>
-          <PageLinkStyle
-            color="var(--grey-500, #525252)"
-            $ispageactive={router.pathname === "/about"}
-          >
-            About Us
-          </PageLinkStyle>
-        </Link>
-        <Link href={"/contact"}>
-          <PageLinkStyle
-            color="var(--grey-500, #525252)"
-            $ispageactive={router.pathname === "/contact"}
-          >
-            Contact Us
-          </PageLinkStyle>
-        </Link>
-      </div>
-      <div className="desktop">
-        <Search />
-      </div>
-      <div className="desktop icons-group">
-        {isAuthenticated ? (
-          <div className="relative" ref={userMenuRef}>
-            <button 
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#e39c44] flex items-center justify-center text-white font-medium">
-                {getUserInitials()}
-              </div>
-              <span className="text-gray-700 font-medium max-w-[120px] truncate">
-                {user?.name || user?.email}
-              </span>
-              <svg className={`w-4 h-4 text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            
-            {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                <div className="px-4 py-2 border-b border-gray-200">
-                  <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                </div>
-               
-                <button 
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            {/* Show Login button only if on login page after checkout or if checkout_complete cookie exists */}
-            {router.pathname === '/login' && router.query.checkout_complete === 'true' ? (
-              <div>
-                {/* No buttons shown when on login page after checkout */}
-              </div>
-            ) : router.pathname === '/login' && router.query.session_id ? (
-              <div>
-                {/* No buttons shown when on login page with session_id */}
-              </div>
-            ) : (
-              <>
-                {/* Always show Login button for users who have previously visited */}
-                {hasPreviouslyVisited && (
-                  <Link href="/login">
-                    <button className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors">
-                      Login
-                    </button>
-                  </Link>
-                )}
-                {/* Only show Subscribe button for users who haven't previously subscribed */}
-                {!hasPreviouslyVisited && (
-                  <button
-                    onClick={handleSubscribe}
-                    className="bg-[#e39c44] text-white px-6 py-2 rounded-md hover:bg-[#d38933] transition-colors font-semibold"
-                  >
-                    Subscribe Now
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </div>
+         
 
-      <div className="mobile mobile-nav-links">
-        {!isAuthenticated && router.pathname !== '/login' && !hasPreviouslyVisited && (
-          <button
-            onClick={handleSubscribe}
-            className="bg-[#e39c44] text-white px-4 py-2 rounded-md hover:bg-[#d38933] transition-colors font-semibold w-full mt-1"
-          >
-            Subscribe Now
-          </button>
-        )}
-        <Menu toggleMenu={toggleMenu} isNavOpen={isNavOpen} />
-      </div>
+          {/* Notifications Component */}
+          {/* {isAuthenticated && <Notifications />} */}
 
-      {isNavOpen && (
-        <MobileNavStyles>
-          <div className="overlay" onClick={() => dispatch(closeNav())}></div>
-          <div className="sidemenu">
-            <div className="sidemenu-links">
-              <Link href={"/courses"}>Courses</Link>
-              {isAuthenticated && <Link href={"/chatroom"}>Chat</Link>}
-              <Link href={"/about"}>About Us</Link>
-              <Link href={"/contact"}>Contact Us</Link>
-              {!isAuthenticated && hasPreviouslyVisited && (
-                <Link href={"/login"}>Login</Link>
-              )}
-            </div>
-            {isAuthenticated && (
-              <div className="user-profile border-t border-gray-200 mt-4 pt-4">
-                <div className="flex items-center gap-3 px-4 py-2">
-                  <div className="w-10 h-10 rounded-full bg-[#e39c44] flex items-center justify-center text-white font-medium">
-                    {getUserInitials()}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{user?.name || user?.email}</p>
-                    {user?.name && <p className="text-xs text-gray-500">{user.email}</p>}
-                  </div>
+          {/* Authentication Section */}
+          {isAuthenticated ? (
+            <div className="relative" ref={userMenuRef}>
+              <button 
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden">
+                  {user?.image ? (
+                    <Image 
+                      src={user.image} 
+                      alt={user.name || 'User'} 
+                      width={32} 
+                      height={32} 
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <FaUser className="text-blue-600 dark:text-blue-400" />
+                  )}
                 </div>
-                <div className="mt-2 border-t border-gray-200">
-                  <Link href="/profile">
-                    <span className="block px-4 py-2 hover:bg-gray-100">Profile Settings</span>
-                  </Link>
+                <span className="hidden md:block font-medium">Hello, {user?.name?.split(' ')[0] || 'User'}</span>
+                <BsChevronDown size={12} />
+              </button>
+
+              {/* User Dropdown Menu */}
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
+                  <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                  </div>
+                 
+                 
                   <button 
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    Logout
+                    Sign out
                   </button>
                 </div>
+              )}
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center space-x-4">
+              <Link href="/login" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
+                Sign In
+              </Link>
+              <Link href="/custom-checkout" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
+                Enroll
+              </Link>
+            </div>
+          )}
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg">
+          <div className="px-4 py-5 space-y-4">
+            <Link href="/" className={`block py-2 text-base font-medium ${router.pathname === '/' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
+              Home
+            </Link>
+            <Link href="/courses" className={`block py-2 text-base font-medium ${router.pathname === '/courses' || router.pathname.startsWith('/courses/') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
+              Courses
+            </Link>
+            
+            {!isAuthenticated && (
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <Link href="/login" className="block py-2 text-base font-medium text-gray-700 dark:text-gray-200">
+                  Sign In
+                </Link>
+                <Link href="/custom-checkout" className="block py-2 mt-2 w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-md transition-colors">
+                  Enroll
+                </Link>
               </div>
             )}
           </div>
-        </MobileNavStyles>
+        </div>
       )}
-    </HeaderStyle>
+    </header>
   );
 };
 
