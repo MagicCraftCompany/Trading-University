@@ -45,7 +45,13 @@ export default function LoginPage() {
     
     // Handle login errors
     if (router.query.error) {
-      setError('Authentication failed. Please try again.');
+      if (router.query.error === 'NoAccountFound') {
+        setError('No account found with this Google email. Please register through the enrollment process first.');
+      } else if (router.query.error === 'GoogleAuthFailed') {
+        setError('Google authentication failed. Please try again or use email/password login.');
+      } else {
+        setError('Authentication failed. Please try again.');
+      }
       return;
     }
     
@@ -59,8 +65,6 @@ export default function LoginPage() {
         
         if (checkout_complete === 'true') {
           setPendingMessage('Thank you for subscribing! Please sign in to complete your account setup.');
-          // Dispatch an event to notify the header to update
-          window.dispatchEvent(new Event('authChange'));
           return;
         }
       }

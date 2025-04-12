@@ -105,6 +105,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           description: plan.description,
           confirm: true,
           receipt_email: email,
+          automatic_payment_methods: {
+            enabled: true,
+            allow_redirects: 'never'
+          },
           metadata: {
             name: fullName,
             isGift: isGift ? 'true' : 'false',

@@ -22,6 +22,7 @@ const Header: React.FC = () => {
   // Handle authentication changes
   useEffect(() => {
     const checkAuth = () => {
+      // Only check on explicit auth changes, not on initial load
       const token = localStorage.getItem('token') || getCookie('token');
       const userStr = localStorage.getItem('user');
       
@@ -39,8 +40,8 @@ const Header: React.FC = () => {
       }
     };
 
-    // Check initially
-    checkAuth();
+    // Don't check initially, only on explicit auth changes
+    // Removed: checkAuth();
 
     // Add listener for auth changes
     window.addEventListener('authChange', checkAuth);

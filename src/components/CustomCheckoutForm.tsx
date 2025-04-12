@@ -120,14 +120,11 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       
       // Store token and user info
       if (data.token) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Set authentication cookie
-      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-      
-      // Notify components about authentication change
-      window.dispatchEvent(new Event('authChange'));
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Set authentication cookie
+        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
       } else {
         throw new Error('Invalid response from server. Missing authentication token.');
       }
@@ -286,8 +283,12 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
         const paymentData = await paymentResponse.json();
         console.log("Payment processed successfully:", paymentData);
         
-        // Redirect to success page
-        window.location.href = '/login-success';
+        // Redirect to success page - use URL from server if available
+        if (paymentData.url) {
+          window.location.href = paymentData.url;
+        } else {
+          window.location.href = '/login-success';
+        }
       } catch (paymentError) {
         console.error("Payment processing failed:", paymentError);
         throw paymentError;
@@ -309,14 +310,6 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       }
       
       setError(errorMessage);
-      
-      // Make sure the error is visible to the user
-      setTimeout(() => {
-        const errorElement = document.querySelector('.bg-red-900');
-        if (errorElement) {
-          errorElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      }, 100);
     } finally {
       setIsLoading(false);
     }
@@ -327,22 +320,15 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
   
   return (
     <form onSubmit={handleSubmit} className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-gray-900 rounded-lg overflow-hidden shadow-xl">
-      {/* Error display at the top */}
-      {error && (
-        <div className="absolute top-0 left-0 right-0 p-4 bg-red-900 bg-opacity-50 border border-red-800 text-white text-center">
-          {error}
-        </div>
-      )}
-      
-      {/* Development mode message */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="absolute top-0 left-0 right-0 p-2 bg-yellow-600 bg-opacity-70 border border-yellow-500 text-white text-center text-sm">
-          Development Mode: Some features may use mock data if database connection fails
-        </div>
-      )}
-      
       {/* Left side - Personal Information */}
       <div className="w-full md:w-1/2 p-8 bg-gray-900 text-white">
+        {/* Error display within the form */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-900 bg-opacity-90 border border-red-800 text-white text-center rounded">
+            {error}
+          </div>
+        )}
+      
         <h1 className="text-xl md:text-2xl text-center mb-8">
           Join Trading Academy community of {studentCount.toLocaleString()} students
         </h1>
@@ -429,6 +415,13 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       
       {/* Right side - Billing and Payment Info */}
       <div className="w-full md:w-1/2 p-8 bg-gray-900 text-white border-l border-gray-800">
+        {/* Error display within the payment section */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-900 bg-opacity-90 border border-red-800 text-white text-center rounded">
+            {error}
+          </div>
+        )}
+        
         <h3 className="text-lg font-medium mb-4">Billing Information</h3>
         
         <div className="mb-4">

@@ -19,37 +19,66 @@ export default async function handler(
   }
 
   try {
-    // In a real implementation, this would exchange the code for tokens with Google API
-    // and get user profile information - we're simulating this for this demo
+    // Exchange the authorization code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        code: code as string,
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+        client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/google/callback`,
+        grant_type: 'authorization_code',
+      }),
+    });
 
-    // For demonstration - fetch user info from Google API
-    // In a real implementation, you would exchange the authorization code for tokens
-    // and then use the access token to fetch the user's profile
+    const tokenData = await tokenResponse.json();
     
-    // Simulate Google auth response with real placeholder data
-    const googleUserInfo = {
-      id: 'google-' + Date.now(),
-      email: 'user@gmail.com', // This would be the actual user's email from Google
-      name: 'Google User',     // This would be the actual user's name from Google
-      picture: null
-    };
+    if (!tokenResponse.ok) {
+      console.error('Error exchanging code for tokens:', tokenData);
+      return res.redirect('/login?error=GoogleAuthFailed');
+    }
 
-    // Create or update user in database
-    const user = await prisma.user.upsert({
+    // Use the access token to get user info
+    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: {
+        Authorization: `Bearer ${tokenData.access_token}`,
+      },
+    });
+
+    const googleUserInfo = await userInfoResponse.json();
+    
+    if (!userInfoResponse.ok) {
+      console.error('Error getting user info from Google:', googleUserInfo);
+      return res.redirect('/login?error=GoogleAuthFailed');
+    }
+
+    console.log('Google user info:', { email: googleUserInfo.email, name: googleUserInfo.name });
+    
+    // Check if this Google account email exists in our database
+    const existingUser = await prisma.user.findUnique({
       where: {
         email: googleUserInfo.email,
       },
-      update: {
-        name: googleUserInfo.name,
-        image: googleUserInfo.picture,
-        lastLoginAt: new Date(),
-      },
-      create: {
+    });
+
+    // Check if user exists
+    if (!existingUser) {
+      console.log('Google auth failed: No user found with email:', googleUserInfo.email);
+      return res.redirect('/login?error=NoAccountFound');
+    }
+
+    // Update the existing user
+    const user = await prisma.user.update({
+      where: {
         email: googleUserInfo.email,
-        name: googleUserInfo.name,
-        image: googleUserInfo.picture,
+      },
+      data: {
+        name: googleUserInfo.name || existingUser.name,
+        image: googleUserInfo.picture || existingUser.image,
         googleId: googleUserInfo.id,
-        authProvider: 'GOOGLE',
         lastLoginAt: new Date(),
       },
     });
