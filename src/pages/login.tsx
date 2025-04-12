@@ -23,24 +23,57 @@ export default function LoginPage() {
     const { success, token, email, name } = router.query;
     
     if (success === 'true' && token && email && name) {
-      // Store the token
-      localStorage.setItem('token', token as string);
-      document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-      
-      // Store user info
-      const user = {
-        id: 'google-user',
-        name: name as string,
-        email: email as string
-      };
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      // Notify components about authentication change
-      window.dispatchEvent(new Event('authChange'));
-      
-      // Redirect to login success page
-      router.push('/login-success');
-      return;
+      // Get subscription status from JWT token
+      try {
+        const tokenParts = (token as string).split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          const subscriptionStatus = payload.subscriptionStatus || 'FREE';
+          
+          // Store the token
+          localStorage.setItem('token', token as string);
+          document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+          
+          // Store user info with subscription status
+          const user = {
+            id: 'google-user',
+            name: name as string,
+            email: email as string,
+            subscription: {
+              status: subscriptionStatus,
+              currentPeriodEnd: null // This will be fetched from the API
+            }
+          };
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          // Notify components about authentication change
+          window.dispatchEvent(new Event('authChange'));
+          
+          // Redirect to login success page
+          router.push('/login-success');
+          return;
+        }
+      } catch (error) {
+        console.error('Error parsing JWT token:', error);
+        // Fall back to the original code if there's an error
+        localStorage.setItem('token', token as string);
+        document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+        
+        // Store user info
+        const user = {
+          id: 'google-user',
+          name: name as string,
+          email: email as string
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Notify components about authentication change
+        window.dispatchEvent(new Event('authChange'));
+        
+        // Redirect to login success page
+        router.push('/login-success');
+        return;
+      }
     }
     
     // Handle login errors

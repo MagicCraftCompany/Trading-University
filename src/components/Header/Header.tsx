@@ -16,8 +16,12 @@ const Header: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Check if current page is checkout
+  const isCheckoutPage = router.pathname === '/custom-checkout';
 
   // Handle authentication changes
   useEffect(() => {
@@ -31,12 +35,16 @@ const Header: React.FC = () => {
           const userData = JSON.parse(userStr);
           setUser(userData);
           setIsAuthenticated(true);
+          
+          // Check if user has an active subscription
+          setIsSubscribed(userData.subscription?.status === 'ACTIVE');
         } catch (e) {
           console.error('Error parsing user data', e);
           setIsAuthenticated(false);
         }
       } else {
         setIsAuthenticated(false);
+        setIsSubscribed(false);
       }
     };
 
@@ -45,6 +53,9 @@ const Header: React.FC = () => {
 
     // Add listener for auth changes
     window.addEventListener('authChange', checkAuth);
+    
+    // Check auth when component mounts
+    checkAuth();
     
     // Clean up
     return () => {
@@ -204,9 +215,11 @@ const Header: React.FC = () => {
               <Link href="/login" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
                 Sign In
               </Link>
-              <Link href="/custom-checkout" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
-                Enroll
-              </Link>
+              {!isCheckoutPage && !isSubscribed && (
+                <Link href="/custom-checkout" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
+                  Enroll
+                </Link>
+              )}
             </div>
           )}
 
@@ -236,9 +249,11 @@ const Header: React.FC = () => {
                 <Link href="/login" className="block py-2 text-base font-medium text-gray-700 dark:text-gray-200">
                   Sign In
                 </Link>
-                <Link href="/custom-checkout" className="block py-2 mt-2 w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-md transition-colors">
-                  Enroll
-                </Link>
+                {!isCheckoutPage && !isSubscribed && (
+                  <Link href="/custom-checkout" className="block py-2 mt-2 w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-md transition-colors">
+                    Enroll
+                  </Link>
+                )}
               </div>
             )}
           </div>

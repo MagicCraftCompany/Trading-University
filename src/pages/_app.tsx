@@ -83,7 +83,7 @@ export default function App({ Component, pageProps }: AppProps) {
           window.dispatchEvent(new Event('authChange'));
           
           // Redirect to login if not on a public page
-          const publicPaths = ['/', '/login', '/register', '/pricing'];
+          const publicPaths = ['/', '/login', '/register', '/custom-checkout'];
           if (!publicPaths.includes(router.pathname) && !router.pathname.startsWith('/api/')) {
             router.push('/login');
           }

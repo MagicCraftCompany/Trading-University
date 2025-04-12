@@ -62,12 +62,26 @@ export default async function handler(
       where: {
         email: googleUserInfo.email,
       },
+      include: {
+        subscription: true // Include subscription information
+      }
     });
 
     // Check if user exists
     if (!existingUser) {
       console.log('Google auth failed: No user found with email:', googleUserInfo.email);
       return res.redirect('/login?error=NoAccountFound');
+    }
+
+    // Check if user has an active subscription
+    const hasActiveSubscription = existingUser.subscription?.status === 'ACTIVE' && 
+                                 existingUser.subscription.currentPeriodEnd && 
+                                 new Date(existingUser.subscription.currentPeriodEnd) > new Date();
+    
+    if (!hasActiveSubscription) {
+      console.log('Google login: User does not have an active subscription:', googleUserInfo.email);
+      // Instead of blocking login, we'll add subscription status to the JWT token
+      // The middleware will handle access restrictions
     }
 
     // Update the existing user
@@ -81,14 +95,21 @@ export default async function handler(
         googleId: googleUserInfo.id,
         lastLoginAt: new Date(),
       },
+      include: {
+        subscription: true
+      }
     });
 
-    // Create JWT token with user information
+    // Get subscription status
+    const subscriptionStatus = user.subscription?.status || 'FREE';
+
+    // Create JWT token with user information including subscription status
     const token = jwt.sign(
       {
         userId: user.id,
         email: user.email,
-        provider: 'GOOGLE'
+        provider: 'GOOGLE',
+        subscriptionStatus: subscriptionStatus
       },
       process.env.JWT_SECRET || 'fallback-secret-key-for-development-only',
       { expiresIn: '7d' }

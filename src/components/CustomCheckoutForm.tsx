@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import { useStripe, useElements, CardElement, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
 import Image from 'next/image';
 
@@ -11,7 +11,7 @@ interface CustomCheckoutFormProps {
 
 const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
   price = 49,
-  productName = "One Year of Enrollment",
+  productName = "One Month of Enrollment",
   studentCount = 41180
 }) => {
   const stripe = useStripe();
@@ -25,12 +25,33 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
   const [address, setAddress] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [country, setCountry] = useState('IN');
-  const [isGift, setIsGift] = useState(false);
-  const [discountSelected, setDiscountSelected] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('card');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isRenewal, setIsRenewal] = useState(false);
+
+  // Check for subscription_expired parameter
+  useEffect(() => {
+    // Check if URL has subscription_expired parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasExpiredSubscription = urlParams.get('subscription_expired') === 'true';
+    
+    if (hasExpiredSubscription) {
+      setIsRenewal(true);
+      
+      // Try to pre-fill form with user data from localStorage
+      try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const userData = JSON.parse(userStr);
+          setEmail(userData.email || '');
+          setFullName(userData.name || '');
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    }
+  }, []);
 
   // Card element styles
   const cardElementStyle = {
@@ -46,21 +67,6 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       color: '#fa755a',
       iconColor: '#fa755a',
     },
-  };
-
-  // Handle discount toggle
-  const handleDiscountToggle = () => {
-    setDiscountSelected(!discountSelected);
-  };
-
-  // Handle gift toggle
-  const handleGiftToggle = () => {
-    setIsGift(!isGift);
-  };
-  
-  // Handle payment method change
-  const handlePaymentMethodChange = (method: string) => {
-    setPaymentMethod(method);
   };
 
   // Validate password
@@ -156,8 +162,8 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
     setError(null);
     
     try {
-      // Validate password fields
-      if (!validatePassword()) {
+      // Validate password fields only for new registrations
+      if (!isRenewal && !validatePassword()) {
         setIsLoading(false);
         return;
       }
@@ -171,45 +177,71 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       }
       
       // Validate fields
-      if (!email || !fullName || !address || !zipCode || !password || !confirmPassword) {
+      if (!email || !fullName || !address || !zipCode || (!isRenewal && (!password || !confirmPassword))) {
         throw new Error("Please fill in all required fields.");
       }
       
-      // Step 1: Register user first
-      console.log("Step 1: Registering user");
+      // Step 1: If not renewal, register user first; otherwise get existing user ID
+      console.log("Step 1: " + (isRenewal ? "Getting existing user data" : "Registering user"));
       let registrationResult;
-      try {
-        registrationResult = await registerUser();
-        console.log("Registration successful:", registrationResult);
-        
-        if (!registrationResult?.user?.id) {
-          throw new Error("Registration completed but user ID is missing");
+      
+      if (isRenewal) {
+        // For renewal, get user data from localStorage
+        try {
+          const userStr = localStorage.getItem('user');
+          if (userStr) {
+            const userData = JSON.parse(userStr);
+            registrationResult = {
+              success: true,
+              user: {
+                id: userData.id,
+                email: userData.email,
+                name: userData.name
+              }
+            };
+            console.log("Using existing user data for renewal:", userData.id);
+          } else {
+            throw new Error("User data not found for renewal");
+          }
+        } catch (error) {
+          console.error("Failed to get existing user data:", error);
+          throw new Error("Your session data is missing. Please log in again before renewing.");
         }
-      } catch (registrationError: any) {
-        console.error("Registration failed:", registrationError);
-        
-        // Special handling for database connection errors in development mode
-        if (process.env.NODE_ENV === 'development' && 
-            registrationError instanceof Error && 
-            registrationError.message.includes('Database connection error')) {
+      } else {
+        // For new registrations, register the user
+        try {
+          registrationResult = await registerUser();
+          console.log("Registration successful:", registrationResult);
           
-          console.warn("DEVELOPMENT MODE: Using mock user ID for payment despite database error");
+          if (!registrationResult?.user?.id) {
+            throw new Error("Registration completed but user ID is missing");
+          }
+        } catch (registrationError: any) {
+          console.error("Registration failed:", registrationError);
           
-          // Create mock registration result for development testing
-          registrationResult = {
-            success: true,
-            token: 'mock-token-' + Date.now(),
-            user: {
-              id: 'mock-user-' + Date.now(),
-              email: email,
-              name: fullName
-            }
-          };
-          
-          // Proceed to payment step
-        } else {
-          // For other errors or in production, re-throw
-          throw registrationError;
+          // Special handling for database connection errors in development mode
+          if (process.env.NODE_ENV === 'development' && 
+              registrationError instanceof Error && 
+              registrationError.message.includes('Database connection error')) {
+            
+            console.warn("DEVELOPMENT MODE: Using mock user ID for payment despite database error");
+            
+            // Create mock registration result for development testing
+            registrationResult = {
+              success: true,
+              token: 'mock-token-' + Date.now(),
+              user: {
+                id: 'mock-user-' + Date.now(),
+                email: email,
+                name: fullName
+              }
+            };
+            
+            // Proceed to payment step
+          } else {
+            // For other errors or in production, re-throw
+            throw registrationError;
+          }
         }
       }
       
@@ -251,8 +283,8 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       // Step 3: Create payment intent on server
       console.log("Step 3: Creating payment intent");
       try {
-        // Calculate the discounted price for the payload
-        const amount = Math.round(finalPrice * 100); // Convert to cents
+        // Calculate the price in cents
+        const amount = Math.round(price * 100); // Convert to cents
         
         console.log("Sending payment request with amount:", amount);
         
@@ -267,8 +299,6 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
             fullName,
             address,
             country,
-            isGift,
-            applyDiscount: discountSelected,
             amount: amount,
             planType: 'onetime',
             userId: registrationResult?.user?.id
@@ -315,13 +345,21 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
     }
   };
 
-  // Calculate the discounted price
-  const finalPrice = discountSelected ? price * 0.8 : price; // 20% discount
+  // Calculate the final price - no discounts
+  const finalPrice = price;
   
   return (
     <form onSubmit={handleSubmit} className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-gray-900 rounded-lg overflow-hidden shadow-xl">
       {/* Left side - Personal Information */}
       <div className="w-full md:w-1/2 p-8 bg-gray-900 text-white">
+        {/* Subscription expired message */}
+        {isRenewal && (
+          <div className="mb-6 p-4 bg-orange-900 bg-opacity-90 border border-orange-800 text-white text-center rounded">
+            <h3 className="font-bold text-xl mb-2">Your subscription has expired</h3>
+            <p>Please renew your subscription to continue accessing premium trading content and analytics.</p>
+          </div>
+        )}
+      
         {/* Error display within the form */}
         {error && (
           <div className="mb-6 p-4 bg-red-900 bg-opacity-90 border border-red-800 text-white text-center rounded">
@@ -344,7 +382,11 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            readOnly={isRenewal}
           />
+          {isRenewal && (
+            <p className="text-xs text-gray-400 mt-1">Email cannot be changed for subscription renewal</p>
+          )}
         </div>
         
         <div className="mb-4">
@@ -359,56 +401,47 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
           />
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="password" className="block mb-2 text-sm">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            minLength={8}
-          />
-          <p className="text-xs text-gray-400 mt-1">Must be at least 8 characters</p>
-        </div>
-        
-        <div className="mb-4">
-          <label htmlFor="confirm-password" className="block mb-2 text-sm">Confirm Password</label>
-          <input
-            id="confirm-password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          {passwordError && (
-            <p className="text-xs text-red-400 mt-1">{passwordError}</p>
-          )}
-        </div>
+        {!isRenewal && (
+          <>
+            <div className="mb-4">
+              <label htmlFor="password" className="block mb-2 text-sm">Password</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required={!isRenewal}
+                minLength={8}
+              />
+              <p className="text-xs text-gray-400 mt-1">Must be at least 8 characters</p>
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="confirm-password" className="block mb-2 text-sm">Confirm Password</label>
+              <input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required={!isRenewal}
+              />
+              {passwordError && (
+                <p className="text-xs text-red-400 mt-1">{passwordError}</p>
+              )}
+            </div>
+          </>
+        )}
         
         <div className="bg-gray-800 rounded-lg p-6 mt-8">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-xl font-bold">{productName}</h2>
             <div className="text-2xl font-bold">${finalPrice.toFixed(2)}</div>
           </div>
-          <div className="text-blue-400 text-sm">7-day money back guarantee</div>
-          
-          <div className="mt-4 flex items-center">
-            <div 
-              className={`w-10 h-5 relative rounded-full ${isGift ? 'bg-blue-500' : 'bg-gray-600'} transition-colors duration-200 ease-in-out cursor-pointer`} 
-              onClick={handleGiftToggle}
-            >
-              <div 
-                className={`absolute top-0.5 left-0.5 bg-white w-4 h-4 rounded-full transform transition-transform duration-200 ease-in-out ${isGift ? 'translate-x-5' : ''}`} 
-              />
-            </div>
-            <span className="ml-3 text-gray-300">Gift it</span>
-          </div>
           
           <div className="mt-4 text-gray-300">
-            <p>20% off for anyone under 25, students, teachers, and military <span className="text-blue-400 cursor-pointer" onClick={handleDiscountToggle}>Select ID for discount</span></p>
+            <p>By enrolling, you'll join our exclusive community of traders and investors for a monthly subscription.</p>
           </div>
         </div>
       </div>
@@ -477,8 +510,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
               id="card-payment"
               name="payment-method"
               className="mr-2"
-              checked={paymentMethod === 'card'}
-              onChange={() => handlePaymentMethodChange('card')}
+              checked={true}
             />
             <label htmlFor="card-payment" className="text-lg">Credit/Debit Card</label>
           </div>
@@ -504,7 +536,11 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
               : 'bg-blue-600 hover:bg-blue-700'
           } transition-colors duration-200 mt-4`}
         >
-          {isLoading ? 'Processing payment...' : `Pay $${finalPrice.toFixed(2)}`}
+          {isLoading 
+            ? 'Processing payment...' 
+            : isRenewal 
+              ? `Renew Subscription: $${finalPrice.toFixed(2)}`
+              : `Enroll Now: $${finalPrice.toFixed(2)}`}
         </button>
         
         <p className="text-xs text-gray-400 text-center mt-4">
@@ -515,4 +551,4 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
   );
 };
 
-export default CustomCheckoutForm; 
+export default CustomCheckoutForm;

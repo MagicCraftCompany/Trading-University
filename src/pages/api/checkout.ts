@@ -27,9 +27,9 @@ const PLANS = {
     interval: 'year',
   },
   onetime: {
-    name: 'One Year of Enrollment',
-    description: 'Full access to premium crypto trading courses and expert analysis',
-    unit_amount: 59999, // $599.99
+    name: 'One Month of Enrollment',
+    description: 'Full access to premium crypto trading courses and expert analysis for one month',
+    unit_amount: 4900, // $49.00
     interval: null,
   }
 };
@@ -63,8 +63,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const planType = 'onetime';
       const plan = PLANS[planType as keyof typeof PLANS];
       
-      // Apply discount if applicable (20% off)
-      const finalAmount = applyDiscount ? Math.round(plan.unit_amount * 0.8) : plan.unit_amount;
+      // Use the full amount (no discounts)
+      const finalAmount = plan.unit_amount;
 
       try {
         // Extract zip code from address string
@@ -89,10 +89,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             postal_code: postalCode,
           },
           payment_method: paymentMethodId,
-          metadata: {
-            isGift: isGift ? 'true' : 'false',
-            discountApplied: applyDiscount ? 'true' : 'false',
-          },
         });
 
         // For one-time payments (we're just supporting one-time payments for now)
@@ -111,8 +107,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
           metadata: {
             name: fullName,
-            isGift: isGift ? 'true' : 'false',
-            discountApplied: applyDiscount ? 'true' : 'false',
           },
         });
 
@@ -193,14 +187,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ],
         mode: plan.interval ? 'subscription' : 'payment',
         success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?session_id={CHECKOUT_SESSION_ID}&checkout_complete=true&redirect_to=courses`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/pricing`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/custom-checkout`,
         allow_promotion_codes: true, // Enable promo codes
         billing_address_collection: 'required',
       });
 
       // For GET requests, redirect to the checkout URL
       if (req.method === 'GET') {
-        return res.redirect(session.url || '/pricing');
+        return res.redirect(session.url || '/custom-checkout');
       }
       
       // For POST requests, return the URL
@@ -209,9 +203,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     console.error('Stripe checkout error:', error);
     
-    // For GET requests, redirect to pricing page on error
+    // For GET requests, redirect to custom-checkout page on error
     if (req.method === 'GET') {
-      return res.redirect('/pricing?error=checkout_failed');
+      return res.redirect('/custom-checkout?error=checkout_failed');
     }
     
     res.status(500).json({ message: 'Error creating checkout session' });

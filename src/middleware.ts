@@ -1,43 +1,47 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify, JWTPayload } from 'jose';
+import { jwtVerify } from 'jose';
 
-// Routes that don't require authentication
-const publicRoutes = [
-  '/',
-  '/login',
-  '/pricing',
-  '/custom-checkout',
-  '/api/auth/google',
-  '/api/auth/google/callback',
-  '/api/auth/verify-session',
-  '/api/auth/refresh-token',
-  '/auth/callback', // Frontend callback route
-  '/api/webhook',
-  '/api/checkout',
-  '/favicon.ico',
-  '/_next',
-  '/static',
+// Routes that require authentication
+const authRoutes = [
+  '/courses',
+  '/profile',
+  '/account',
+  '/dashboard',
 ];
 
-// Routes that require subscription
+// Routes that specifically require an active subscription
 const subscriptionRoutes = [
   '/courses',
 ];
 
-// Check if a path matches any of the public routes
-const isPublic = (path: string): boolean => {
-  // Check for exact matches first
-  if (publicRoutes.some(route => route === path)) {
-    return true;
+// Public routes that don't require auth
+const publicRoutes = [
+  '/',
+  '/login',
+  '/custom-checkout',
+  '/login-success',
+  '/api/auth',
+];
+
+// Extract token from cookie
+const getToken = (request: NextRequest): string | null => {
+  const cookie = request.cookies.get('token');
+  return cookie?.value || null;
+};
+
+// Verify JWT token
+const verifyToken = async (token: string): Promise<any> => {
+  try {
+    const secret = new TextEncoder().encode(
+      process.env.JWT_SECRET || 'fallback-secret-key-for-development-only'
+    );
+    const { payload } = await jwtVerify(token, secret);
+    return payload;
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return null;
   }
-  
-  // Then check for partial matches
-  return publicRoutes.some(route => 
-    (route !== '/' && path.startsWith(route)) || // Avoid matching everything with '/'
-    path.includes('/_next/') || 
-    path.includes('/static/')
-  );
 };
 
 // Check if a path requires subscription
@@ -45,99 +49,62 @@ const requiresSubscription = (path: string): boolean => {
   return subscriptionRoutes.some(route => path.startsWith(route));
 };
 
+// Middleware function
 export async function middleware(request: NextRequest) {
-  // MIDDLEWARE DISABLED FOR DEVELOPMENT
-  return NextResponse.next();
+  const { pathname } = request.nextUrl;
   
-  /*
-  const path = request.nextUrl.pathname;
-  console.log(`[Middleware] Processing request for path: ${path}`);
-  
-  // Check if the route is public
-  if (isPublic(path)) {
-    console.log(`[Middleware] Public route detected: ${path}`);
+  // Skip middleware for public routes and API routes (except auth)
+  if (
+    publicRoutes.some(route => pathname.startsWith(route)) ||
+    (pathname.startsWith('/api') && !pathname.startsWith('/api/auth'))
+  ) {
     return NextResponse.next();
   }
 
-  console.log(`[Middleware] Protected route detected: ${path}`);
+  // Get token from cookie
+  const token = getToken(request);
   
-  try {
-    // Get token from cookies or authorization header
-    const token = request.cookies.get('token')?.value ||
-      request.headers.get('authorization')?.split(' ')[1];
-
-    // Check if user has previously visited/subscribed
-    const hasPreviouslyVisited = request.cookies.get('_hasPreviouslyVisited')?.value === 'true';
-
-    if (!token) {
-      console.log('[Middleware] No token found, determining redirect target');
-      
-      // If user has previously visited/subscribed, redirect to login
-      // Otherwise, redirect to pricing page for first-time users
-      if (hasPreviouslyVisited) {
-        console.log('[Middleware] Previously subscribed user, redirecting to login');
-        const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('from', request.nextUrl.pathname);
-        return NextResponse.redirect(loginUrl);
-      } else {
-        console.log('[Middleware] New user, redirecting to pricing');
-        return NextResponse.redirect(new URL('/pricing', request.url));
-      }
+  // If no token and route requires auth, redirect to login
+  if (!token && authRoutes.some(route => pathname.startsWith(route))) {
+    const url = new URL('/login', request.url);
+    return NextResponse.redirect(url);
+  }
+  
+  // If token exists, verify it
+  if (token) {
+    const payload = await verifyToken(token);
+    
+    // If token is invalid, redirect to login
+    if (!payload) {
+      const url = new URL('/login', request.url);
+      return NextResponse.redirect(url);
     }
-
-    console.log('[Middleware] Token found, verifying...');
     
-    // Verify token
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
-    const { payload } = await jwtVerify(token, secret);
-    
-    console.log('[Middleware] Token payload:', JSON.stringify(payload));
-
-    // Check if route requires subscription
-    if (requiresSubscription(path)) {
-      console.log(`[Middleware] Subscription required for: ${path}`);
-      const subscriptionStatus = payload.subscriptionStatus as string;
-      console.log(`[Middleware] User subscription status: ${subscriptionStatus}`);
+    // Check subscription status for protected routes
+    if (requiresSubscription(pathname)) {
+      const { subscriptionStatus } = payload;
       
+      // If subscription is not active, redirect to custom-checkout page
       if (subscriptionStatus !== 'ACTIVE') {
-        console.log('[Middleware] Not subscribed, redirecting to pricing');
-        return NextResponse.redirect(new URL('/pricing?message=subscription_required', request.url));
+        const url = new URL('/custom-checkout', request.url);
+        url.searchParams.set('subscription_expired', 'true');
+        return NextResponse.redirect(url);
       }
-    }
-
-    // Add user info to request headers
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-user-id', payload.userId as string);
-    requestHeaders.set('x-user-email', payload.email as string);
-    requestHeaders.set('x-subscription-status', payload.subscriptionStatus as string);
-
-    console.log('[Middleware] Request authenticated, proceeding');
-    return NextResponse.next({
-      headers: requestHeaders,
-    });
-  } catch (error) {
-    console.error('[Middleware] Authentication error:', error);
-    
-    // Check if user has previously visited/subscribed
-    const hasPreviouslyVisited = request.cookies.get('_hasPreviouslyVisited')?.value === 'true';
-    
-    // If user has previously visited/subscribed, redirect to login
-    // Otherwise, redirect to pricing page for first-time users
-    if (hasPreviouslyVisited) {
-      console.log('[Middleware] Previously subscribed user with auth error, redirecting to login');
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('from', request.nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
-    } else {
-      console.log('[Middleware] New user with auth error, redirecting to pricing');
-      return NextResponse.redirect(new URL('/pricing', request.url));
     }
   }
-  */
+  
+  return NextResponse.next();
 }
 
+// Configure the paths that should be matched by this middleware
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    /*
+     * Match all paths except for:
+     * 1. /api routes that don't require auth
+     * 2. /_next (static files)
+     * 3. /favicon.ico, /sitemap.xml, /robots.txt (static files)
+     */
+    '/((?!_next/|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 }; 

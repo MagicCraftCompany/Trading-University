@@ -3,6 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import CustomCheckoutForm from '@/components/CustomCheckoutForm';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import type { StripeElementsOptions } from '@stripe/stripe-js';
 
 // Load the Stripe publishable key from environment variables
@@ -22,6 +23,9 @@ if (stripeKey) {
 
 const CustomCheckoutPage = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const router = useRouter();
+  const isRenewal = router.query.subscription_expired === 'true';
+  const pageTitle = isRenewal ? 'Renew Your Subscription' : 'Enrollment Checkout';
 
   // Ensure Stripe is loaded properly
   useEffect(() => {
@@ -44,7 +48,7 @@ const CustomCheckoutPage = () => {
   return (
     <>
       <Head>
-        <title>Enrollment Checkout | Trading Academy</title>
+        <title>{pageTitle} | Trading Academy</title>
         <meta name="description" content="Complete your enrollment to access premium trading courses and resources" />
       </Head>
       
@@ -60,7 +64,7 @@ const CustomCheckoutPage = () => {
             <Elements stripe={stripePromise} options={options}>
               <CustomCheckoutForm 
                 price={49}
-                productName="One Year of Enrollment"
+                productName="One month of Enrollment"
                 studentCount={41180}
               />
             </Elements>

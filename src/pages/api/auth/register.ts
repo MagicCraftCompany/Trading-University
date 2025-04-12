@@ -116,7 +116,7 @@ export default async function handler(
           create: {
             status: 'ACTIVE',
             currentPeriodStart: new Date(),
-            currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now (monthly subscription)
           }
         }
       },

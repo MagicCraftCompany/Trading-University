@@ -15,6 +15,10 @@ type LoginResponse = {
     name: string;
     email: string;
     image?: string | null;
+    subscription: {
+      status: string;
+      currentPeriodEnd: Date | null;
+    };
   };
 };
 
@@ -43,6 +47,9 @@ export default async function handler(
       where: {
         email: email.toLowerCase(),
       },
+      include: {
+        subscription: true
+      }
     });
 
     // If user not found or no password (Google-only user)
@@ -65,9 +72,17 @@ export default async function handler(
       data: { lastLoginAt: new Date() },
     });
 
+    // Get subscription status
+    const subscriptionStatus = user.subscription?.status || 'FREE';
+    const currentPeriodEnd = user.subscription?.currentPeriodEnd || null;
+
     // Create JWT token
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { 
+        userId: user.id, 
+        email: user.email, 
+        subscriptionStatus 
+      },
       process.env.JWT_SECRET || 'fallback-secret-key-for-development-only',
       { expiresIn: '7d' }
     );
@@ -78,6 +93,10 @@ export default async function handler(
       email: user.email,
       name: user.name || '',
       image: user.image,
+      subscription: {
+        status: subscriptionStatus,
+        currentPeriodEnd: currentPeriodEnd
+      }
     };
 
     console.log('Login successful for user:', email);

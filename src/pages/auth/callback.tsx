@@ -32,12 +32,12 @@ export default function AuthCallback() {
           // Redirect to courses if subscription is active
           router.replace('/courses');
         } else {
-          // Redirect to pricing if no active subscription
-          router.replace('/pricing?message=subscription_required');
+          // Redirect to custom-checkout if no active subscription
+          router.replace('/custom-checkout?subscription_expired=true');
         }
       } else {
         // Fallback if token isn't parseable
-        router.replace('/pricing?message=subscription_required');
+        router.replace('/custom-checkout?subscription_expired=true');
       }
     } catch (err) {
       console.error('Error handling auth callback:', err);
