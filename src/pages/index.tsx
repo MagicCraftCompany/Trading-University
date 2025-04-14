@@ -2,6 +2,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import bgimage from '../../public/images/bgimage.png';
 
 export default function Home() {
   const [count, setCount] = useState(113000);
@@ -23,45 +25,86 @@ export default function Home() {
       </Head>
      
       {/* Hero Section */}
-      <section className="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white">
-        <div className="container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-4xl md:text-6xl font-bold text-center mb-6"
-          >
-            <span className="block">TRADING IS A</span>
-            <span className="text-5xl md:text-7xl text-blue-400 block mt-2">SKILL</span>
-          </motion.h1>
-          
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-2xl md:text-3xl text-center max-w-3xl mb-10"
-          >
-            We will teach you how to master it
-          </motion.h2>
-          
+      <section className="w-full text-white relative min-h-screen bg-[#0A0D14] -mt-[64px]">
+        <div className="absolute inset-0 w-full h-full">
+          <Image
+            src={bgimage}
+            alt="Trading Background"
+            fill
+            priority
+            className="object-cover"
+            quality={100}
+          />
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0D14]/50 to-[#0A0D14]/80" />
+        </div>
+        
+        <div className="container mx-auto px-4 h-screen flex flex-col items-center justify-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-center mb-10"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-4xl mx-auto"
           >
-            <Link href="/courses">
-              <span className="bg-blue-500 text-white font-bold text-xl md:text-2xl py-4 px-10 rounded-md hover:bg-blue-600 transition-colors">
-                JOIN TRADING UNIVERSITY
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-5xl md:text-7xl font-bold text-center mb-6 tracking-tight"
+            >
+              <span className="block text-4xl md:text-6xl mb-2 text-gray-200">TRADING IS A</span>
+              <span className="bg-gradient-to-r from-[#CB9006] to-[#FFCB6B] text-transparent bg-clip-text">
+                SKILL
               </span>
-            </Link>
-            <p className="mt-4 text-gray-300">Join {count.toLocaleString()}+ like-minded traders</p>
+            </motion.h1>
+            
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-2xl md:text-3xl text-center max-w-2xl mx-auto mb-12 text-gray-300"
+            >
+              We will teach you how to master it
+            </motion.h2>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="space-y-6"
+            >
+              <Link href="/custom-checkout">
+                <span className="inline-block bg-[#CB9006] text-white font-bold text-xl md:text-2xl py-4 px-12 rounded-lg hover:bg-[#B07D05] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-[#CB9006]/20">
+                  JOIN TRADING UNIVERSITY
+                </span>
+              </Link>
+              <p className="text-gray-400 text-lg md:text-xl mt-6">
+                Join <span className="text-[#CB9006] font-semibold">{count.toLocaleString()}+</span> like-minded traders
+              </p>
+            </motion.div>
+          </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 1,
+              delay: 1,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          >
+            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2" />
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-white py-20">
+      <section className="bg-[#061213] py-20 text-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">A MASSIVE UPGRADE</h2>
           
@@ -81,7 +124,7 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="bg-gray-50 p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">EXPERT TRADING EDUCATION</h3>
               <ul className="space-y-3">
                 <li className="flex items-start">
@@ -105,7 +148,7 @@ export default function Home() {
               </ul>
             </div>
             
-            <div className="bg-gray-50 p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">PRIVATE TRADER NETWORK</h3>
               <ul className="space-y-3">
                 <li className="flex items-start">
@@ -129,7 +172,7 @@ export default function Home() {
               </ul>
             </div>
             
-            <div className="bg-gray-50 p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">ACCESS TO PRO TRADERS</h3>
               <ul className="space-y-3">
                 <li className="flex items-start">
@@ -155,7 +198,7 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-            <Link href="/courses">
+            <Link href="/custom-checkout">
               <span className="bg-blue-500 text-white font-bold text-xl py-4 px-10 rounded-md hover:bg-blue-600 transition-colors">
                 JOIN TRADING UNIVERSITY
               </span>
@@ -165,7 +208,7 @@ export default function Home() {
       </section>
 
       {/* What You'll Learn Section */}
-      <section className="bg-gray-100 py-20">
+      <section className="bg-[#061213] py-20 text-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">WHAT YOU'LL LEARN</h2>
           
@@ -181,7 +224,7 @@ export default function Home() {
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">TECHNICAL ANALYSIS</h3>
               <p className="mb-4">Master chart patterns and technical indicators to identify high-probability trading setups in any market condition.</p>
               <Link href="/courses/technical-analysis">
@@ -189,7 +232,7 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">FOREX TRADING</h3>
               <p className="mb-4">Trade the world's largest financial market with confidence. Learn strategies for day trading, swing trading, and position trading.</p>
               <Link href="/courses/forex-trading">
@@ -197,7 +240,7 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">STOCK MARKET</h3>
               <p className="mb-4">Multiply your capital through the stock market. We'll train you to use technical and fundamental analysis to find high-potential opportunities.</p>
               <Link href="/courses/stock-market">
@@ -205,7 +248,7 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">CRYPTO TRADING</h3>
               <p className="mb-4">Take advantage of the volatile crypto markets and master the art of trading digital assets from short-term to long-term strategies.</p>
               <Link href="/courses/crypto-trading">
@@ -213,7 +256,7 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">RISK MANAGEMENT</h3>
               <p className="mb-4">Learn the most crucial aspect of trading success. Master position sizing, stop-loss placement, and capital preservation techniques.</p>
               <Link href="/courses/risk-management">
@@ -221,7 +264,7 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4">TRADING PSYCHOLOGY</h3>
               <p className="mb-4">Develop the mindset of successful traders. Overcome fear, greed, and emotional trading to execute your strategy with discipline.</p>
               <Link href="/courses/trading-psychology">
@@ -233,12 +276,12 @@ export default function Home() {
       </section>
 
       {/* Student Success Section */}
-      <section className="bg-white py-20">
+      <section className="bg-[#0A0D14] py-20 text-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">OUR STUDENTS ARE WINNING</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <div className="bg-gray-50 p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <div className="flex items-center mb-4">
                 <div className="w-16 h-16 bg-gray-300 rounded-full mr-4"></div>
                 <div>
@@ -251,7 +294,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="bg-gray-50 p-8 rounded-lg shadow-md">
+            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
               <div className="flex items-center mb-4">
                 <div className="w-16 h-16 bg-gray-300 rounded-full mr-4"></div>
                 <div>
@@ -266,7 +309,7 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-            <Link href="/courses">
+            <Link href="/custom-checkout">
               <span className="bg-blue-500 text-white font-bold text-xl py-4 px-10 rounded-md hover:bg-blue-600 transition-colors">
                 JOIN TRADING UNIVERSITY
               </span>
@@ -336,7 +379,7 @@ export default function Home() {
                 </li>
               </ul>
               
-              <Link href="/courses">
+              <Link href="/custom-checkout">
                 <span className="block w-full bg-blue-500 text-white text-center font-bold text-xl py-4 rounded-md hover:bg-blue-600 transition-colors">
                   JOIN TRADING UNIVERSITY
                 </span>
@@ -376,7 +419,7 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-            <Link href="/courses">
+            <Link href="/custom-checkout">
               <span className="bg-blue-500 text-white font-bold text-xl py-4 px-10 rounded-md hover:bg-blue-600 transition-colors">
                 JOIN TRADING UNIVERSITY
               </span>

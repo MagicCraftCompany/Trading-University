@@ -4,9 +4,15 @@ module.exports = {
     './src/pages/**/*.{js,ts,jsx,tsx}',
     './src/components/**/*.{js,ts,jsx,tsx}',
   ],
-  darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      backgroundColor: {
+        DEFAULT: '#0A0D14',
+      },
+      colors: {
+        background: '#0A0D14',
+      },
+    },
   },
   plugins: [],
 }

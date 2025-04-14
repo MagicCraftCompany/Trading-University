@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
 import { BsCart, BsChevronDown } from 'react-icons/bs';
-import ThemeToggle from '../ThemeToggle'; 
 import { getCookie } from '@/utils/cookies';
 import Notifications from './Notifications';
 
@@ -120,7 +119,7 @@ const Header: React.FC = () => {
   }, [router.pathname]);
 
   return (
-    <header className={`w-full fixed top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white dark:bg-gray-900 shadow-md' : 'bg-transparent'}`}>
+    <header className={`w-full fixed top-0 z-50 transition-all duration-300 bg-[#061213]`}>
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         {/* <Link href="/" className="flex items-center">
@@ -137,8 +136,8 @@ const Header: React.FC = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Link href="/" className={`text-base font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${router.pathname === '/' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
-            Home
+          <Link href="/" className={`text-base font-medium transition-colors `}>
+            logo
           </Link>
           {/* <Link href="/courses" className={`text-base font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${router.pathname === '/courses' || router.pathname.startsWith('/courses/') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
             Courses
@@ -148,7 +147,7 @@ const Header: React.FC = () => {
         {/* Right Section - Auth, Cart, Theme Toggle */}
         <div className="flex items-center space-x-4">
           {/* Theme Toggle */}
-          <ThemeToggle />
+  
 
      
          
@@ -161,9 +160,9 @@ const Header: React.FC = () => {
             <div className="relative" ref={userMenuRef}>
               <button 
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+                className="flex items-center space-x-2 text-gray-700  "
               >
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden">
+                <div className="w-8 h-8 rounded-full  flex items-center justify-center overflow-hidden">
                   {user?.image ? (
                     <Image 
                       src={user.image} 
@@ -203,7 +202,7 @@ const Header: React.FC = () => {
               <Link href="/login" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
                 Sign In
               </Link>
-              <Link href="/custom-checkout" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
+              <Link href="/custom-checkout" className="bg-[#CB9006] text-white px-4 py-2 rounded-md transition-colors">
                 Enroll
               </Link>
             </div>

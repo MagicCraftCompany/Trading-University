@@ -10,7 +10,7 @@ const Layout: FunctionComponent<ILayout> = ({ children }) => {
   // const { isNavOpen, showPaymentModal } = useAppSelector((state: RootState) => state.data);
   
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-[#061213]">
       <Header />
       
       <main className="flex-grow pt-20">
