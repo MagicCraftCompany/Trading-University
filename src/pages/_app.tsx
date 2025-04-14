@@ -1,7 +1,5 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { Provider } from "react-redux";
-import { store } from "@/redux/store";
 import Layout from "@/components/Layouts/Layout";
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
@@ -83,7 +81,7 @@ export default function App({ Component, pageProps }: AppProps) {
           window.dispatchEvent(new Event('authChange'));
           
           // Redirect to login if not on a public page
-          const publicPaths = ['/', '/login', '/register', '/custom-checkout'];
+          const publicPaths = ['/', '/login', '/register', '/pricing'];
           if (!publicPaths.includes(router.pathname) && !router.pathname.startsWith('/api/')) {
             router.push('/login');
           }
@@ -127,10 +125,8 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [router]);
 
   return (
-    <Provider store={store}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </Provider>
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
   );
 }
