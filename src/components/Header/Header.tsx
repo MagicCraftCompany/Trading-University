@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
 import { BsCart, BsChevronDown } from 'react-icons/bs';
 import { getCookie } from '@/utils/cookies';
-import Notifications from './Notifications';
+import logo from '../../../public/images/logo.png';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -137,11 +137,20 @@ const Header: React.FC = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link href="/" className={`text-base font-medium transition-colors `}>
-            logo
+            <Image src={logo} alt="Trading University" width={100} height={100} />
           </Link>
-          {/* <Link href="/courses" className={`text-base font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${router.pathname === '/courses' || router.pathname.startsWith('/courses/') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
-            Courses
-          </Link> */}
+          {isAuthenticated && (
+            <Link 
+              href="/courses" 
+              className={`text-base font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
+                router.pathname === '/courses' || router.pathname.startsWith('/courses/') 
+                  ? 'text-blue-600 dark:text-blue-400' 
+                  : 'text-gray-700 dark:text-gray-200'
+              }`}
+            >
+              Courses
+            </Link>
+          )}
         </nav>
 
         {/* Right Section - Auth, Cart, Theme Toggle */}
@@ -225,9 +234,18 @@ const Header: React.FC = () => {
             <Link href="/" className={`block py-2 text-base font-medium ${router.pathname === '/' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
               Home
             </Link>
-            <Link href="/courses" className={`block py-2 text-base font-medium ${router.pathname === '/courses' || router.pathname.startsWith('/courses/') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
-              Courses
-            </Link>
+            {isAuthenticated && (
+              <Link 
+                href="/courses" 
+                className={`block py-2 text-base font-medium ${
+                  router.pathname === '/courses' || router.pathname.startsWith('/courses/') 
+                    ? 'text-blue-600 dark:text-blue-400' 
+                    : 'text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                Courses
+              </Link>
+            )}
             
             {!isAuthenticated && (
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">

@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
+import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -235,118 +236,133 @@ export default function LoginPage() {
         <meta name="description" content="Login to access Trading Academy" />
       </Head>
       
-      <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
+        <CardContainer className="inter-var">
+          <CardBody className="bg-black relative group/card dark:hover:shadow-2xl dark:hover:shadow-blue-500/[0.1] border-white/[0.2] w-auto sm:w-[30rem] h-auto rounded-xl p-8 border">
+            <CardItem
+              translateZ="50"
+              className="text-2xl font-bold text-white mb-2"
+            >
               Sign in to your account
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            </CardItem>
+            <CardItem
+              as="p"
+              translateZ="60"
+              className="text-gray-400 text-sm mb-8"
+            >
               Login to Trading Academy
-            </p>
-          </div>
-          
-          {error && (
-            <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">An error occurred during login. Please try again.</span>
-            </div>
-          )}
+            </CardItem>
+            
+            {error && (
+              <CardItem translateZ="40">
+                <div className="mb-6 bg-red-900/30 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg" role="alert">
+                  <span className="block sm:inline">{error}</span>
+                </div>
+              </CardItem>
+            )}
 
-          {successMessage && (
-            <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{successMessage}</span>
-            </div>
-          )}
+            {successMessage && (
+              <CardItem translateZ="40">
+                <div className="mb-6 bg-green-900/30 border border-green-500/50 text-green-200 px-4 py-3 rounded-lg" role="alert">
+                  <span className="block sm:inline">{successMessage}</span>
+                </div>
+              </CardItem>
+            )}
 
-          {pendingMessage && (
-            <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{pendingMessage}</span>
-            </div>
-          )}
+            {pendingMessage && (
+              <CardItem translateZ="40">
+                <div className="mb-6 bg-blue-900/30 border border-blue-500/50 text-blue-200 px-4 py-3 rounded-lg" role="alert">
+                  <span className="block sm:inline">{pendingMessage}</span>
+                </div>
+              </CardItem>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Email Address"
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <CardItem translateZ="30" className="w-full">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Email Address"
+                />
+              </CardItem>
 
-            <div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Password"
-              />
-            </div>
+              <CardItem translateZ="20" className="w-full">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Password"
+                />
+              </CardItem>
 
-            <div className="flex items-center justify-end">
-              <div className="text-sm">
-                <Link href="/forgot-password" className="text-blue-600 hover:underline">
+              <CardItem translateZ="10" className="flex items-center justify-end">
+                <Link href="/forgot-password" className="text-blue-400 hover:text-blue-300 text-sm transition-colors">
                   Forgot your password?
                 </Link>
-              </div>
-            </div>
+              </CardItem>
 
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-              >
-                {isLoading ? 'Signing in...' : 'Log In'}
-              </button>
-            </div>
-          </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or</span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 gap-3">
-              <Link 
-                href="/custom-checkout"
-                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-              >
-                I don't have an account
-              </Link>
-             
-              {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
-                <a 
-                  href={getGoogleAuthUrl()}
-                  className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              <CardItem translateZ="30" className="w-full">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-3 px-4 rounded-lg text-base font-medium text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px" className="mr-2">
-                    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
-                    <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
-                    <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
-                    <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
-                  </svg>
-                  Sign in with Google
-                </a>
-              )}
+                  {isLoading ? 'Signing in...' : 'Log In'}
+                </button>
+              </CardItem>
+            </form>
+
+            <div className="mt-8">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-black text-gray-400">Or</span>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 gap-4">
+                <CardItem translateZ="20" className="w-full">
+                  <Link 
+                    href="/custom-checkout"
+                    className="w-full flex justify-center py-3 px-4 rounded-lg text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
+                  >
+                    I don't have an account
+                  </Link>
+                </CardItem>
+               
+                {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+                  <CardItem translateZ="20" className="w-full">
+                    <a 
+                      href={getGoogleAuthUrl()}
+                      className="w-full flex items-center justify-center py-3 px-4 rounded-lg text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px" className="mr-2">
+                        <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                        <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                        <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                        <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+                      </svg>
+                      Sign in with Google
+                    </a>
+                  </CardItem>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+          </CardBody>
+        </CardContainer>
       </div>
     </>
   )

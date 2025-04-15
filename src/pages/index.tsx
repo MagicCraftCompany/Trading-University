@@ -1,12 +1,15 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import bgimage from '../../public/images/bgimage.png';
+import { Vortex } from '@/components/ui/vortex';
+import CardSpotlightDemo from '@/components/ui/card-spotlight-demo';
 
 export default function Home() {
   const [count, setCount] = useState(113000);
+  const videoContainerRef = useRef(null);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,258 +28,194 @@ export default function Home() {
       </Head>
      
       {/* Hero Section */}
-      <section className="w-full text-white relative min-h-screen bg-[#0A0D14] -mt-[64px]">
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src={bgimage}
-            alt="Trading Background"
-            fill
-            priority
-            className="object-cover"
-            quality={100}
-          />
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0D14]/50 to-[#0A0D14]/80" />
-        </div>
-        
+      <section className="w-full text-white relative  bg-[#061213] ">
+     
+      
         <div className="container mx-auto px-4 h-screen flex flex-col items-center justify-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-5xl md:text-7xl font-bold text-center mb-6 tracking-tight"
-            >
-              <span className="block text-4xl md:text-6xl mb-2 text-gray-200">TRADING IS A</span>
-              <span className="bg-gradient-to-r from-[#CB9006] to-[#FFCB6B] text-transparent bg-clip-text">
+              <div className='flex flex-row text-4xl mt-10'>
+              <span className="block  mb-4 text-gray-200 font-extrabold tracking-tight">TRADING IS A</span>
+              <span className="block ml-2  bg-gradient-to-r from-[#CB9006] to-[#FFCB6B] text-transparent bg-clip-text font-black tracking-wider">
                 SKILL
               </span>
-            </motion.h1>
-            
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-2xl md:text-3xl text-center max-w-2xl mx-auto mb-12 text-gray-300"
-            >
-              We will teach you how to master it
-            </motion.h2>
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="space-y-6"
-            >
-              <Link href="/custom-checkout">
-                <span className="inline-block bg-[#CB9006] text-white font-bold text-xl md:text-2xl py-4 px-12 rounded-lg hover:bg-[#B07D05] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-[#CB9006]/20">
-                  JOIN TRADING UNIVERSITY
-                </span>
-              </Link>
-              <p className="text-gray-400 text-lg md:text-xl mt-6">
-                Join <span className="text-[#CB9006] font-semibold">{count.toLocaleString()}+</span> like-minded traders
-              </p>
-            </motion.div>
-          </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ 
-              duration: 1,
-              delay: 1,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+              </div>
+              <p className="text-xl md:text-3xl  mb-12 text-gray-300">We will teach you how to master it</p>
+         
+          {/* Video Section - Now in the hero */}
+          <div 
+            className="video-wrapper relative max-w-4xl w-full mx-auto mb-12"
+            ref={videoContainerRef}
           >
-            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2" />
+            {/* Glowing borders */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#CB9006] to-transparent z-10"
+              style={{
+                boxShadow: '0 0 20px rgba(203, 144, 6, 0.5)'
+              }}
+            />
+            <div 
+              className="absolute top-0 right-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-[#CB9006] to-transparent z-10"
+              style={{
+                boxShadow: '0 0 20px rgba(203, 144, 6, 0.5)'
+              }}
+            />
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#CB9006] to-transparent z-10"
+              style={{
+                boxShadow: '0 0 20px rgba(203, 144, 6, 0.5)'
+              }}
+            />
+            <div 
+              className="absolute top-0 left-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-[#CB9006] to-transparent z-10"
+              style={{
+                boxShadow: '0 0 20px rgba(203, 144, 6, 0.5)'
+              }}
+            />
+            
+            {/* Video container */}
+            <div className="video-container aspect-video rounded-md overflow-hidden">
+              <iframe 
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/XpZmZnNAafI?autoplay=0&rel=0&showinfo=0&modestbranding=1"
+                title="Trading University Introduction"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
             </div>
-          </motion.div>
+          </div>
+
+          <div className="text-center mt-2">
+            <Link href="/custom-checkout">
+              <span className="inline-block bg-[#CB9006] text-white font-bold text-xl md:text-2xl py-4 px-12 rounded-lg hover:bg-[#B07D05] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-[#CB9006]/20">
+                JOIN TRADING UNIVERSITY
+              </span>
+            </Link>
+            <p className="text-gray-400 text-lg md:text-xl mt-6">
+              Join <span className="text-[#CB9006] font-semibold">{count.toLocaleString()}+</span> like-minded traders
+            </p>
+          </div>
+          
+          {/* Scroll Indicator */}
+        
+          
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-[#061213] py-20 text-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">A MASSIVE UPGRADE</h2>
-          
-          <p className="text-xl md:text-2xl text-center max-w-4xl mx-auto mb-12">
-            The traditional trading education system is designed to make you lose money.
-          </p>
-          
-          <div className="max-w-5xl mx-auto mb-16">
-            <p className="text-lg md:text-xl text-center">
-              Imagine getting access to multi-millionaire traders who will give you a 
-              <span className="font-bold"> step-by-step path to reach your financial goals </span>
-              as fast as possible…
-            </p>
-            <p className="text-xl md:text-2xl font-bold text-center mt-8">
-              That's exactly what you'll find inside TRADING UNIVERSITY.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">EXPERT TRADING EDUCATION</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>World-class market analysis training</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Scale from $0 to $10k/month trading</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Master risk management strategies</span>
-                </li>
-              </ul>
+      <section className="py-20 bg-[#061213]">
+        <div className="w-full h-full">
+          <Vortex
+            backgroundColor="transparent"
+            baseHue={38}
+            className="flex items-center flex-col justify-center px-2 md:px-10 py-4 w-full h-full"
+          >
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl md:text-5xl font-bold text-center mb-16 text-white">A MASSIVE UPGRADE</h2>
+              
+              <p className="text-xl md:text-2xl text-center max-w-4xl mx-auto mb-12 text-white">
+                The traditional trading education system is designed to make you lose money.
+              </p>
+              
+              <div className="max-w-5xl mx-auto mb-16">
+                <p className="text-lg md:text-xl text-center text-white">
+                  Imagine getting access to multi-millionaire traders who will give you a 
+                  <span className="font-bold"> step-by-step path to reach your financial goals </span>
+                  as fast as possible…
+                </p>
+                <p className="text-xl md:text-2xl font-bold text-center mt-8 text-white">
+                  That&apos;s exactly what you&apos;ll find inside TRADING UNIVERSITY.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div className="bg-[#0A0D14] p-8 rounded-lg shadow-lg border border-[#CB9006]/20 hover:border-[#CB9006]/40 transition-all duration-300 hover:shadow-[#CB9006]/10">
+                  <h3 className="text-xl font-bold mb-4 text-[#CB9006]">EXPERT TRADING EDUCATION</h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">World-class market analysis training</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">Scale from $0 to $10k/month trading</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">Master risk management strategies</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="bg-[#0A0D14] p-8 rounded-lg shadow-lg border border-[#CB9006]/20 hover:border-[#CB9006]/40 transition-all duration-300 hover:shadow-[#CB9006]/10">
+                  <h3 className="text-xl font-bold mb-4 text-[#CB9006]">PRIVATE TRADER NETWORK</h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">Share wins with traders who understand</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">Network with like-minded people</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">Connect with {count.toLocaleString()}+ traders</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="bg-[#0A0D14] p-8 rounded-lg shadow-lg border border-[#CB9006]/20 hover:border-[#CB9006]/40 transition-all duration-300 hover:shadow-[#CB9006]/10">
+                  <h3 className="text-xl font-bold mb-4 text-[#CB9006]">ACCESS TO PRO TRADERS</h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">Learn from profitable professional traders</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">Get mentored every step of your journey</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-6 w-6 text-[#CB9006] mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">1-on-1 advice from market experts</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="text-center mt-12">
+                <Link href="/custom-checkout">
+                  <span className="inline-block bg-[#CB9006] text-white font-bold text-xl md:text-2xl py-4 px-12 rounded-lg hover:bg-[#B07D05] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-[#CB9006]/20">
+                    JOIN TRADING UNIVERSITY
+                  </span>
+                </Link>
+              </div>
             </div>
-            
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">PRIVATE TRADER NETWORK</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Share wins with traders who understand</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Network with like-minded people</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Connect with {count.toLocaleString()}+ traders</span>
-                </li>
-              </ul>
-            </div>
-            
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">ACCESS TO PRO TRADERS</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Learn from profitable professional traders</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Get mentored every step of your journey</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>1-on-1 advice from market experts</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="text-center mt-12">
-            <Link href="/custom-checkout">
-              <span className="bg-blue-500 text-white font-bold text-xl py-4 px-10 rounded-md hover:bg-blue-600 transition-colors">
-                JOIN TRADING UNIVERSITY
-              </span>
-            </Link>
-          </div>
+          </Vortex>
         </div>
       </section>
 
-      {/* What You'll Learn Section */}
-      <section className="bg-[#061213] py-20 text-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">WHAT YOU'LL LEARN</h2>
-          
-          <p className="text-xl md:text-2xl text-center max-w-4xl mx-auto mb-12">
-            When a new trading opportunity emerges in the market,
-            <br />
-            <span className="font-bold">TRADING UNIVERSITY</span> will be the first place to teach you
-            <span className="font-bold"> how to take advantage of it.</span>
-          </p>
-          
-          <p className="text-lg text-center max-w-4xl mx-auto mb-16">
-            Our students receive the latest market analysis and opportunities at the start of every trading day.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">TECHNICAL ANALYSIS</h3>
-              <p className="mb-4">Master chart patterns and technical indicators to identify high-probability trading setups in any market condition.</p>
-              <Link href="/courses/technical-analysis">
-                <span className="text-blue-500 font-bold">Learn More →</span>
-              </Link>
-            </div>
-            
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">FOREX TRADING</h3>
-              <p className="mb-4">Trade the world's largest financial market with confidence. Learn strategies for day trading, swing trading, and position trading.</p>
-              <Link href="/courses/forex-trading">
-                <span className="text-blue-500 font-bold">Learn More →</span>
-              </Link>
-            </div>
-            
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">STOCK MARKET</h3>
-              <p className="mb-4">Multiply your capital through the stock market. We'll train you to use technical and fundamental analysis to find high-potential opportunities.</p>
-              <Link href="/courses/stock-market">
-                <span className="text-blue-500 font-bold">Learn More →</span>
-              </Link>
-            </div>
-            
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">CRYPTO TRADING</h3>
-              <p className="mb-4">Take advantage of the volatile crypto markets and master the art of trading digital assets from short-term to long-term strategies.</p>
-              <Link href="/courses/crypto-trading">
-                <span className="text-blue-500 font-bold">Learn More →</span>
-              </Link>
-            </div>
-            
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">RISK MANAGEMENT</h3>
-              <p className="mb-4">Learn the most crucial aspect of trading success. Master position sizing, stop-loss placement, and capital preservation techniques.</p>
-              <Link href="/courses/risk-management">
-                <span className="text-blue-500 font-bold">Learn More →</span>
-              </Link>
-            </div>
-            
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4">TRADING PSYCHOLOGY</h3>
-              <p className="mb-4">Develop the mindset of successful traders. Overcome fear, greed, and emotional trading to execute your strategy with discipline.</p>
-              <Link href="/courses/trading-psychology">
-                <span className="text-blue-500 font-bold">Learn More →</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
+     
       {/* Student Success Section */}
-      <section className="bg-[#0A0D14] py-20 text-white">
+      <section className="py-20 bg-[#061213]">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">OUR STUDENTS ARE WINNING</h2>
           
@@ -290,7 +229,7 @@ export default function Home() {
                 </div>
               </div>
               <p>
-                "After 6 months of following the Forex Trading system at Trading University, I'm consistently making $5,000+ per month while still working my day job. The risk management module alone was worth the entire cost of the program."
+                &quot;After 6 months of following the Forex Trading system at Trading University, I&apos;m consistently making $5,000+ per month while still working my day job. The risk management module alone was worth the entire cost of the program.&quot;
               </p>
             </div>
             
@@ -303,14 +242,14 @@ export default function Home() {
                 </div>
               </div>
               <p>
-                "I was skeptical at first, but the crypto trading strategies at Trading University changed my life. I've replaced my corporate income and now trade full-time from anywhere in the world. The community support is incredible."
+                &quot;I was skeptical at first, but the crypto trading strategies at Trading University changed my life. I&apos;ve replaced my corporate income and now trade full-time from anywhere in the world. The community support is incredible.&quot;
               </p>
             </div>
           </div>
           
           <div className="text-center mt-12">
             <Link href="/custom-checkout">
-              <span className="bg-blue-500 text-white font-bold text-xl py-4 px-10 rounded-md hover:bg-blue-600 transition-colors">
+              <span className="inline-block bg-[#CB9006] text-white font-bold text-xl md:text-2xl py-4 px-12 rounded-lg hover:bg-[#B07D05] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-[#CB9006]/20">
                 JOIN TRADING UNIVERSITY
               </span>
             </Link>
@@ -319,108 +258,80 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="bg-slate-900 text-white py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">THE CHOICE IS YOURS</h2>
-          
-          <div className="max-w-md mx-auto bg-white text-gray-900 rounded-lg overflow-hidden shadow-xl">
-            <div className="p-8">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">TAKE ACTION</h3>
-                <div className="text-right">
-                  <span className="line-through text-gray-500">$147</span>
-                  <div className="text-3xl font-bold text-blue-600">$49.99</div>
-                  <span className="text-sm text-gray-500">per month</span>
-                </div>
+      <section className="text-white py-20 relative overflow-hidden">
+        {/* Background Image for Pricing Section */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <Image
+            src={bgimage}
+            alt="Trading Background"
+            fill
+            priority
+            className="object-cover opacity-70"
+            quality={100}
+          />
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#061213]/40 to-[#061213]/60" />
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Card Positioning Container */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            {/* Left column for heading and empty space to show bear imagery */}
+            <div className="flex flex-col justify-center">
+              <h2 className="text-3xl md:text-5xl font-bold text-left mb-6 md:mb-4">THE CHOICE IS YOURS</h2>
+              
+              <div className="mb-6 md:mb-10 max-w-xl">
+                <p className="text-xl md:text-2xl text-[#CB9006] font-semibold italic mb-2">
+                  "The market doesn't care if you win or lose."
+                </p>
+                <p className="text-lg md:text-xl text-gray-300">
+                  While others are <span className="text-red-500">losing money</span> in unpredictable markets, our students are discovering how to <span className="text-green-500 font-medium">consistently profit</span> regardless of market conditions.
+                </p>
               </div>
               
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Step-by-step trading tutorials</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>6 wealth-building trading methods</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Access to professional traders</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Trading community chat groups</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>No experience necessary</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Custom trading application</span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Cancel anytime, risk-free</span>
-                </li>
-              </ul>
-              
-              <Link href="/custom-checkout">
-                <span className="block w-full bg-blue-500 text-white text-center font-bold text-xl py-4 rounded-md hover:bg-blue-600 transition-colors">
-                  JOIN TRADING UNIVERSITY
-                </span>
-              </Link>
-              
-              <p className="text-center text-sm mt-4 text-gray-500">Lock-in your price before it increases. Act fast.</p>
+              <div className="hidden md:block h-full min-h-[200px]">
+                {/* Intentionally left empty to show background imagery */}
+              </div>
+            </div>
+            
+            {/* Card Container */}
+            <div className="md:max-w-md mx-auto w-full">
+              <CardSpotlightDemo />
             </div>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="bg-white py-20">
+      <section className="py-20 bg-[#061213] text-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">FREQUENTLY ASKED QUESTIONS</h2>
           
           <div className="max-w-3xl mx-auto space-y-6">
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">How quickly will I see results?</h3>
-              <p>Results depend on your dedication, starting capital, and how well you implement our strategies. Some students see results in their first week, while others may take a few months to become consistently profitable. We provide all the tools, strategies, and support you need to succeed.</p>
+            <div className="bg-[#0d1f21] border border-[#1e2e30] p-6 rounded-lg shadow-xl hover:shadow-[#1a2c2e]/50 transition-all duration-300">
+              <h3 className="text-xl font-bold text-white mb-3">How quickly will I see results?</h3>
+              <p className="text-gray-300">Results depend on your dedication, starting capital, and how well you implement our strategies. Some students see results in their first week, while others may take a few months to become consistently profitable. We provide all the tools, strategies, and support you need to succeed.</p>
             </div>
             
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Do I need trading experience?</h3>
-              <p>No experience is necessary. Our courses start from the absolute basics and progress to advanced concepts. We've designed our curriculum to transform complete beginners into skilled traders. If you already have experience, you'll still find valuable advanced strategies to improve your trading.</p>
+            <div className="bg-[#0d1f21] border border-[#1e2e30] p-6 rounded-lg shadow-xl hover:shadow-[#1a2c2e]/50 transition-all duration-300">
+              <h3 className="text-xl font-bold text-white mb-3">Do I need trading experience?</h3>
+              <p className="text-gray-300">No experience is necessary. Our courses start from the absolute basics and progress to advanced concepts. We&apos;ve designed our curriculum to transform complete beginners into skilled traders. If you already have experience, you&apos;ll still find valuable advanced strategies to improve your trading.</p>
             </div>
             
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">How much money do I need to start trading?</h3>
-              <p>While you can start with as little as $100, we recommend beginning with at least $500-$1000 for forex and crypto trading, and $2000-$5000 for stocks. However, we teach proper risk management regardless of your account size, and you can practice with a demo account until you're confident.</p>
+            <div className="bg-[#0d1f21] border border-[#1e2e30] p-6 rounded-lg shadow-xl hover:shadow-[#1a2c2e]/50 transition-all duration-300">
+              <h3 className="text-xl font-bold text-white mb-3">How much money do I need to start trading?</h3>
+              <p className="text-gray-300">While you can start with as little as $100, we recommend beginning with at least $500-$1000 for forex and crypto trading, and $2000-$5000 for stocks. However, we teach proper risk management regardless of your account size, and you can practice with a demo account until you&apos;re confident.</p>
             </div>
             
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Can I trade part-time?</h3>
-              <p>Absolutely! Many of our students trade part-time while working full-time jobs. We teach strategies for various time frames, including swing trading approaches that require just 30 minutes of analysis per day.</p>
+            <div className="bg-[#0d1f21] border border-[#1e2e30] p-6 rounded-lg shadow-xl hover:shadow-[#1a2c2e]/50 transition-all duration-300">
+              <h3 className="text-xl font-bold text-white mb-3">Can I trade part-time?</h3>
+              <p className="text-gray-300">Absolutely! Many of our students trade part-time while working full-time jobs. We teach strategies for various time frames, including swing trading approaches that require just 30 minutes of analysis per day.</p>
             </div>
           </div>
           
           <div className="text-center mt-12">
             <Link href="/custom-checkout">
-              <span className="bg-blue-500 text-white font-bold text-xl py-4 px-10 rounded-md hover:bg-blue-600 transition-colors">
+              <span className="inline-block bg-[#CB9006] text-white font-bold text-xl md:text-2xl py-4 px-12 rounded-lg hover:bg-[#B07D05] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-[#CB9006]/20">
                 JOIN TRADING UNIVERSITY
               </span>
             </Link>
@@ -428,5 +339,5 @@ export default function Home() {
         </div>
       </section>
     </>
-  )
+  );
 }
