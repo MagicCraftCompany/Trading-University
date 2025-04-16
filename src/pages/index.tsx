@@ -28,17 +28,16 @@ export default function Home() {
       </Head>
      
       {/* Hero Section */}
-      <section className="w-full text-white relative  bg-[#061213] ">
-     
+      <section className="w-full text-white relative bg-[#061213]" id="hero">
       
         <div className="container mx-auto px-4 h-screen flex flex-col items-center justify-center relative z-10">
               <div className='flex flex-row text-4xl mt-10'>
-              <span className="block  mb-4 text-gray-200 font-extrabold tracking-tight">TRADING IS A</span>
-              <span className="block ml-2  bg-gradient-to-r from-[#CB9006] to-[#FFCB6B] text-transparent bg-clip-text font-black tracking-wider">
+              <span className="block mb-4 text-gray-200 font-extrabold tracking-tight">TRADING IS A</span>
+              <span className="block ml-2 bg-gradient-to-r from-[#CB9006] to-[#FFCB6B] text-transparent bg-clip-text font-black tracking-wider">
                 SKILL
               </span>
               </div>
-              <p className="text-xl md:text-3xl  mb-12 text-gray-300">We will teach you how to master it</p>
+              <p className="text-xl md:text-3xl mb-12 text-gray-300">We will teach you how to master it</p>
          
           {/* Video Section - Now in the hero */}
           <div 
@@ -94,15 +93,11 @@ export default function Home() {
               Join <span className="text-[#CB9006] font-semibold">{count.toLocaleString()}+</span> like-minded traders
             </p>
           </div>
-          
-          {/* Scroll Indicator */}
-        
-          
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-[#061213]">
+      <section className="py-20 bg-[#061213]" id="features">
         <div className="w-full h-full">
           <Vortex
             backgroundColor="transparent"
@@ -215,7 +210,7 @@ export default function Home() {
 
      
       {/* Student Success Section */}
-      <section className="py-20 bg-[#061213]">
+      <section className="py-20 bg-[#061213]" id="success">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">OUR STUDENTS ARE WINNING</h2>
           
@@ -258,7 +253,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="text-white py-20 relative overflow-hidden">
+      <section className="text-white py-20 relative overflow-hidden" id="pricing">
         {/* Background Image for Pricing Section */}
         <div className="absolute inset-0 w-full h-full z-0">
           <Image
@@ -303,7 +298,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-[#061213] text-white">
+      <section className="py-20 bg-[#061213] text-white" id="faq">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">FREQUENTLY ASKED QUESTIONS</h2>
           

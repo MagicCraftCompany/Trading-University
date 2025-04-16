@@ -14,6 +14,76 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
   productName = "One Month of Enrollment",
   studentCount = 41180
 }) => {
+  // Add global styles to the component
+  useEffect(() => {
+    // Create a style element for global styles
+    const style = document.createElement('style');
+    style.innerHTML = `
+      /* Reset browser specific styling for dropdowns */
+      select {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23CB9006' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.7rem center !important;
+        background-size: 1em !important;
+        padding-right: 2.5rem !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+      }
+      
+      /* Dropdown options styling */
+      select option {
+        background-color: #1a1a1a !important;
+        color: white !important;
+      }
+      
+      /* Firefox specific */
+      @-moz-document url-prefix() {
+        select {
+          text-indent: 0.01px;
+          text-overflow: '';
+          padding-right: 1rem;
+        }
+        select option {
+          background-color: #1a1a1a;
+          color: white;
+        }
+      }
+      
+      /* Webkit browsers */
+      select::-ms-expand {
+        display: none;
+      }
+      
+      /* IE and Edge */
+      select::-ms-value {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: white;
+      }
+      
+      /* Hover and focus states */
+      select option:hover,
+      select option:focus,
+      select option:active,
+      select option:checked {
+        background-color: rgba(203, 144, 6, 0.7) !important;
+        color: white !important;
+      }
+      
+      .color-force-white {
+        color: white !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Clean up function
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const stripe = useStripe();
   const elements = useElements();
   
@@ -68,6 +138,36 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       iconColor: '#fa755a',
     },
   };
+
+  // Countries list for dropdown
+  const countries = [
+    { code: "US", name: "United States" },
+    { code: "CA", name: "Canada" },
+    { code: "GB", name: "United Kingdom" },
+    { code: "AU", name: "Australia" },
+    { code: "IN", name: "India" },
+    { code: "SG", name: "Singapore" },
+    { code: "DE", name: "Germany" },
+    { code: "FR", name: "France" },
+    { code: "ES", name: "Spain" },
+    { code: "IT", name: "Italy" },
+    { code: "NL", name: "Netherlands" },
+    { code: "BR", name: "Brazil" },
+    { code: "JP", name: "Japan" },
+    { code: "KR", name: "South Korea" },
+    { code: "AE", name: "United Arab Emirates" },
+    { code: "SA", name: "Saudi Arabia" },
+    { code: "ZA", name: "South Africa" },
+    { code: "NG", name: "Nigeria" },
+    { code: "MX", name: "Mexico" },
+    { code: "MY", name: "Malaysia" },
+    { code: "PH", name: "Philippines" },
+    { code: "TH", name: "Thailand" },
+    { code: "ID", name: "Indonesia" },
+    { code: "VN", name: "Vietnam" },
+    { code: "RU", name: "Russia" },
+    { code: "TR", name: "Turkey" },
+  ];
 
   // Validate password
   const validatePassword = (): boolean => {
@@ -349,12 +449,12 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
   const finalPrice = price;
   
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-gray-900 rounded-lg overflow-hidden shadow-xl">
+    <form onSubmit={handleSubmit} className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-[#061213] rounded-lg overflow-hidden shadow-xl border border-[#CB9006]/20">
       {/* Left side - Personal Information */}
-      <div className="w-full md:w-1/2 p-8 bg-gray-900 text-white">
+      <div className="w-full md:w-1/2 p-8 bg-[#061213] text-white">
         {/* Subscription expired message */}
         {isRenewal && (
-          <div className="mb-6 p-4 bg-orange-900 bg-opacity-90 border border-orange-800 text-white text-center rounded">
+          <div className="mb-6 p-4 bg-[#614803]/30 border border-[#CB9006]/50 text-[#CB9006] text-center rounded">
             <h3 className="font-bold text-xl mb-2">Your subscription has expired</h3>
             <p>Please renew your subscription to continue accessing premium trading content and analytics.</p>
           </div>
@@ -362,7 +462,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       
         {/* Error display within the form */}
         {error && (
-          <div className="mb-6 p-4 bg-red-900 bg-opacity-90 border border-red-800 text-white text-center rounded">
+          <div className="mb-6 p-4 bg-red-900/30 border border-red-500/50 text-red-200 text-center rounded">
             {error}
           </div>
         )}
@@ -380,7 +480,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-white/5 text-white border border-white/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent"
             required
             readOnly={isRenewal}
           />
@@ -396,7 +496,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-white/5 text-white border border-white/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent"
             required
           />
         </div>
@@ -410,7 +510,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white/5 text-white border border-white/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent"
                 required={!isRenewal}
                 minLength={8}
               />
@@ -424,7 +524,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white/5 text-white border border-white/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent"
                 required={!isRenewal}
               />
               {passwordError && (
@@ -434,10 +534,10 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
           </>
         )}
         
-        <div className="bg-gray-800 rounded-lg p-6 mt-8">
+        <div className="bg-white/5 rounded-lg p-6 mt-8 border border-white/10">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-xl font-bold">{productName}</h2>
-            <div className="text-2xl font-bold">${finalPrice.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-[#CB9006]">${finalPrice.toFixed(2)}</div>
           </div>
           
           <div className="mt-4 text-gray-300">
@@ -447,10 +547,10 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
       </div>
       
       {/* Right side - Billing and Payment Info */}
-      <div className="w-full md:w-1/2 p-8 bg-gray-900 text-white border-l border-gray-800">
+      <div className="w-full md:w-1/2 p-8 bg-[#0A1114] text-white border-l border-[#1A1D24]/30">
         {/* Error display within the payment section */}
         {error && (
-          <div className="mb-6 p-4 bg-red-900 bg-opacity-90 border border-red-800 text-white text-center rounded">
+          <div className="mb-6 p-4 bg-red-900/30 border border-red-500/50 text-red-200 text-center rounded">
             {error}
           </div>
         )}
@@ -464,7 +564,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
             type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-white/5 text-white border border-white/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent"
             required
           />
         </div>
@@ -476,29 +576,42 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
             type="text"
             value={zipCode}
             onChange={(e) => setZipCode(e.target.value)}
-            className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-white/5 text-white border border-white/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent"
             required
           />
         </div>
         
         <div className="mb-4">
           <label htmlFor="country" className="block mb-2 text-sm">Country</label>
-          <select
-            id="country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className="w-full bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="UK">United Kingdom</option>
-            <option value="AU">Australia</option>
-            <option value="IN">India</option>
-            <option value="SG">Singapore</option>
-            <option value="DE">Germany</option>
-            <option value="FR">France</option>
-          </select>
+          <div className="relative">
+            <select
+              id="country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="w-full bg-white/5 text-white border border-[#CB9006]/40 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent color-force-white"
+              required
+            >
+              <option value="US" className="color-force-white">United States</option>
+              <option value="CA" className="color-force-white">Canada</option>
+              <option value="GB" className="color-force-white">United Kingdom</option>
+              <option value="AU" className="color-force-white">Australia</option>
+              <option value="IN" className="color-force-white">India</option>
+              <option value="SG" className="color-force-white">Singapore</option>
+              <option value="DE" className="color-force-white">Germany</option>
+              <option value="FR" className="color-force-white">France</option>
+              <option value="ES" className="color-force-white">Spain</option>
+              <option value="IT" className="color-force-white">Italy</option>
+              <option value="NL" className="color-force-white">Netherlands</option>
+              <option value="BR" className="color-force-white">Brazil</option>
+              <option value="JP" className="color-force-white">Japan</option>
+              <option value="KR" className="color-force-white">South Korea</option>
+              <option value="AE" className="color-force-white">United Arab Emirates</option>
+              <option value="SA" className="color-force-white">Saudi Arabia</option>
+              <option value="ZA" className="color-force-white">South Africa</option>
+              <option value="NG" className="color-force-white">Nigeria</option>
+              <option value="MX" className="color-force-white">Mexico</option>
+            </select>
+          </div>
         </div>
 
         <h3 className="text-lg font-medium mt-8 mb-4">Payment Method</h3>
@@ -509,14 +622,14 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
               type="radio"
               id="card-payment"
               name="payment-method"
-              className="mr-2"
+              className="mr-2 accent-[#CB9006]"
               checked={true}
             />
             <label htmlFor="card-payment" className="text-lg">Credit/Debit Card</label>
           </div>
           
           {/* Simple Card Input */}
-          <div className="bg-gray-800 border border-gray-700 rounded p-4 mb-6">
+          <div className="bg-white/5 border border-white/10 rounded p-4 mb-6">
             <CardElement
               options={{
                 hidePostalCode: true,
@@ -533,7 +646,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
           className={`w-full py-3 rounded-lg font-bold ${
             isLoading
               ? 'bg-gray-600 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-[#CB9006] hover:bg-[#B07D05]'
           } transition-colors duration-200 mt-4`}
         >
           {isLoading 

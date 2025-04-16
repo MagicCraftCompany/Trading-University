@@ -3,18 +3,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
-import { BsCart, BsChevronDown } from 'react-icons/bs';
+import { BsChevronDown } from 'react-icons/bs';
 import { getCookie } from '@/utils/cookies';
 import logo from '../../../public/images/logo.png';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [cartCount, setCartCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -47,32 +44,6 @@ const Header: React.FC = () => {
     // Clean up
     return () => {
       window.removeEventListener('authChange', checkAuth);
-    };
-  }, []);
-
-  // Load cart and wishlist counts
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Get cart count - this could be from localStorage, context, or an API call
-      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-      setCartCount(cartItems.length);
-      
-      // Get wishlist count
-      const wishlistItems = JSON.parse(localStorage.getItem('wishlist') || '[]');
-      setWishlistCount(wishlistItems.length);
-    }
-  }, [isAuthenticated]);
-
-  // Handle scroll events
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -113,65 +84,79 @@ const Header: React.FC = () => {
     router.push('/');
   };
 
+  // Scroll to section function
+  const scrollToSection = (id: string) => {
+    setIsMenuOpen(false);
+    if (router.pathname !== '/') {
+      router.push(`/#${id}`);
+      return;
+    }
+    
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
   }, [router.pathname]);
 
   return (
-    <header className={`w-full fixed top-0 z-50 transition-all duration-300 bg-[#061213]`}>
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+    <header className="w-full fixed top-0 z-50 transition-all duration-300 bg-[#061213] shadow-md">
+      <div className="container mx-auto px-4 py-2 flex items-center justify-between">
         {/* Logo */}
-        {/* <Link href="/" className="flex items-center">
-          <div className="relative h-10 w-40">
-            <Image
-              src="/logo.png"
-              alt="Trading University"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-        </Link> */}
+        <Link href="/" className="transition-colors">
+          <Image src={logo} alt="Trading University" width={60} height={60} />
+        </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
-          <Link href="/" className={`text-base font-medium transition-colors `}>
-            <Image src={logo} alt="Trading University" width={100} height={100} />
-          </Link>
+        <nav className="hidden md:flex items-center space-x-5">
+          <button 
+            onClick={() => scrollToSection('features')} 
+            className="text-white hover:text-[#CB9006] transition-colors font-medium"
+          >
+            Features
+          </button>
+          <button 
+            onClick={() => scrollToSection('success')} 
+            className="text-white hover:text-[#CB9006] transition-colors font-medium"
+          >
+            Success Stories
+          </button>
+          <button 
+            onClick={() => scrollToSection('pricing')} 
+            className="text-white hover:text-[#CB9006] transition-colors font-medium"
+          >
+            Pricing
+          </button>
+          <button 
+            onClick={() => scrollToSection('faq')} 
+            className="text-white hover:text-[#CB9006] transition-colors font-medium"
+          >
+            FAQ
+          </button>
           {isAuthenticated && (
             <Link 
               href="/courses" 
-              className={`text-base font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
-                router.pathname === '/courses' || router.pathname.startsWith('/courses/') 
-                  ? 'text-blue-600 dark:text-blue-400' 
-                  : 'text-gray-700 dark:text-gray-200'
-              }`}
+              className="text-white hover:text-[#CB9006] transition-colors font-medium"
             >
               Courses
             </Link>
           )}
         </nav>
 
-        {/* Right Section - Auth, Cart, Theme Toggle */}
+        {/* Right Section - Auth */}
         <div className="flex items-center space-x-4">
-          {/* Theme Toggle */}
-  
-
-     
-         
-
-          {/* Notifications Component */}
-          {/* {isAuthenticated && <Notifications />} */}
-
           {/* Authentication Section */}
           {isAuthenticated ? (
             <div className="relative" ref={userMenuRef}>
               <button 
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center space-x-2 text-gray-700  "
+                className="flex items-center space-x-2 text-white"
               >
-                <div className="w-8 h-8 rounded-full  flex items-center justify-center overflow-hidden">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
                   {user?.image ? (
                     <Image 
                       src={user.image} 
@@ -181,7 +166,7 @@ const Header: React.FC = () => {
                       className="object-cover w-full h-full"
                     />
                   ) : (
-                    <FaUser className="text-blue-600 dark:text-blue-400" />
+                    <FaUser className="text-[#CB9006]" />
                   )}
                 </div>
                 <span className="hidden md:block font-medium">Hello, {user?.name?.split(' ')[0] || 'User'}</span>
@@ -190,16 +175,14 @@ const Header: React.FC = () => {
 
               {/* User Dropdown Menu */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
-                  <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                <div className="absolute right-0 mt-2 w-48 bg-[#0A1114] rounded-md shadow-lg py-1 z-10 border border-[#1A1D24]/30">
+                  <div className="px-4 py-2 border-b border-[#1A1D24]/30">
+                    <p className="text-sm font-medium text-white">{user?.name}</p>
+                    <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                   </div>
-                 
-                 
                   <button 
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="block w-full text-left px-4 py-2 text-sm text-[#CB9006] hover:bg-[#0F1A1B]"
                   >
                     Sign out
                   </button>
@@ -208,10 +191,10 @@ const Header: React.FC = () => {
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-4">
-              <Link href="/login" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
+              <Link href="/login" className="text-white hover:text-[#CB9006]">
                 Sign In
               </Link>
-              <Link href="/custom-checkout" className="bg-[#CB9006] text-white px-4 py-2 rounded-md transition-colors">
+              <Link href="/custom-checkout" className="bg-[#CB9006] hover:bg-[#B07D05] text-white px-4 py-2 rounded-md transition-colors">
                 Enroll
               </Link>
             </div>
@@ -219,40 +202,57 @@ const Header: React.FC = () => {
 
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            className="md:hidden text-white hover:text-[#CB9006]"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            {isMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg">
-          <div className="px-4 py-5 space-y-4">
-            <Link href="/" className={`block py-2 text-base font-medium ${router.pathname === '/' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'}`}>
-              Home
-            </Link>
+        <div className="md:hidden bg-[#0A1114] shadow-lg">
+          <div className="px-4 py-3 space-y-3">
+            <button 
+              onClick={() => scrollToSection('features')}
+              className="block w-full text-left py-2 text-base font-medium text-white hover:text-[#CB9006]"
+            >
+              Features
+            </button>
+            <button 
+              onClick={() => scrollToSection('success')}
+              className="block w-full text-left py-2 text-base font-medium text-white hover:text-[#CB9006]"
+            >
+              Success Stories
+            </button>
+            <button 
+              onClick={() => scrollToSection('pricing')}
+              className="block w-full text-left py-2 text-base font-medium text-white hover:text-[#CB9006]"
+            >
+              Pricing
+            </button>
+            <button 
+              onClick={() => scrollToSection('faq')}
+              className="block w-full text-left py-2 text-base font-medium text-white hover:text-[#CB9006]"
+            >
+              FAQ
+            </button>
             {isAuthenticated && (
               <Link 
                 href="/courses" 
-                className={`block py-2 text-base font-medium ${
-                  router.pathname === '/courses' || router.pathname.startsWith('/courses/') 
-                    ? 'text-blue-600 dark:text-blue-400' 
-                    : 'text-gray-700 dark:text-gray-200'
-                }`}
+                className="block py-2 text-base font-medium text-white hover:text-[#CB9006]"
               >
                 Courses
               </Link>
             )}
             
             {!isAuthenticated && (
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Link href="/login" className="block py-2 text-base font-medium text-gray-700 dark:text-gray-200">
+              <div className="pt-3 border-t border-[#1A1D24]/30">
+                <Link href="/login" className="block py-2 text-base font-medium text-white">
                   Sign In
                 </Link>
-                <Link href="/custom-checkout" className="block py-2 mt-2 w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-md transition-colors">
+                <Link href="/custom-checkout" className="block py-2 mt-2 w-full text-center bg-[#CB9006] hover:bg-[#B07D05] text-white px-4 rounded-md transition-colors">
                   Enroll
                 </Link>
               </div>

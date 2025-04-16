@@ -925,7 +925,7 @@ export const AllCourses: ICourse[] = [
       },
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(1),
+    introVideo: getIntroVideo(1, false),
   },
   {
     id: 2,
@@ -1053,7 +1053,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(2),
+    introVideo: getIntroVideo(2, false),
   },
   {
     id: 3,
@@ -1187,7 +1187,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(3)
+    introVideo: getIntroVideo(3, false)
   },
   {
     id: 4,
@@ -1312,7 +1312,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(4)
+    introVideo: getIntroVideo(4, false)
   },
   {
     id: 5,
@@ -1456,7 +1456,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(5)
+    introVideo: getIntroVideo(5, false)
   },
   {
     id: 6,
@@ -1566,7 +1566,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(6)
+    introVideo: getIntroVideo(6, false)
   },
   {
     id: 7,
@@ -1721,8 +1721,7 @@ export const AllCourses: ICourse[] = [
       },
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(7),
-
+    introVideo: getIntroVideo(7, false)
   },
   {
     id: 8,
@@ -1850,7 +1849,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(8)
+    introVideo: getIntroVideo(8, false)
   },
   {
     id: 9,
@@ -1987,7 +1986,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(9)
+    introVideo: getIntroVideo(9, false)
   },
   {
     id: 10,
@@ -2115,7 +2114,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(10)
+    introVideo: getIntroVideo(10, false)
   },
   {
     id: 11,
@@ -2270,7 +2269,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(11)
+    introVideo: getIntroVideo(11, false)
   },
   {
     id: 12,
@@ -2416,7 +2415,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(12)
+    introVideo: getIntroVideo(12, false)
   },
   {
     id: 13,
@@ -2508,7 +2507,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(13)
+    introVideo: getIntroVideo(13, false)
   },
   {
     id: 14,
@@ -2654,7 +2653,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(14)
+    introVideo: getIntroVideo(14, false)
   },
   {
     id: 15,
@@ -2782,7 +2781,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(15)
+    introVideo: getIntroVideo(15, false)
   },
   {
     id: 16,
@@ -2901,7 +2900,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(16)
+    introVideo: getIntroVideo(16, false)
   },
   {
     id: 17,
@@ -3029,7 +3028,7 @@ export const AllCourses: ICourse[] = [
       }
     ],
     totalReviews: 700,
-    introVideo: getIntroVideo(17)
+    introVideo: getIntroVideo(17, false)
   },
 ];
 

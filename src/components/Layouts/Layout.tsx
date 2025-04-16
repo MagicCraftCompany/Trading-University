@@ -1,5 +1,6 @@
 import React, { FunctionComponent, ReactNode } from "react";
 import Header from "../Header/Header";
+import Footer from "../Footer/Footer";
 
 
 export interface ILayout {
@@ -17,7 +18,7 @@ const Layout: FunctionComponent<ILayout> = ({ children }) => {
         {children}    
       </main>
       
- 
+      <Footer />
     </div>
   );
 };

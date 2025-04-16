@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
-import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -237,48 +236,35 @@ export default function LoginPage() {
       </Head>
       
       <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
-        <CardContainer className="inter-var">
-          <CardBody className="bg-black relative group/card dark:hover:shadow-2xl dark:hover:shadow-blue-500/[0.1] border-white/[0.2] w-auto sm:w-[30rem] h-auto rounded-xl p-8 border">
-            <CardItem
-              translateZ="50"
-              className="text-2xl font-bold text-white mb-2"
-            >
+        <div className="w-full max-w-md">
+          <div className="bg-black relative rounded-xl p-8 border border-white/[0.2] shadow-2xl">
+            <h2 className="text-2xl font-bold text-white mb-2">
               Sign in to your account
-            </CardItem>
-            <CardItem
-              as="p"
-              translateZ="60"
-              className="text-gray-400 text-sm mb-8"
-            >
+            </h2>
+            <p className="text-gray-400 text-sm mb-8">
               Login to Trading Academy
-            </CardItem>
+            </p>
             
             {error && (
-              <CardItem translateZ="40">
-                <div className="mb-6 bg-red-900/30 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg" role="alert">
-                  <span className="block sm:inline">{error}</span>
-                </div>
-              </CardItem>
+              <div className="mb-6 bg-red-900/30 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
             )}
 
             {successMessage && (
-              <CardItem translateZ="40">
-                <div className="mb-6 bg-green-900/30 border border-green-500/50 text-green-200 px-4 py-3 rounded-lg" role="alert">
-                  <span className="block sm:inline">{successMessage}</span>
-                </div>
-              </CardItem>
+              <div className="mb-6 bg-green-900/30 border border-green-500/50 text-green-200 px-4 py-3 rounded-lg" role="alert">
+                <span className="block sm:inline">{successMessage}</span>
+              </div>
             )}
 
             {pendingMessage && (
-              <CardItem translateZ="40">
-                <div className="mb-6 bg-blue-900/30 border border-blue-500/50 text-blue-200 px-4 py-3 rounded-lg" role="alert">
-                  <span className="block sm:inline">{pendingMessage}</span>
-                </div>
-              </CardItem>
+              <div className="mb-6 bg-[#614803]/30 border border-[#CB9006]/50 text-[#CB9006] px-4 py-3 rounded-lg" role="alert">
+                <span className="block sm:inline">{pendingMessage}</span>
+              </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <CardItem translateZ="30" className="w-full">
+              <div className="w-full">
                 <input
                   id="email"
                   name="email"
@@ -287,12 +273,12 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent transition-all duration-200"
                   placeholder="Email Address"
                 />
-              </CardItem>
+              </div>
 
-              <CardItem translateZ="20" className="w-full">
+              <div className="w-full">
                 <input
                   id="password"
                   name="password"
@@ -301,26 +287,26 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB9006] focus:border-transparent transition-all duration-200"
                   placeholder="Password"
                 />
-              </CardItem>
+              </div>
 
-              <CardItem translateZ="10" className="flex items-center justify-end">
-                <Link href="/forgot-password" className="text-blue-400 hover:text-blue-300 text-sm transition-colors">
+              <div className="flex items-center justify-end">
+                <Link href="/forgot-password" className="text-[#CB9006] hover:text-[#B07D05] text-sm transition-colors">
                   Forgot your password?
                 </Link>
-              </CardItem>
+              </div>
 
-              <CardItem translateZ="30" className="w-full">
+              <div className="w-full">
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-3 px-4 rounded-lg text-base font-medium text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center py-3 px-4 rounded-lg text-base font-medium text-white bg-[#CB9006] hover:bg-[#B07D05] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CB9006] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Signing in...' : 'Log In'}
                 </button>
-              </CardItem>
+              </div>
             </form>
 
             <div className="mt-8">
@@ -334,17 +320,17 @@ export default function LoginPage() {
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-4">
-                <CardItem translateZ="20" className="w-full">
+                <div className="w-full">
                   <Link 
                     href="/custom-checkout"
                     className="w-full flex justify-center py-3 px-4 rounded-lg text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
                   >
                     I don't have an account
                   </Link>
-                </CardItem>
+                </div>
                
                 {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
-                  <CardItem translateZ="20" className="w-full">
+                  <div className="w-full">
                     <a 
                       href={getGoogleAuthUrl()}
                       className="w-full flex items-center justify-center py-3 px-4 rounded-lg text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
@@ -357,12 +343,12 @@ export default function LoginPage() {
                       </svg>
                       Sign in with Google
                     </a>
-                  </CardItem>
+                  </div>
                 )}
               </div>
             </div>
-          </CardBody>
-        </CardContainer>
+          </div>
+        </div>
       </div>
     </>
   )
