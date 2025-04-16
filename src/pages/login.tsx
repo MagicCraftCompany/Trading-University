@@ -325,7 +325,7 @@ export default function LoginPage() {
                     href="/custom-checkout"
                     className="w-full flex justify-center py-3 px-4 rounded-lg text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
                   >
-                    I don't have an account
+                    I don&apos;t have an account
                   </Link>
                 </div>
                

@@ -541,7 +541,7 @@ const CustomCheckoutForm: React.FC<CustomCheckoutFormProps> = ({
           </div>
           
           <div className="mt-4 text-gray-300">
-            <p>By enrolling, you'll join our exclusive community of traders and investors for a monthly subscription.</p>
+            <p>By enrolling, you&apos;ll join our exclusive community of traders and investors for a monthly subscription.</p>
           </div>
         </div>
       </div>

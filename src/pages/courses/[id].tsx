@@ -197,7 +197,7 @@ export default function CourseDetail() {
                   <p className="text-gray-300 leading-relaxed mb-6">{course.desc}</p>
                   
                   <div className="bg-[#061213] border border-[#1A1D24]/30 rounded-xl p-6 mb-8">
-                    <h3 className="text-xl font-bold mb-4">What You'll Learn</h3>
+                    <h3 className="text-xl font-bold mb-4">What You&apos;ll Learn</h3>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {course.skills.map((skill, index) => (
                         <li key={index} className="flex items-start">
@@ -394,7 +394,7 @@ export default function CourseDetail() {
                   </div>
                 ) : (
                   <div className="bg-[#061213] border border-[#1A1D24]/30 rounded-xl p-6 text-center">
-                    <p className="text-gray-400">This course doesn't have a quiz yet.</p>
+                    <p className="text-gray-400">This course doesn&apos;t have a quiz yet.</p>
                   </div>
                 )}
               </div>

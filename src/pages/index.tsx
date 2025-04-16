@@ -6,6 +6,18 @@ import Image from 'next/image';
 import bgimage from '../../public/images/bgimage.png';
 import { Vortex } from '@/components/ui/vortex';
 import CardSpotlightDemo from '@/components/ui/card-spotlight-demo';
+import image1 from '../../public/Testimonials/IMG-20201201-WA0033.webp';
+import image2 from '../../public/Testimonials/Necole .webp';
+import image3 from '../../public/Testimonials/Copy of 126616155_3534718319954950_2947393296962467673_n.webp';
+import image4 from '../../public/Testimonials/Ferrari .webp';
+import image5 from '../../public/Testimonials/IMG-20201201-WA0035.webp';
+import image6 from '../../public/Testimonials/IMG-20201201-WA0036.webp';
+import image7 from '../../public/Testimonials/IMG-20201201-WA0037.webp';
+
+import image9 from '../../public/Testimonials/IMG-20201201-WA0039.webp';
+
+
+
 
 export default function Home() {
   const [count, setCount] = useState(113000);
@@ -212,37 +224,246 @@ export default function Home() {
       {/* Student Success Section */}
       <section className="py-20 bg-[#061213]" id="success">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">OUR STUDENTS ARE WINNING</h2>
+          <h2 className="text-3xl md:text-5xl font-bold text-center mb-16 text-white">OUR STUDENTS ARE WINNING</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="w-16 h-16 bg-gray-300 rounded-full mr-4"></div>
-                <div>
-                  <h3 className="text-xl font-bold">Alex, 27</h3>
-                  <p className="text-green-600 font-bold">New revenue: $5k+/month</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Testimonial Card 1 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
+            >
+              {/* Gold accent line */}
+              <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
+              
+              {/* Category Tag */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">FOREX</span>
+              </div>
+              
+              {/* Testimonial Image */}
+              <div className="p-4">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={image1}
+                    alt="Forex Trading Testimonial"
+                    fill
+                    className="object-contain"
+                  />
                 </div>
               </div>
-              <p>
-                &quot;After 6 months of following the Forex Trading system at Trading University, I&apos;m consistently making $5,000+ per month while still working my day job. The risk management module alone was worth the entire cost of the program.&quot;
-              </p>
-            </div>
+            </motion.div>
             
-            <div className="bg-[#1A1D24] p-8 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="w-16 h-16 bg-gray-300 rounded-full mr-4"></div>
-                <div>
-                  <h3 className="text-xl font-bold">Sarah, 34</h3>
-                  <p className="text-green-600 font-bold">New revenue: $12k+/month</p>
+            {/* Testimonial Card 2 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
+            >
+              {/* Gold accent line */}
+              <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
+              
+              {/* Category Tag */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">CRYPTO</span>
+              </div>
+              
+              {/* Testimonial Image */}
+              <div className="p-4">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={image2}
+                    alt="Crypto Trading Testimonial"
+                    fill
+                    className="object-contain"
+                  />
                 </div>
               </div>
-              <p>
-                &quot;I was skeptical at first, but the crypto trading strategies at Trading University changed my life. I&apos;ve replaced my corporate income and now trade full-time from anywhere in the world. The community support is incredible.&quot;
-              </p>
-            </div>
+            </motion.div>
+            
+            {/* Testimonial Card 3 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
+            >
+              {/* Gold accent line */}
+              <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
+              
+              {/* Category Tag */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">STOCKS</span>
+              </div>
+              
+              {/* Testimonial Image */}
+              <div className="p-4">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={image3}
+                    alt="Stocks Trading Testimonial"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Testimonial Card 4 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
+            >
+              {/* Gold accent line */}
+              <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
+              
+              {/* Category Tag */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">FUTURES</span>
+              </div>
+              
+              {/* Testimonial Image */}
+              <div className="p-4">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={image4}
+                    alt="Futures Trading Testimonial"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Testimonial Card 5 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
+            >
+              {/* Gold accent line */}
+              <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
+              
+              {/* Category Tag */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">DAY TRADING</span>
+              </div>
+              
+              {/* Testimonial Image */}
+              <div className="p-4">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={image5}
+                    alt="Day Trading Testimonial"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Testimonial Card 6 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
+            >
+              {/* Gold accent line */}
+              <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
+              
+              {/* Category Tag */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">OPTIONS</span>
+              </div>
+              
+              {/* Testimonial Image */}
+              <div className="p-4">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={image6}
+                    alt="Options Trading Testimonial"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </motion.div>
           </div>
           
-          <div className="text-center mt-12">
+          {/* More Testimonials Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto mt-8">
+            {/* Testimonial Card 7 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
+            >
+              {/* Gold accent line */}
+              <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
+              
+              {/* Category Tag */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">CRYPTO</span>
+              </div>
+              
+              {/* Testimonial Image */}
+              <div className="p-4">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={image7}
+                    alt="Crypto Trading Testimonial"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Testimonial Card 8 */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
+            >
+              {/* Gold accent line */}
+              <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
+              
+              {/* Category Tag */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">TRADING</span>
+              </div>
+              
+              {/* Testimonial Image */}
+              <div className="p-4">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={image9}
+                    alt="Trading Testimonial"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+          
+          <div className="text-center mt-16">
             <Link href="/custom-checkout">
               <span className="inline-block bg-[#CB9006] text-white font-bold text-xl md:text-2xl py-4 px-12 rounded-lg hover:bg-[#B07D05] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-[#CB9006]/20">
                 JOIN TRADING UNIVERSITY
@@ -277,7 +498,7 @@ export default function Home() {
               
               <div className="mb-6 md:mb-10 max-w-xl">
                 <p className="text-xl md:text-2xl text-[#CB9006] font-semibold italic mb-2">
-                  "The market doesn't care if you win or lose."
+                  &quot;The market doesn&apos;t care if you win or lose.&quot;
                 </p>
                 <p className="text-lg md:text-xl text-gray-300">
                   While others are <span className="text-red-500">losing money</span> in unpredictable markets, our students are discovering how to <span className="text-green-500 font-medium">consistently profit</span> regardless of market conditions.

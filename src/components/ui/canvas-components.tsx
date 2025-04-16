@@ -186,7 +186,7 @@ const ShaderMaterial: React.FC<ShaderMaterialProps> = ({
   maxFps = 60,
 }) => {
   const { size } = useThree();
-  const ref = useRef<THREE.Mesh>();
+  const ref = useRef<THREE.Mesh>(null);
   let lastFrameTime = 0;
 
   useFrame(({ clock }: { clock: Clock }) => {
