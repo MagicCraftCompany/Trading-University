@@ -37,3 +37,5 @@ next-env.d.ts
 
 #  mongo password: 53wONRXsAawUZv13
 #  mongodb+srv://pranjalichouhan4:53wONRXsAawUZv13@cluster0.labs7.mongodb.net/stripe_db?retryWrites=true&w=majority&appName=Cluster0
+# Local Netlify folder
+.netlify
