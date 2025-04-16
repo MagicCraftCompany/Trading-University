@@ -1,7 +1,16 @@
 import { cn } from "@/lib/utils";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createNoise3D } from "simplex-noise";
 import { motion } from "framer-motion";
+
+// Helper function for debouncing
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout | null = null;
+  return (...args: any[]) => {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
 
 interface VortexProps {
   children?: any;
@@ -20,7 +29,13 @@ interface VortexProps {
 export const Vortex = (props: VortexProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef(null);
-  const particleCount = props.particleCount || 700;
+  const animationFrameRef = useRef<number | null>(null);
+  const isScrollingRef = useRef(false);
+  const isVisibleRef = useRef(true);
+  const [isInViewport, setIsInViewport] = useState(true);
+  
+  // Reduced particle count for better performance
+  const particleCount = props.particleCount || 350; // Reduced from 700
   const particlePropCount = 9;
   const particlePropsLength = particleCount * particlePropCount;
   const rangeY = props.rangeY || 100;
@@ -41,6 +56,7 @@ export const Vortex = (props: VortexProps) => {
   const noise3D = createNoise3D();
   let particleProps = new Float32Array(particlePropsLength);
   let center: [number, number] = [0, 0];
+  let frameCount = 0;
 
   const HALF_PI: number = 0.5 * Math.PI;
   const TAU: number = 2 * Math.PI;
@@ -53,6 +69,30 @@ export const Vortex = (props: VortexProps) => {
   };
   const lerp = (n1: number, n2: number, speed: number): number =>
     (1 - speed) * n1 + speed * n2;
+
+  // Use Intersection Observer to check if component is visible
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const containerNode = containerRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsInViewport(entry.isIntersecting);
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(containerNode);
+    
+    return () => {
+      if (containerNode) {
+        observer.unobserve(containerNode);
+      }
+      observer.disconnect();
+    };
+  }, []);
 
   const setup = () => {
     const canvas = canvasRef.current;
@@ -97,6 +137,26 @@ export const Vortex = (props: VortexProps) => {
   };
 
   const draw = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+    // Cancel any existing animation frame
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    
+    // Skip rendering if not in viewport or during fast scrolling
+    if (!isVisibleRef.current) {
+      animationFrameRef.current = requestAnimationFrame(() => draw(canvas, ctx));
+      return;
+    }
+    
+    // Frame skipping during scrolling for better performance
+    frameCount++;
+    const skipFrames = isScrollingRef.current ? 3 : 1; // Skip more frames during scrolling
+    
+    if (frameCount % skipFrames !== 0) {
+      animationFrameRef.current = requestAnimationFrame(() => draw(canvas, ctx));
+      return;
+    }
+    
     tick++;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -105,10 +165,15 @@ export const Vortex = (props: VortexProps) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     drawParticles(ctx);
-    renderGlow(canvas, ctx);
+    
+    // Simplify rendering during scrolling
+    if (!isScrollingRef.current) {
+      renderGlow(canvas, ctx);
+    }
+    
     renderToScreen(canvas, ctx);
 
-    window.requestAnimationFrame(() => draw(canvas, ctx));
+    animationFrameRef.current = requestAnimationFrame(() => draw(canvas, ctx));
   };
 
   const drawParticles = (ctx: CanvasRenderingContext2D) => {
@@ -201,14 +266,9 @@ export const Vortex = (props: VortexProps) => {
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
   ) => {
+    // Simplified glow for better performance - only one blur pass
     ctx.save();
-    ctx.filter = "blur(8px) brightness(200%)";
-    ctx.globalCompositeOperation = "lighter";
-    ctx.drawImage(canvas, 0, 0);
-    ctx.restore();
-
-    ctx.save();
-    ctx.filter = "blur(4px) brightness(200%)";
+    ctx.filter = "blur(6px) brightness(180%)";
     ctx.globalCompositeOperation = "lighter";
     ctx.drawImage(canvas, 0, 0);
     ctx.restore();
@@ -225,14 +285,47 @@ export const Vortex = (props: VortexProps) => {
   };
 
   useEffect(() => {
+    // Initialize canvas
     setup();
-    window.addEventListener("resize", () => {
+    
+    // Add scroll event listener to detect scrolling
+    const handleScroll = () => {
+      isScrollingRef.current = true;
+      clearTimeout(scrollTimeoutID);
+      scrollTimeoutID = setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 150);
+    };
+    
+    let scrollTimeoutID: NodeJS.Timeout;
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    
+    // Debounce resize handler
+    const debouncedResize = debounce(() => {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
       if (canvas && ctx) {
         resize(canvas, ctx);
       }
-    });
+    }, 150);
+    
+    window.addEventListener("resize", debouncedResize);
+    
+    // Store functions to avoid ESLint exhaustive-deps warning
+    const currentSetup = setup;
+    const currentResize = resize;
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", debouncedResize);
+      clearTimeout(scrollTimeoutID);
+      
+      // Clean up animation frame on unmount
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

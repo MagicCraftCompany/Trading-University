@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 
 // Define props interface
@@ -38,6 +38,53 @@ export const CanvasRevealEffect = ({
 }: CanvasRevealEffectProps) => {
   // Use a client-side only flag to ensure we only render the canvas on the client
   const [isMounted, setIsMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isScrolling, setIsScrolling] = useState(false);
+  
+  // Performance optimization - reduce dot size on mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const optimizedDotSize = isMobile ? Math.max(dotSize - 1, 1) : dotSize;
+  
+  // IntersectionObserver to disable rendering when not in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsVisible(entry.isIntersecting);
+      },
+      { rootMargin: '100px', threshold: 0.1 }
+    );
+    
+    const currentContainerRef = containerRef.current;
+    
+    if (currentContainerRef) {
+      observer.observe(currentContainerRef);
+    }
+    
+    return () => {
+      if (currentContainerRef) {
+        observer.unobserve(currentContainerRef);
+      }
+    };
+  }, [isMounted]);
+  
+  // Scroll event handler to optimize rendering during scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolling(true);
+      clearTimeout(scrollTimeoutId);
+      scrollTimeoutId = setTimeout(() => setIsScrolling(false), 150);
+    };
+    
+    let scrollTimeoutId: NodeJS.Timeout;
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeoutId);
+    };
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -46,20 +93,27 @@ export const CanvasRevealEffect = ({
     };
   }, []);
 
+  // Calculate maxFps based on device and scroll state
+  const maxFps = isMobile ? (isScrolling ? 30 : 45) : (isScrolling ? 40 : 60);
+
   return (
-    <div className={cn("h-full relative bg-[#061213] w-full", containerClassName)}>
-      {isMounted ? (
+    <div 
+      ref={containerRef}
+      className={cn("h-full relative bg-[#061213] w-full", containerClassName)}
+    >
+      {isMounted && isVisible ? (
         <DynamicCanvasContent
           animationSpeed={animationSpeed}
           opacities={opacities}
           colors={colors}
-          dotSize={dotSize}
+          dotSize={optimizedDotSize}
+          maxFps={maxFps}
         />
       ) : (
         <LoadingPlaceholder />
       )}
       {showGradient && (
-        <div className="absolute inset-0 bg-gradient-to-t from-[#061213] to-[84%]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#061213] to-[84%] pointer-events-none" />
       )}
     </div>
   );

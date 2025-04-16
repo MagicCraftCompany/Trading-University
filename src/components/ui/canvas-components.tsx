@@ -1,6 +1,6 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import * as THREE from "three";
 import type { Clock } from "three";
 
@@ -9,6 +9,7 @@ interface CanvasContentProps {
   opacities?: number[];
   colors?: number[][];
   dotSize?: number;
+  maxFps?: number;
 }
 
 // Export a default component to be used with dynamic import
@@ -17,6 +18,7 @@ export default function CanvasContent({
   opacities = [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1],
   colors = [[0, 255, 255]],
   dotSize = 3,
+  maxFps = 60,
 }: CanvasContentProps) {
   return (
     <div className="h-full w-full">
@@ -24,6 +26,7 @@ export default function CanvasContent({
         colors={colors}
         dotSize={dotSize}
         opacities={opacities}
+        maxFps={maxFps}
         shader={`
           float animation_speed_factor = ${animationSpeed.toFixed(1)};
           float intro_offset = distance(u_resolution / 2.0 / u_total_size, st2) * 0.01 + (random(st2) * 0.15);
@@ -46,6 +49,7 @@ interface DotMatrixProps {
   dotSize?: number;
   shader?: string;
   center?: ("x" | "y")[];
+  maxFps?: number;
 }
 
 const DotMatrix: React.FC<DotMatrixProps> = ({
@@ -55,6 +59,7 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
   dotSize = 2,
   shader = "",
   center = ["x", "y"],
+  maxFps = 60,
 }) => {
   const uniforms = useMemo(() => {
     let colorsArray = [
@@ -161,7 +166,7 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
       fragColor.rgb *= fragColor.a;
         }`}
       uniforms={uniforms}
-      maxFps={60}
+      maxFps={maxFps}
     />
   );
 };
@@ -187,15 +192,51 @@ const ShaderMaterial: React.FC<ShaderMaterialProps> = ({
 }) => {
   const { size } = useThree();
   const ref = useRef<THREE.Mesh>(null);
-  let lastFrameTime = 0;
+  const lastFrameTimeRef = useRef(0);
+  const isScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Monitor scrolling to optimize rendering during scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      isScrollingRef.current = true;
+      
+      // Clear previous timeout
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      // Set a timeout to mark scrolling as finished after 100ms of no scroll events
+      scrollTimeoutRef.current = setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 100);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useFrame(({ clock }: { clock: Clock }) => {
     if (!ref.current) return;
+    
+    // Skip some frames while scrolling to improve performance
     const timestamp = clock.getElapsedTime();
-    if (timestamp - lastFrameTime < 1 / maxFps) {
+    const delta = timestamp - lastFrameTimeRef.current;
+    
+    // During scrolling, reduce frame rate even more to prevent content disappearance
+    const targetFps = isScrollingRef.current ? maxFps / 2 : maxFps;
+    
+    if (delta < 1 / targetFps) {
       return;
     }
-    lastFrameTime = timestamp;
+    
+    lastFrameTimeRef.current = timestamp;
 
     const material = ref.current.material as THREE.ShaderMaterial;
     if (material.uniforms) {
@@ -247,6 +288,7 @@ const ShaderMaterial: React.FC<ShaderMaterialProps> = ({
   };
 
   const material = useMemo(() => {
+    const preparedUniforms = getUniforms();
     return new THREE.ShaderMaterial({
       vertexShader: `
       precision mediump float;
@@ -262,12 +304,13 @@ const ShaderMaterial: React.FC<ShaderMaterialProps> = ({
       }
       `,
       fragmentShader: source,
-      uniforms: getUniforms(),
+      uniforms: preparedUniforms,
       glslVersion: THREE.GLSL3,
       blending: THREE.CustomBlending,
       blendSrc: THREE.SrcAlphaFactor,
       blendDst: THREE.OneFactor,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [size.width, size.height, source]);
 
   return (

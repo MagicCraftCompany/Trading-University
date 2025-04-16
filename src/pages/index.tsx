@@ -228,239 +228,239 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Testimonial Card 1 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
-            >
+            <div className="relative bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden">
               {/* Gold accent line */}
               <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
               
-              {/* Category Tag */}
+              {/* Category Tag - Non-Motion Wrapper */}
               <div className="absolute top-4 right-4 z-10">
                 <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">FOREX</span>
               </div>
               
-              {/* Testimonial Image */}
-              <div className="p-4">
+              {/* Testimonial Image - Separate Motion Wrapper */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="p-4"
+              >
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                   <Image
                     src={image1}
                     alt="Forex Trading Testimonial"
                     fill
                     className="object-contain"
+                    loading="lazy"
                   />
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
             
             {/* Testimonial Card 2 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
-            >
+            <div className="relative bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden">
               {/* Gold accent line */}
               <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
               
-              {/* Category Tag */}
+              {/* Category Tag - Non-Motion Wrapper */}
               <div className="absolute top-4 right-4 z-10">
                 <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">CRYPTO</span>
               </div>
               
-              {/* Testimonial Image */}
-              <div className="p-4">
+              {/* Testimonial Image - Separate Motion Wrapper */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="p-4"
+              >
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                   <Image
                     src={image2}
                     alt="Crypto Trading Testimonial"
                     fill
                     className="object-contain"
+                    loading="lazy"
                   />
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
             
             {/* Testimonial Card 3 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
-            >
+            <div className="relative bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden">
               {/* Gold accent line */}
               <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
               
-              {/* Category Tag */}
+              {/* Category Tag - Non-Motion Wrapper */}
               <div className="absolute top-4 right-4 z-10">
                 <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">STOCKS</span>
               </div>
               
-              {/* Testimonial Image */}
-              <div className="p-4">
+              {/* Testimonial Image - Separate Motion Wrapper */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="p-4"
+              >
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                   <Image
                     src={image3}
                     alt="Stocks Trading Testimonial"
                     fill
                     className="object-contain"
+                    loading="lazy"
                   />
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
             
             {/* Testimonial Card 4 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
-            >
+            <div className="relative bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden">
               {/* Gold accent line */}
               <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
               
-              {/* Category Tag */}
+              {/* Category Tag - Non-Motion Wrapper */}
               <div className="absolute top-4 right-4 z-10">
                 <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">FUTURES</span>
               </div>
               
-              {/* Testimonial Image */}
-              <div className="p-4">
+              {/* Testimonial Image - Separate Motion Wrapper */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="p-4"
+              >
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                   <Image
                     src={image4}
                     alt="Futures Trading Testimonial"
                     fill
                     className="object-contain"
+                    loading="lazy"
                   />
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
             
             {/* Testimonial Card 5 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
-            >
+            <div className="relative bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden">
               {/* Gold accent line */}
               <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
               
-              {/* Category Tag */}
+              {/* Category Tag - Non-Motion Wrapper */}
               <div className="absolute top-4 right-4 z-10">
                 <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">DAY TRADING</span>
               </div>
               
-              {/* Testimonial Image */}
-              <div className="p-4">
+              {/* Testimonial Image - Separate Motion Wrapper */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="p-4"
+              >
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                   <Image
                     src={image5}
                     alt="Day Trading Testimonial"
                     fill
                     className="object-contain"
+                    loading="lazy"
                   />
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
             
             {/* Testimonial Card 6 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
-            >
+            <div className="relative bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden">
               {/* Gold accent line */}
               <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
               
-              {/* Category Tag */}
+              {/* Category Tag - Non-Motion Wrapper */}
               <div className="absolute top-4 right-4 z-10">
                 <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">OPTIONS</span>
               </div>
               
-              {/* Testimonial Image */}
-              <div className="p-4">
+              {/* Testimonial Image - Separate Motion Wrapper */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="p-4"
+              >
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                   <Image
                     src={image6}
                     alt="Options Trading Testimonial"
                     fill
                     className="object-contain"
+                    loading="lazy"
                   />
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
           
           {/* More Testimonials Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto mt-8">
             {/* Testimonial Card 7 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
-            >
+            <div className="relative bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden">
               {/* Gold accent line */}
               <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
               
-              {/* Category Tag */}
+              {/* Category Tag - Non-Motion Wrapper */}
               <div className="absolute top-4 right-4 z-10">
                 <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">CRYPTO</span>
               </div>
               
-              {/* Testimonial Image */}
-              <div className="p-4">
+              {/* Testimonial Image - Separate Motion Wrapper */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="p-4"
+              >
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                   <Image
                     src={image7}
                     alt="Crypto Trading Testimonial"
                     fill
                     className="object-contain"
+                    loading="lazy"
                   />
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
             
             {/* Testimonial Card 8 */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden"
-            >
+            <div className="relative bg-gradient-to-br from-[#0A1114] to-[#141B20] rounded-xl shadow-xl border border-[#1A1D24]/30 hover:border-[#CB9006]/30 transition-all duration-300 overflow-hidden">
               {/* Gold accent line */}
               <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
               
-              {/* Category Tag */}
+              {/* Category Tag - Non-Motion Wrapper */}
               <div className="absolute top-4 right-4 z-10">
                 <span className="px-2 py-1 bg-[#0A1114]/80 text-xs uppercase tracking-wider text-[#CB9006] rounded-full border border-[#CB9006]/30">TRADING</span>
               </div>
               
-              {/* Testimonial Image */}
-              <div className="p-4">
+              {/* Testimonial Image - Separate Motion Wrapper */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                className="p-4"
+              >
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                   <Image
                     src={image9}
                     alt="Trading Testimonial"
                     fill
                     className="object-contain"
+                    loading="lazy"
                   />
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
           
           <div className="text-center mt-16">
