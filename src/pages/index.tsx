@@ -86,7 +86,7 @@ export default function Home() {
             <div className="video-container aspect-video rounded-md overflow-hidden">
               <iframe 
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/XpZmZnNAafI?autoplay=0&rel=0&showinfo=0&modestbranding=1"
+                src="https://player.vimeo.com/video/1076700973?h=fa1b18e22b&autoplay=1&muted=1"
                 title="Trading University Introduction"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
