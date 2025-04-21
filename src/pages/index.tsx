@@ -86,10 +86,10 @@ export default function Home() {
             <div className="video-container aspect-video rounded-md overflow-hidden">
               <iframe 
                 className="w-full h-full"
-                src="https://player.vimeo.com/video/1076700973?h=fa1b18e22b&autoplay=1&muted=1"
+                src="https://player.vimeo.com/video/1077197162?h=9149af4fa6&autoplay=1&muted=1&controls=1&loop=1&transparent=0&background=0&app_id=122963"
                 title="Trading University Introduction"
                 frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="autoplay; fullscreen; picture-in-picture"
                 allowFullScreen
               ></iframe>
             </div>
