@@ -3,8 +3,9 @@ import type { AppProps } from "next/app";
 import Layout from "@/components/Layouts/Layout";
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { SessionProvider } from "next-auth/react";
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   const router = useRouter();
 
   useEffect(() => {
@@ -125,8 +126,10 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [router]);
 
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <SessionProvider session={session}>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </SessionProvider>
   );
 }
