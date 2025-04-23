@@ -130,14 +130,16 @@ const GlobalChat = () => {
   
   return (
     <div className="fixed bottom-6 right-6 z-50 font-sans">
-      {/* Chat Button */}
-      <button
-        onClick={toggleChat}
-        className="bg-[#F7CF2D] hover:bg-[#e6c029] text-black rounded-full w-14 h-14 shadow-xl flex items-center justify-center transition-all duration-300 border-2 border-[#15292a]"
-        aria-label={isOpen ? 'Close chat' : 'Open chat'}
-      >
-        {isOpen ? <RiCloseLine size={28} /> : <BiMessageDetail size={28} />}
-      </button>
+      {/* Chat Button - Only shown when chat is closed */}
+      {!isOpen && (
+        <button
+          onClick={toggleChat}
+          className="bg-[#F7CF2D] hover:bg-[#e6c029] text-black rounded-full w-14 h-14 shadow-xl flex items-center justify-center transition-all duration-300 border-2 border-[#15292a]"
+          aria-label="Open chat"
+        >
+          <BiMessageDetail size={28} />
+        </button>
+      )}
       
       {/* Chat Window */}
       {isOpen && (
