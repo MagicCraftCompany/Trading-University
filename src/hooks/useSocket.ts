@@ -85,11 +85,16 @@ export const useSocket = (chatId?: string) => {
     if (!userInfo?.id || !chatId) return;
     
     // Create socket connection
-    const socket = io(process.env.NEXT_PUBLIC_SITE_URL || '', {
+    const socket = io(process.env.NEXT_PUBLIC_SITE_URL || window.location.origin, {
       path: '/api/socket/io',
       addTrailingSlash: false,
+      autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
       auth: {
-        token: localStorage.getItem('token') || ''
+        token: localStorage.getItem('token') || '',
+        userId: userInfo.id
       }
     });
     
@@ -100,6 +105,7 @@ export const useSocket = (chatId?: string) => {
       console.log('Socket connected');
       setIsConnected(true);
       
+      // Join the global chat room
       socket.emit('join-global-chat', userInfo.id);
     });
     

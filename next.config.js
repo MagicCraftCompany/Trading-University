@@ -6,7 +6,7 @@ const nextConfig = {
     styledComponents: true,
   },
   experimental: {
-    appDir: true,
+    // Remove appDir as it's no longer experimental
   },
   images: {
     domains: ['ui-avatars.com'],
