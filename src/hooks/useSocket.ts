@@ -17,6 +17,9 @@ type UserInfo = {
   id: string;
 };
 
+// Create a single socket instance for the whole app
+let socketInstance: Socket | null = null;
+
 export const useSocket = (chatId?: string) => {
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -24,6 +27,9 @@ export const useSocket = (chatId?: string) => {
   const socketRef = useRef<Socket | null>(null);
   const { data: session, status } = useSession();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const maxReconnectAttempts = 10;
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Determine the user from session or localStorage
   useEffect(() => {
@@ -79,53 +85,173 @@ export const useSocket = (chatId?: string) => {
     }
   }, [chatId, userInfo]);
   
+  // Heartbeat function to keep connection alive
+  const startHeartbeat = useCallback(() => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+    }
+    
+    // Send a heartbeat every 25 seconds to keep the connection alive
+    heartbeatIntervalRef.current = setInterval(() => {
+      if (socketRef.current?.connected) {
+        socketRef.current.emit('heartbeat', { userId: userInfo?.id });
+      }
+    }, 25000);
+  }, [userInfo]);
+  
+  // Stop heartbeat
+  const stopHeartbeat = useCallback(() => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
+    }
+  }, []);
+  
   // Initialize socket connection
   useEffect(() => {
     // Don't establish a connection if user isn't logged in
     if (!userInfo?.id || !chatId) return;
     
-    // Create socket connection
-    const socket = io(process.env.NEXT_PUBLIC_SITE_URL || window.location.origin, {
-      path: '/api/socket/io',
-      addTrailingSlash: false,
-      autoConnect: true,
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      auth: {
-        token: localStorage.getItem('token') || '',
-        userId: userInfo.id
+    // Create socket connection with better production support
+    const initializeSocket = () => {
+      // If we already have a socket, clean it up first
+      if (socketInstance) {
+        socketInstance.removeAllListeners();
+        socketInstance.close();
+        socketInstance = null;
       }
-    });
+      
+      const socketUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                        (typeof window !== 'undefined' ? window.location.origin : '');
+      
+      console.log('Initializing new socket at:', socketUrl);
+      
+      // Clean URL by removing trailing slash if present
+      const cleanUrl = socketUrl.endsWith('/') ? socketUrl.slice(0, -1) : socketUrl;
+      
+      socketInstance = io(cleanUrl, {
+        path: '/api/socket/io',
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionAttempts: 15,
+        reconnectionDelay: 2000,
+        reconnectionDelayMax: 10000,
+        timeout: 20000,
+        autoConnect: true
+      });
+      
+      socketRef.current = socketInstance;
+    };
     
-    socketRef.current = socket;
+    // Initialize socket if not already connected
+    initializeSocket();
+    
+    if (!socketRef.current) {
+      console.error('Failed to initialize socket');
+      return;
+    }
     
     // Socket event handlers
-    socket.on('connect', () => {
-      console.log('Socket connected');
+    const onConnect = () => {
+      console.log('Socket connected with ID:', socketRef.current?.id);
       setIsConnected(true);
+      reconnectAttemptsRef.current = 0;
       
       // Join the global chat room
-      socket.emit('join-global-chat', userInfo.id);
-    });
+      socketRef.current?.emit('join-global-chat', userInfo.id);
+      
+      // Start heartbeat to keep connection alive
+      startHeartbeat();
+    };
     
-    socket.on('disconnect', () => {
-      console.log('Socket disconnected');
+    const onDisconnect = (reason: string) => {
+      console.log('Socket disconnected. Reason:', reason);
       setIsConnected(false);
+      stopHeartbeat();
+      
+      // Force reconnect after a brief delay
+      setTimeout(() => {
+        if (socketRef.current && !socketRef.current.connected) {
+          console.log('Forcing reconnection...');
+          socketRef.current.connect();
+        }
+      }, 3000);
+    };
+    
+    const onConnectError = (err: Error) => {
+      console.error('Socket connection error:', err.message);
+      setIsConnected(false);
+      
+      if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
+        console.error('Max reconnection attempts reached, reinitializing connection');
+        reconnectAttemptsRef.current = 0;
+        
+        // Reinitialize socket after a delay to avoid rapid reconnection loops
+        setTimeout(() => {
+          initializeSocket();
+        }, 5000);
+      } else {
+        reconnectAttemptsRef.current++;
+      }
+    };
+    
+    const onNewMessage = (newMessage: Message) => {
+      console.log('Received new message:', newMessage.content.substring(0, 20));
+      setMessages((prev) => {
+        // Check if message already exists to prevent duplicates
+        if (prev.some(msg => msg.id === newMessage.id)) {
+          return prev;
+        }
+        return [...prev, newMessage];
+      });
+    };
+    
+    // Register event handlers
+    socketRef.current.on('connect', onConnect);
+    socketRef.current.on('disconnect', onDisconnect);
+    socketRef.current.on('connect_error', onConnectError);
+    socketRef.current.on('new-message', onNewMessage);
+    socketRef.current.on('error', (error: any) => {
+      console.error('Socket error:', error);
     });
     
-    socket.on('new-message', (newMessage: Message) => {
-      setMessages((prev) => [...prev, newMessage]);
-    });
+    // Check if already connected
+    if (socketRef.current.connected) {
+      console.log('Socket already connected with ID:', socketRef.current.id);
+      setIsConnected(true);
+      socketRef.current.emit('join-global-chat', userInfo.id);
+      startHeartbeat();
+    }
+    
+    // Connect if not already connected
+    if (!socketRef.current.connected) {
+      socketRef.current.connect();
+    }
     
     // Cleanup on unmount
     return () => {
-      if (socket) {
-        socket.disconnect();
-        socketRef.current = null;
+      // Stop heartbeat
+      stopHeartbeat();
+      
+      // Remove event listeners but don't close the socket
+      if (socketRef.current) {
+        console.log('Removing socket event listeners');
+        socketRef.current.off('connect', onConnect);
+        socketRef.current.off('disconnect', onDisconnect);
+        socketRef.current.off('connect_error', onConnectError);
+        socketRef.current.off('new-message', onNewMessage);
+        socketRef.current.off('error');
       }
     };
-  }, [userInfo, chatId]);
+  }, [userInfo, chatId, startHeartbeat, stopHeartbeat]);
+  
+  // Ensure heartbeat is cleaned up properly
+  useEffect(() => {
+    return () => {
+      stopHeartbeat();
+      socketRef.current = null;
+    };
+  }, [stopHeartbeat]);
   
   // Fetch initial messages
   useEffect(() => {
@@ -141,11 +267,19 @@ export const useSocket = (chatId?: string) => {
   const sendMessage = useCallback((content: string) => {
     if (!socketRef.current || !chatId || !userInfo?.id) return;
     
+    // Only send if socket is connected
+    if (!socketRef.current.connected) {
+      console.warn('Cannot send message, socket not connected');
+      return false;
+    }
+    
     socketRef.current.emit('send-message', {
       content,
       senderId: userInfo.id,
       chatId,
     });
+    
+    return true;
   }, [chatId, userInfo]);
   
   return {

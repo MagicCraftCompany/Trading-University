@@ -11,4 +11,10 @@ services:
         fromService:
           type: web
           name: university-app
-          property: url 
+          property: url
+    plan: starter
+    scaling:
+      minInstances: 1
+      maxInstances: 1
+    runtime: node
+    websocket: true 
