@@ -85,12 +85,9 @@ export const useSocket = (chatId?: string) => {
     if (!userInfo?.id || !chatId) return;
     
     // Create socket connection
-    const SOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL || process.env.NEXT_PUBLIC_SITE_URL || '';
-    const socket = io(SOCKET_URL, {
-      path: '/socket.io',
-      transports: ['websocket', 'polling'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+    const socket = io(process.env.NEXT_PUBLIC_SITE_URL || '', {
+      path: '/api/socket/io',
+      addTrailingSlash: false,
       auth: {
         token: localStorage.getItem('token') || ''
       }
