@@ -29,7 +29,7 @@ const PLANS = {
   onetime: {
     name: 'One Month of Enrollment',
     description: 'Full access to premium crypto trading courses and expert analysis for one month',
-    unit_amount: 4900, // $49.00
+    unit_amount: 29900, // $299.00
     interval: null,
   }
 };
@@ -115,7 +115,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(200).json({
             requiresAction: true,
             clientSecret: paymentIntent.client_secret,
-            successUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?payment_intent=${paymentIntent.id}&checkout_complete=true&redirect_to=courses`,
+            successUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment-confirmation?payment_intent=${paymentIntent.id}&plan_name=${encodeURIComponent(plan.name)}`,
           });
         }
         
@@ -134,7 +134,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           // Return success URL for redirect
           return res.status(200).json({
             success: true,
-            url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?payment_intent=${paymentIntent.id}&checkout_complete=true&redirect_to=courses`,
+            url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment-confirmation?payment_intent=${paymentIntent.id}&plan_name=${encodeURIComponent(plan.name)}`,
           });
         } 
         // If payment failed
@@ -186,7 +186,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         ],
         mode: plan.interval ? 'subscription' : 'payment',
-        success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?session_id={CHECKOUT_SESSION_ID}&checkout_complete=true&redirect_to=courses`,
+        success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment-confirmation?session_id={CHECKOUT_SESSION_ID}&plan_name=${encodeURIComponent(plan.name)}`,
         cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/custom-checkout`,
         allow_promotion_codes: true, // Enable promo codes
         billing_address_collection: 'required',

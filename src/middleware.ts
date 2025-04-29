@@ -28,6 +28,7 @@ const publicRoutes = [
   '/',
   '/login',
   '/custom-checkout',
+  '/payment-confirmation',
   '/api/auth',
 ];
 

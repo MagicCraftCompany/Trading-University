@@ -37,7 +37,7 @@ const CustomCheckoutPage = () => {
   // Basic options to ensure things work
   const options: StripeElementsOptions = {
     mode: 'payment',
-    amount: 4900,
+    amount: 29900,
     currency: 'usd',
     appearance: {
       theme: 'night',
@@ -63,7 +63,7 @@ const CustomCheckoutPage = () => {
           {stripePromise ? (
             <Elements stripe={stripePromise} options={options}>
               <CustomCheckoutForm 
-                price={49}
+                price={299}
                 productName="One month of Enrollment"
                 studentCount={41180}
               />
