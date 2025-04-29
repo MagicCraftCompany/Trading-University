@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, CSSProperties } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -7,7 +7,11 @@ import { BsChevronDown } from 'react-icons/bs';
 import { getCookie } from '@/utils/cookies';
 import logo from '../../../public/images/logo.png';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  style?: CSSProperties;
+}
+
+const Header: React.FC<HeaderProps> = ({ style }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -104,7 +108,7 @@ const Header: React.FC = () => {
   }, [router.pathname]);
 
   return (
-    <header className="w-full fixed top-0 z-50 transition-all duration-300 bg-[#061213] shadow-md">
+    <header className="w-full fixed top-0 z-50 transition-all duration-300 bg-[#061213] shadow-md" style={style}>
       <div className="container mx-auto px-4 py-2 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="transition-colors">
@@ -148,7 +152,7 @@ const Header: React.FC = () => {
         </nav>
 
         {/* Right Section - Auth */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center">
           {/* Authentication Section */}
           {isAuthenticated ? (
             <div className="relative" ref={userMenuRef}>
@@ -213,7 +217,7 @@ const Header: React.FC = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-[#0A1114] shadow-lg">
-          <div className="px-4 py-3 space-y-3">
+          <div className="px-4 py-3">
             <button 
               onClick={() => scrollToSection('features')}
               className="block w-full text-left py-2 text-base font-medium text-white hover:text-[#CB9006]"

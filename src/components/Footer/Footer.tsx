@@ -1,5 +1,5 @@
-import React from "react";
-import Link from "next/link";
+import React, { CSSProperties } from 'react';
+import Link from 'next/link';
 import {
   FaDiscord,
   FaYoutube,
@@ -9,6 +9,10 @@ import {
 } from "react-icons/fa6";
 import logo from '../../../public/images/logo.png';
 import Image from 'next/image';
+
+interface FooterProps {
+  style?: CSSProperties;
+}
 
 const socialLinks = [
   {
@@ -52,108 +56,84 @@ const scrollToSection = (id: string) => {
   }
 };
   
-const Footer = () => {
+const Footer: React.FC<FooterProps> = ({ style }) => {
   return (
-    <footer className="relative bg-gradient-to-b from-[#061213] to-black">
-      {/* Gold accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#CB9006] to-transparent"></div>
-      
-      {/* Main footer content */}
-      <div className="container mx-auto px-4 py-4">
-        {/* Top section - Swapped position of logo and social links */}
-        <div className="flex flex-col md:flex-row justify-between items-center ">
-          {/* Social Links - Now on the left */}
-          <div className="flex space-x-6 mb-6 md:mb-0 order-2 md:order-1">
-            {socialLinks.map((item, i) => (
-              <Link 
-                key={i} 
-                href={item.link}
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-[#0A1114] hover:bg-[#CB9006] text-gray-400 hover:text-white transition-all duration-300"
-                aria-label={item.label}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="text-lg">{<item.icon />}</span>
-              </Link>
-            ))}
-          </div>
-          
-          {/* Logo - Now on the right */}
-          <div className="mb-6 md:mb-0 order-1 md:order-2">
-            <Image src={logo} alt="Trading University Logo" width={100} height={100} />
-          </div>
-        </div>
-        
-        {/* Middle section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6 border-t border-[#1A1D24]/30 border-b">
-          {/* About */}
+    <footer className="bg-[#061213] text-white py-16" style={style}>
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <h3 className="text-[#CB9006] font-semibold mb-4 text-lg">About Us</h3>
-            <p className="text-gray-400 text-sm max-w-xs leading-relaxed">
+            <h3 className="text-xl font-bold mb-6">About Us</h3>
+            <p className="text-gray-400">
               Trading University provides expert-led education to help you master the financial markets and build consistent trading success.
             </p>
-          </div>
-          
-          {/* Links */}
-          <div>
-            <h3 className="text-[#CB9006] font-semibold mb-4 text-lg">Quick Links</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <button 
-                onClick={() => scrollToSection('features')}
-                className="text-left text-gray-400 hover:text-white transition-all"
-              >
-                Features
-              </button>
-              <button 
-                onClick={() => scrollToSection('success')}
-                className="text-left text-gray-400 hover:text-white transition-all"
-              >
-                Success Stories
-              </button>
-              <button 
-                onClick={() => scrollToSection('pricing')}
-                className="text-left text-gray-400 hover:text-white transition-all"
-              >
-                Pricing
-              </button>
-              <button 
-                onClick={() => scrollToSection('faq')}
-                className="text-left text-gray-400 hover:text-white transition-all"
-              >
-                FAQ
-              </button>
+            <div className="flex mt-6 space-x-4">
+              <Link href="https://discord.gg/tradinguniversity" passHref>
+                <span className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  <FaDiscord size={24} />
+                </span>
+              </Link>
+              <Link href="https://www.youtube.com/tradinguniversity" passHref>
+                <span className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  <FaYoutube size={24} />
+                </span>
+              </Link>
+              <Link href="https://x.com/tradinguniversity" passHref>
+                <span className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  <FaXTwitter size={24} />
+                </span>
+              </Link>
+              <Link href="https://www.instagram.com/tradinguniversity" passHref>
+                <span className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  <FaInstagram size={24} />
+                </span>
+              </Link>
+              <Link href="https://t.me/tradinguniversity" passHref>
+                <span className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  <FaTelegram size={24} />
+                </span>
+              </Link>
             </div>
           </div>
           
-          {/* Join Community */}
           <div>
-            <h3 className="text-[#CB9006] font-semibold mb-4 text-lg">Join Our Community</h3>
-            <p className="text-gray-400 text-sm mb-4">Get trading tips and market updates</p>
-            <Link 
-              href="/custom-checkout"
-              className="inline-block bg-[#CB9006] hover:bg-[#B07D05] text-white font-medium py-2 px-6 rounded transition-all duration-300"
-            >
+            <h3 className="text-xl font-bold mb-6">Quick Links</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/features" className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link href="/success-stories" className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  Success Stories
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="text-gray-400 hover:text-[#F7CF2D] transition-colors">
+                  FAQ
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="text-xl font-bold mb-6">Join Our Community</h3>
+            <p className="text-gray-400 mb-6">
+              Get trading tips and market updates delivered straight to your inbox.
+            </p>
+            <Link href="/register" className="bg-[#F7CF2D] hover:bg-[#e6c029] text-black px-6 py-3 rounded-lg inline-block transition-colors font-semibold">
               Join Trading University
             </Link>
           </div>
         </div>
-      </div>
-      
-      {/* Copyright */}
-      <div className="bg-black/40 py-4">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-500 text-xs mb-4 md:mb-0">
-            © {new Date().getFullYear()} Trading University. All Rights Reserved.
-          </p>
-          
-          <div className="flex space-x-6 text-xs">
-            <Link href="/privacy-policy" className="text-gray-500 hover:text-[#CB9006]">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="text-gray-500 hover:text-[#CB9006]">
-              Terms of Service
-            </Link>
-          </div>
+        
+        <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500 text-sm">
+          © {new Date().getFullYear()} Trading University. All Rights Reserved.
         </div>
       </div>
     </footer>
