@@ -8,21 +8,27 @@ datasource db {
 }
 
 model User {
-  id               String        @id @default(cuid())
-  email            String        @unique
-  password         String?
-  name             String?
-  image            String?
-  authProvider     AuthProvider  @default(GOOGLE)
-  googleId         String?       @unique
-  stripeCustomerId String?       @unique
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  lastLoginAt      DateTime?
-  subscription     Subscription?
-  sentMessages     Message[]     @relation("SentMessages")
-  receivedMessages Message[]     @relation("ReceivedMessages")
-  chatMembers      ChatMember[]
+  id                       String        @id @default(cuid())
+  email                    String        @unique
+  password                 String?
+  name                     String?
+  image                    String?
+  authProvider             AuthProvider  @default(GOOGLE)
+  googleId                 String?       @unique
+  stripeCustomerId         String?       @unique
+  youTubeMembershipVerified Boolean       @default(false)
+  youTubeMembershipVerifiedAt DateTime?
+  youtubeAccessToken       String?
+  youtubeRefreshToken      String?
+  youtubeTokenExpiry       DateTime?
+  youtubeChannelId         String?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  lastLoginAt              DateTime?
+  subscription             Subscription?
+  sentMessages             Message[]     @relation("SentMessages")
+  receivedMessages         Message[]     @relation("ReceivedMessages")
+  chatMembers              ChatMember[]
 }
 
 model Subscription {
@@ -93,4 +99,13 @@ enum ChatRole {
   ADMIN
   MEMBER
   SUPPORT
+}
+
+// New model for admin settings
+model AdminSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

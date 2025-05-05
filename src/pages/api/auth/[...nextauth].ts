@@ -63,15 +63,82 @@ export const authOptions: AuthOptions = {
     error: '/login',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile }) {
+      // Handle Google login
+      if (account?.provider === 'google' && profile?.email) {
+        // Check if user exists in our database
+        const dbUser = await prisma.user.findUnique({
+          where: { email: profile.email },
+          include: { subscription: true }
+        });
+
+        if (!dbUser) {
+          // Check for YouTube membership first
+          if (user.id) {
+            // Update user with Google ID and last login time
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                googleId: profile.sub as string,
+                lastLoginAt: new Date()
+              }
+            });
+          }
+          // For non-existing users, we'll redirect them to the homepage with an option to authenticate with YouTube
+          return `/login?error=NoAccountFound&email=${encodeURIComponent(profile.email as string)}`;
+        }
+        
+        // Update existing user's last login time
+        await prisma.user.update({
+          where: { id: dbUser.id },
+          data: { 
+            lastLoginAt: new Date(),
+            googleId: profile.sub as string
+          }
+        });
+      }
+      
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+        
+        // Add YouTube membership status if available
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { youTubeMembershipVerified: true }
+        });
+        
+        if (dbUser) {
+          token.youTubeMember = dbUser.youTubeMembershipVerified;
+        }
+        
+        // Add subscription status if available
+        const subscription = await prisma.subscription.findUnique({
+          where: { userId: user.id }
+        });
+        
+        if (subscription) {
+          token.subscription = {
+            status: subscription.status,
+            currentPeriodEnd: subscription.currentPeriodEnd
+          };
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
+        // Add YouTube membership status to session
+        if (typeof token.youTubeMember !== 'undefined') {
+          session.user.youTubeMember = token.youTubeMember as boolean;
+        }
+        // Add subscription info to session
+        if (token.subscription) {
+          session.user.subscription = token.subscription as any;
+        }
       }
       return session;
     }

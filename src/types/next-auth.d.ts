@@ -8,6 +8,11 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      youTubeMember?: boolean;
+      subscription?: {
+        status: string;
+        currentPeriodEnd: Date | null;
+      };
     };
   }
 
@@ -16,11 +21,17 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    youTubeMembershipVerified?: boolean;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
+    youTubeMember?: boolean;
+    subscription?: {
+      status: string;
+      currentPeriodEnd: Date | null;
+    };
   }
 } 

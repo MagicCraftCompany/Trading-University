@@ -12,6 +12,8 @@ interface JWTPayload {
   sub?: string;
   email?: string;
   subscription?: Subscription;
+  youTubeMember?: boolean;
+  subscriptionStatus?: string;
   [key: string]: any;
 }
 
@@ -48,12 +50,23 @@ const verifyToken = async (token: string): Promise<{ isExpired: boolean; payload
     
     // Check if subscription is expired
     const jwtPayload = payload as JWTPayload;
+    
+    // First check if user has YouTube membership - they get access regardless of subscription
+    if (jwtPayload.youTubeMember === true) {
+      console.log('YouTube membership active - granting access');
+      return { isExpired: false, payload: jwtPayload };
+    }
+    
+    // Check regular subscription status
     if (jwtPayload.subscription) {
       const subscriptionEnd = new Date(jwtPayload.subscription.currentPeriodEnd);
       if (subscriptionEnd < new Date()) {
         console.log('Subscription expired');
         return { isExpired: true, payload: jwtPayload };
       }
+    } else if (jwtPayload.subscriptionStatus && jwtPayload.subscriptionStatus !== 'ACTIVE') {
+      console.log('No active subscription found');
+      return { isExpired: true, payload: jwtPayload };
     }
     
     return { isExpired: false, payload: jwtPayload };
@@ -129,7 +142,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     
-    // If token exists, verify it and check subscription
+    // If token exists, verify it and check subscription/YouTube membership
     const result = await verifyToken(token);
     
     // If token is invalid, redirect to login
@@ -140,7 +153,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     
-    // If subscription is expired, redirect to custom-checkout
+    // If subscription is expired and no YouTube membership, redirect to custom-checkout
     if (result.isExpired) {
       console.log(`Subscription expired, redirecting to custom-checkout`);
       const response = NextResponse.redirect(new URL('/custom-checkout', request.url));
@@ -155,7 +168,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     
-    console.log(`Valid token and active subscription found for protected route: ${pathname}, proceeding`);
+    console.log(`Valid token and active subscription/YouTube membership found for protected route: ${pathname}, proceeding`);
   }
   
   // Special case: If trying to access login-success, redirect to courses

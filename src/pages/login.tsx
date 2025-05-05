@@ -143,6 +143,15 @@ export default function LoginPage() {
     };
     
     verifyCheckoutSession();
+
+    // Handle YouTube auth errors
+    if (router.query.error === 'NotYouTubeMember') {
+      setError('You must be a member of our YouTube channel to continue. Please verify your YouTube membership.');
+      return;
+    } else if (router.query.error === 'YouTubeAuthFailed') {
+      setError('YouTube authentication failed. Please try again.');
+      return;
+    }
   }, [router.isReady, router.query, router]);
 
   // Build state parameter for Google auth
@@ -161,6 +170,11 @@ export default function LoginPage() {
     }&redirect_uri=${
       encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/google/callback`)
     }&response_type=code&scope=email%20profile&access_type=offline&state=${state}`;
+  };
+
+  // Function to get YouTube auth URL
+  const getYouTubeAuthUrl = () => {
+    return `/api/auth/youtube-auth?redirect_after=${encodeURIComponent('/login')}&session_id=${router.query.session_id || ''}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -345,6 +359,18 @@ export default function LoginPage() {
                     </a>
                   </div>
                 )}
+                
+                <div className="w-full">
+                  <a 
+                    href={getYouTubeAuthUrl()}
+                    className="w-full flex items-center justify-center py-3 px-4 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 border border-red-600 transition-all duration-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="mr-2">
+                      <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                    </svg>
+                    Login with YouTube Membership
+                  </a>
+                </div>
               </div>
             </div>
           </div>
